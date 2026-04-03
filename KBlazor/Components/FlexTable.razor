@@ -1,0 +1,739 @@
+@using System.ComponentModel.DataAnnotations
+@using System.Reflection
+@using KBlazor.Models
+@using KBlazor.Attributes
+@typeparam TItem
+<style>
+    .flex-table-toolbar {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 8px;
+        margin-bottom: 4px;
+        background: var(--mud-palette-surface);
+        border-radius: 4px;
+    }
+
+    .flex-table-paginator {
+        display: inline-flex !important;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 0;
+    }
+
+    .resizeColumn {
+    }
+
+    .displayNone {
+        display: none;
+    }
+
+    .flex-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.875rem;
+        font-family: inherit;
+    }
+
+    .flex-table th {
+        text-align: left;
+        font-weight: 500;
+        font-size: 0.75rem;
+        color: rgba(0,0,0,.54);
+        border-bottom: 1px solid rgba(0,0,0,.12);
+        padding: 4px 12px;
+    }
+
+    .flex-table td {
+        padding: 0px 12px 0px 12px !important;
+        border-bottom: 1px solid rgba(0,0,0,.06);
+    }
+
+    .flex-table thead tr {
+        height: 32px;
+    }
+
+    .flex-table tbody tr {
+        height: 36px;
+    }
+
+    .flex-table tbody tr:nth-child(odd) {
+        background-color: rgba(0,0,0,0);
+    }
+
+    .flex-table tbody tr:nth-child(even) {
+        background-color: rgba(0,0,0,.04);
+    }
+
+    .flex-table tbody tr:hover {
+        background-color: rgba(0,0,0,.04);
+    }
+
+    .flex-table .mud-button,
+    .flex-table .mud-icon-button {
+        min-width: unset;
+        padding: 2px 6px;
+    }
+
+    .flex-table-filter-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 4px;
+        padding: 6px 8px;
+        margin-bottom: 4px;
+    }
+
+    .flex-filter-dialog .mud-input-control {
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .flex-filter-dialog .mud-checkbox,
+    .flex-filter-dialog .mud-radio {
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .flex-filter-dialog .mud-checkbox .mud-typography,
+    .flex-filter-dialog .mud-radio .mud-typography {
+        font-size: 0.875rem;
+    }
+</style>
+<span id="fontComputer"></span>
+@if (Items != null)
+{
+    @if (!IsPrintView)
+    {
+        @if (UserCanUpdate && availableViews.Count > 0)
+        {
+            <div class="flex-table-toolbar">
+                <MudMenu Label="@($"{listViewSetting.Name}{(!string.IsNullOrEmpty(listViewSetting.CustomizedForUser) ? " *" : "")}")"
+                         Variant="Variant.Outlined" EndIcon="@Icons.Material.Filled.ArrowDropDown"
+                         Size="Size.Small" Dense="true" Style="max-width:200px; display:inline-flex;">
+                    @foreach (var view in availableViews)
+                    {
+                        <MudMenuItem OnClick="@(() => SwitchView(view.Id))">
+                            @view.Name @(!string.IsNullOrEmpty(view.CustomizedForUser) ? "*" : "")
+                        </MudMenuItem>
+                    }
+                    <MudDivider />
+                    <MudMenuItem Icon="@Icons.Material.Filled.Add" OnClick="CreateNewView">New View</MudMenuItem>
+                </MudMenu>
+                <MudIconButton Icon="@Icons.Material.Filled.ViewColumn" Size="Size.Small"
+                               OnClick="OpenEditView" Title="Edit View" />
+                <MudDivider Vertical="true" FlexItem="true" Style="margin:0 4px;" />
+                <MudToggleGroup T="FlexTableViewMode" Value="currentViewMode" ValueChanged="SetViewMode" Outline="true" Dense="true" Size="Size.Small">
+                    <MudToggleItem T="FlexTableViewMode" Value="FlexTableViewMode.Table" Title="Table View">
+                        <ChildContent><MudIcon Icon="@Icons.Material.Filled.TableRows" Size="Size.Small" /></ChildContent>
+                    </MudToggleItem>
+                    <MudToggleItem T="FlexTableViewMode" Value="FlexTableViewMode.Chips" Title="Chips View">
+                        <ChildContent><MudIcon Icon="@Icons.Material.Filled.Style" Size="Size.Small" /></ChildContent>
+                    </MudToggleItem>
+                    @if (KanbanEnabled)
+                    {
+                        <MudToggleItem T="FlexTableViewMode" Value="FlexTableViewMode.Kanban" Title="Kanban View">
+                            <ChildContent><MudIcon Icon="@Icons.Material.Filled.ViewKanban" Size="Size.Small" /></ChildContent>
+                        </MudToggleItem>
+                    }
+                </MudToggleGroup>
+            </div>
+        }
+        <div class="flex-table-paginator">
+            <MudText Typo="Typo.body2">Total Items: @String.Format("{0:n0}", ItemsCount) | Page:</MudText>
+            <MudPagination Count="@((int)Math.Ceiling((double)ItemsCount / PageSize))"
+                           Selected="@(PageIndex + 1)"
+                           SelectedChanged="@(page => { PageIndex = page - 1; RefreshView(); StateHasChanged(); })" />
+        </div>
+    }
+    @if (currentViewMode != FlexTableViewMode.Table)
+    {
+        @* Compact sort/filter bar for non-table views *@
+        <div class="flex-table-filter-bar">
+            <MudButton Disabled="@(!IsClearSortAndFilterEnabled())"
+                       OnClick="@ClearSortAndFilter"
+                       Variant="Variant.Text"
+                       Size="Size.Small">
+                <i class="fa-solid fa-filter-circle-xmark"></i>
+            </MudButton>
+            @foreach (var setting in listViewSetting.DisplaySettings)
+            {
+                var propertyName = setting.PropertyInfo.DisplayNameOrDefault();
+                var sortIconCompact = setting.SortState switch
+                    {
+                        SortState.Down => Icons.Material.Filled.ArrowDownward,
+                        SortState.Up => Icons.Material.Filled.ArrowUpward,
+                        _ => (string?)null
+                    };
+                    var nextSortCompact = setting.SortState switch
+                    {
+                        SortState.None => SortState.Down,
+                        SortState.Down => SortState.Up,
+                        SortState.Up => SortState.None,
+                        _ => SortState.None
+                    };
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined"
+                         Style="cursor:pointer;"
+                         Color="@(setting.Filter.Length > 0 || setting.SortState != SortState.None ? MudBlazor.Color.Primary : MudBlazor.Color.Default)"
+                         OnClick="@(() => setting.FilterDialogIsOpen = true)">
+                    @if (sortIconCompact != null)
+                    {
+                        <MudIcon Icon="@sortIconCompact" Size="Size.Small" Style="margin-right:2px;" />
+                    }
+                    @propertyName
+                    @if (setting.Filter.Length > 0)
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.FilterAlt" Size="Size.Small" Style="margin-left:2px;" />
+                    }
+                </MudChip>
+            }
+            <MudIconButton Icon="@Icons.Material.Filled.Sort" Size="Size.Small"
+                           Style="margin-left:4px;"
+                           Title="Use chips to sort/filter columns" Disabled="true" />
+        </div>
+        @* Render filter dialogs for non-table views *@
+        @foreach (var setting in listViewSetting.DisplaySettings)
+        {
+            var propertyName = setting.PropertyInfo.DisplayNameOrDefault();
+            <MudDialog @bind-Visible="@setting.FilterDialogIsOpen" Class="flex-filter-dialog">
+                <TitleContent>
+                    <MudText Typo="Typo.h6">
+                        @propertyName
+                        <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
+                                       Disabled="@(string.IsNullOrEmpty(setting.Filter))"
+                                       OnClick="@(e => setting.Filter = string.Empty)"
+                                       Size="Size.Small" />
+                        @{
+                            var sortIconDlg = setting.SortState switch
+                            {
+                                SortState.Down => Icons.Material.Filled.ArrowDownward,
+                                SortState.Up => Icons.Material.Filled.ArrowUpward,
+                                _ => Icons.Material.Filled.UnfoldMore
+                            };
+                            var nextSortDlg = setting.SortState switch
+                            {
+                                SortState.None => SortState.Down,
+                                SortState.Down => SortState.Up,
+                                SortState.Up => SortState.None,
+                                _ => SortState.None
+                            };
+                        }
+                        <MudIconButton Icon="@sortIconDlg" Size="Size.Small"
+                                       Color="@(setting.SortState != SortState.None ? MudBlazor.Color.Primary : MudBlazor.Color.Default)"
+                                       OnClick="@(() => { setting.SortState = nextSortDlg; SortAndFilter(); })" />
+                    </MudText>
+                </TitleContent>
+                <DialogContent>
+                    @if (setting.PropertyInfo.PropertyType == typeof(string))
+                    {
+                        <MudTextField T="string" @bind-Value="setting.Filter" Label="Text Filter" FullWidth
+                                      Adornment="@(setting.Filter.Length > 0 ? Adornment.End : Adornment.None)"
+                                      AdornmentIcon="@Icons.Material.Filled.RemoveCircleOutline"
+                                      OnAdornmentClick="@(e => setting.Filter = string.Empty)" />
+                    }
+                    else if (setting.PropertyInfo.PropertyType == typeof(DateTime))
+                    {
+                        <MudDatePicker @bind-Date="setting.GreaterThanDate" DateFormat="M/d/yyyy" Label="On or After" />
+                        <MudDatePicker @bind-Date="setting.LessThanDate" DateFormat="M/d/yyyy" Label="On or Before" />
+                        <RelativeDatePicker @bind-Value="setting.Filter" />
+                    }
+                    else if (setting.PropertyInfo.PropertyType == typeof(TimeSpan))
+                    {
+                        <MudTimePicker @bind-Time="setting.GreaterThanTime" Label="After" />
+                        <MudTimePicker @bind-Time="setting.LessThanTime" Label="Before" />
+                    }
+                    else if (setting.PropertyInfo.PropertyType == typeof(bool))
+                    {
+                        <MudRadioGroup T="string" @bind-Value="setting.Filter">
+                            <MudRadio T="string" Value="@string.Empty">Default</MudRadio>
+                            <MudRadio T="string" Value="@bool.TrueString">True</MudRadio>
+                            <MudRadio T="string" Value="@bool.FalseString">False</MudRadio>
+                        </MudRadioGroup>
+                    }
+                    else if (setting.PropertyInfo.PropertyType == typeof(int) || setting.PropertyInfo.PropertyType == typeof(double))
+                    {
+                        <MudTextField T="double" @bind-Value="setting.GreaterThanDouble" Label="Greater Than or Equal to" FullWidth /><br />
+                        <MudTextField T="double" @bind-Value="setting.LessThanDouble" Label="Less Than or Equal to" FullWidth />
+                    }
+                    else if (setting.PropertyInfo.PropertyType.IsEnum)
+                    {
+                        var enumValues = Enum.GetValues(setting.PropertyInfo.PropertyType);
+                        var completeList = string.Join(',', enumValues.Cast<int>().Select(s => s.ToString()));
+                        <MudCheckBox T="bool?" Dense="true" TriState="true"
+                                     Value="@(string.IsNullOrEmpty(setting.Filter) ? false : setting.Filter.Split(',').Length == enumValues.Length ? true : null)"
+                                     ValueChanged="@(e => { if (e != false) { setting.Filter = completeList; } else { setting.Filter = string.Empty; } })">Select All</MudCheckBox><br />
+                        @foreach (int v in enumValues)
+                        {
+                            <MudCheckBox T="bool" Dense="true"
+                                         Value="@(setting.Filter.Contains(v))"
+                                         ValueChanged="@(e => { if (e) { setting.AddToFilter(v); } else { setting.RemoveFromFilter(v); } })">@Enum.GetName(setting.PropertyInfo.PropertyType, v)</MudCheckBox><br />
+                        }
+                    }
+                    else if (EntityProvider.IsKnownEntityType(setting.PropertyInfo.PropertyType))
+                    {
+                        var p = setting.PropertyInfo;
+                        var alsoInclude = (AlsoIncludeAttribute)p.PropertyType.GetCustomAttribute(typeof(AlsoIncludeAttribute));
+                        IQueryable<IKBusinessEntity> list = alsoInclude != null
+                            ? EntityProvider.GetEntitiesWithInclude(p.PropertyType, alsoInclude.Name)
+                            : EntityProvider.GetEntities(p.PropertyType);
+                        var listItems = list.Take(100);
+                        var completeListStr = string.Join(',', listItems.Select(s => s.Id).ToList());
+                        <div style="max-height:400px; overflow-y:auto;">
+                            <MudCheckBox T="bool?" Dense="true" TriState="true"
+                                         Value="@(string.IsNullOrEmpty(setting.Filter) ? false : setting.Filter.Split(',').Length == listItems.Count() ? true : null)"
+                                         ValueChanged="@(e => { if (e != false) { setting.Filter = completeListStr; } else { setting.Filter = string.Empty; } })">Select All</MudCheckBox><br />
+                            @foreach (var item in listItems.ToList().OrderBy(o => o.ToString()))
+                            {
+                                <MudCheckBox T="bool" Dense="true"
+                                             Value="@(setting.Filter.Contains(item.Id.ToString()))"
+                                             ValueChanged="@(e => { if (e) { setting.AddToFilter(item.Id); } else { setting.RemoveFromFilter(item.Id); } })">@item.ToString()</MudCheckBox><br />
+                            }
+                        </div>
+                    }
+                </DialogContent>
+                <DialogActions>
+                    <MudButton OnClick="@(e => setting.FilterDialogIsOpen = false)">Cancel</MudButton>
+                    <MudButton Color="Color.Primary" OnClick="@(e => { setting.FilterDialogIsOpen = false; SortAndFilter(); })">OK</MudButton>
+                </DialogActions>
+            </MudDialog>
+        }
+    }
+    @if (currentViewMode == FlexTableViewMode.Table)
+    {
+    <table class="flex-table">
+        <thead>
+            <tr style="height:20px;">
+                <th style="width:111px;">&nbsp;</th>
+                @foreach (var setting in listViewSetting.DisplaySettings)
+                {
+                    <th style="width:@(setting.DisplayWidth)px;" class="resizeColumn">
+                        <div id="@setting.Id.ToString()" style="user-select:none; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" @ondblclick="@(e => AutoSizeDiv(setting))">
+                            <MudTooltip Text="@setting.PropertyInfo.DisplayNameOrDefault()">
+                                <span>@setting.PropertyInfo.DisplayNameOrDefault()</span>
+                            </MudTooltip>
+                        </div>
+                    </th>
+                }
+                <th style="">&nbsp;</th>
+            </tr>
+            @if (!IsPrintView)
+            {
+                <tr>
+                    <th style="width:111px;">
+                        <MudButton Disabled="@(!IsClearSortAndFilterEnabled())"
+                                   OnClick="@ClearSortAndFilter"
+                                   Variant="Variant.Text"
+                                   Size="Size.Small">
+                            <i class="fa-solid fa-filter-circle-xmark"></i>
+                        </MudButton>
+                    </th>
+                    @foreach (var setting in listViewSetting.DisplaySettings)
+                    {
+                        bool isEditable = setting.PropertyInfo.GetCustomAttribute(typeof(EditableAttribute), false) == null;
+                        var propertyName = setting.PropertyInfo.DisplayNameOrDefault();
+                        var showRaised = setting.Filter.Length > 0 || setting.SortState != SortState.None;
+                        <th style="">
+                            <div style="display:inline-flex; align-items:center; gap:2px;">
+                                @{
+                                    var sortIcon = setting.SortState switch
+                                    {
+                                        SortState.Down => Icons.Material.Filled.ArrowDownward,
+                                        SortState.Up => Icons.Material.Filled.ArrowUpward,
+                                        _ => Icons.Material.Filled.UnfoldMore
+                                    };
+                                    var nextSortState = setting.SortState switch
+                                    {
+                                        SortState.None => SortState.Down,
+                                        SortState.Down => SortState.Up,
+                                        SortState.Up => SortState.None,
+                                        _ => SortState.None
+                                    };
+                                }
+                                <MudIconButton Icon="@sortIcon"
+                                               Size="Size.Small"
+                                               Style="padding:2px; min-width:24px; min-height:24px;"
+                                               Color="@(setting.SortState != SortState.None ? Color.Primary : Color.Default)"
+                                               OnClick="@(() => { setting.SortState = nextSortState; SortAndFilter(); })" />
+                                <MudIconButton Icon="@Icons.Material.Filled.FilterList"
+                                               Size="Size.Small"
+                                               Style="padding:2px; min-width:24px; min-height:24px;"
+                                               Color="@(setting.Filter.Length > 0 ? Color.Primary : Color.Default)"
+                                               OnClick="@(() => setting.FilterDialogIsOpen = true)" />
+                            </div>
+                            <MudDialog @bind-Visible="@setting.FilterDialogIsOpen" Class="flex-filter-dialog">
+                                <TitleContent>
+                                    <MudText Typo="Typo.h6">
+                                        Filter for: @propertyName
+                                        <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
+                                                       Disabled="@(string.IsNullOrEmpty(setting.Filter))"
+                                                       OnClick="@(e => setting.Filter = string.Empty)"
+                                                       Size="Size.Small" />
+                                    </MudText>
+                                </TitleContent>
+                                <DialogContent>
+                                    @if (setting.PropertyInfo.PropertyType == typeof(string))
+                                    {
+                                        <MudTextField T="string"
+                                                      @bind-Value="setting.Filter"
+                                                      Label="Text Filter"
+                                                      FullWidth
+                                                      Adornment="@(setting.Filter.Length > 0 ? Adornment.End : Adornment.None)"
+                                                      AdornmentIcon="@Icons.Material.Filled.RemoveCircleOutline"
+                                                      OnAdornmentClick="@(e => setting.Filter = string.Empty)" />
+                                    }
+                                    else if (setting.PropertyInfo.PropertyType == typeof(DateTime))
+                                    {
+                                        <MudDatePicker @bind-Date="setting.GreaterThanDate"
+                                                       DateFormat="M/d/yyyy"
+                                                       Label="On or After" />
+                                        <MudDatePicker @bind-Date="setting.LessThanDate"
+                                                       DateFormat="M/d/yyyy"
+                                                       Label="On or Before" />
+                                        <RelativeDatePicker @bind-Value="setting.Filter" />
+                                    }
+                                    else if (setting.PropertyInfo.PropertyType == typeof(TimeSpan))
+                                    {
+                                        <MudTimePicker @bind-Time="setting.GreaterThanTime" Label="After" />
+                                        <MudTimePicker @bind-Time="setting.LessThanTime" Label="Before" />
+                                    }
+                                    else if (setting.PropertyInfo.PropertyType == typeof(bool))
+                                    {
+                                        <MudRadioGroup T="string" @bind-Value="setting.Filter">
+                                            <MudRadio T="string" Value="@string.Empty">Default</MudRadio>
+                                            <MudRadio T="string" Value="@bool.TrueString">True</MudRadio>
+                                            <MudRadio T="string" Value="@bool.FalseString">False</MudRadio>
+                                        </MudRadioGroup>
+                                    }
+                                    else if (setting.PropertyInfo.PropertyType == typeof(int) || setting.PropertyInfo.PropertyType == typeof(double))
+                                    {
+                                        <MudTextField T="double"
+                                                      @bind-Value="setting.GreaterThanDouble"
+                                                      Label="Greater Than or Equal to"
+                                                      FullWidth />
+                                        <br />
+                                        <MudTextField T="double"
+                                                      @bind-Value="setting.LessThanDouble"
+                                                      Label="Less Than or Equal to"
+                                                      FullWidth />
+                                    }
+                                    else if (setting.PropertyInfo.PropertyType.IsEnum)
+                                    {
+                                        var enumValues = Enum.GetValues(setting.PropertyInfo.PropertyType);
+                                        var completeList = string.Join(',', enumValues.Cast<int>().Select(s => s.ToString()));
+                                        <MudCheckBox T="bool?" Dense="true"
+                                                     Value="@(string.IsNullOrEmpty(setting.Filter) ? false : setting.Filter.Split(',').Length == enumValues.Length ? true : null)"
+                                                     TriState="true"
+                                                     ValueChanged="@(e => { if (e != false) { setting.Filter = completeList; } else { setting.Filter = string.Empty; } })">
+                                            Select All
+                                        </MudCheckBox>
+                                        <br />
+                                        @foreach (int v in enumValues)
+                                        {
+                                            <MudCheckBox T="bool" Dense="true"
+                                                         Value="@(setting.Filter.Contains(v))"
+                                                         ValueChanged="@(e => { if (e) { setting.AddToFilter(v); } else { setting.RemoveFromFilter(v); } })">
+                                                @Enum.GetName(setting.PropertyInfo.PropertyType, v)
+                                            </MudCheckBox>
+                                            <br />
+                                        }
+                                    }
+                                    else if (EntityProvider.IsKnownEntityType(setting.PropertyInfo.PropertyType))
+                                    {
+                                        var p = setting.PropertyInfo;
+                                        var alsoInclude = (AlsoIncludeAttribute)p.PropertyType.GetCustomAttribute(typeof(AlsoIncludeAttribute));
+                                        var useAutoComplete = p.GetCustomAttribute(typeof(AutoCompleteAttribute)) != null;
+                                        IQueryable<IKBusinessEntity> list;
+                                        if (alsoInclude != null)
+                                        {
+                                            list = EntityProvider.GetEntitiesWithInclude(p.PropertyType, alsoInclude.Name);
+                                        }
+                                        else
+                                        {
+                                            list = EntityProvider.GetEntities(p.PropertyType);
+                                        }
+                                        if (useAutoComplete)
+                                        {
+                                            <div style="height:800px; width:400px;">
+                                                <MudAutocomplete T="object"
+                                                                 Label="@setting.Name"
+                                                                 SearchFunc="@(async (text, token) => list.Where(w => w.ToString().Contains(text ?? string.Empty)).Cast<object>().Take(20))"
+                                                                 FullWidth
+                                                                 ValueChanged="@(v => { if (v != null) { setting.AddToFilter((Guid)p.PropertyType.GetProperty("Id").GetValue(v)); } })" />
+                                                @foreach (var filterId in setting.Filter.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(s => Guid.Parse(s)))
+                                                {
+                                                    <MudChip T="string"
+                                                             OnClose="@(e => setting.RemoveFromFilter(filterId))">
+                                                        @list.Where(w => w.Id == filterId).FirstOrDefault()?.ToString()
+                                                    </MudChip>
+                                                    <br />
+                                                }
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            var listItems = list.Take(100);
+                                            var completeList = string.Join(',', listItems.Select(s => s.Id).ToList());
+                                            <div style="height:800px; width:400px;">
+                                                <MudCheckBox T="bool?" Dense="true"
+                                                             TriState="true"
+                                                             Value="@(string.IsNullOrEmpty(setting.Filter) ? false : setting.Filter.Split(',').Length == listItems.Count() ? true : null)"
+                                                             ValueChanged="@(e => { if (e != false) { setting.Filter = completeList; } else { setting.Filter = string.Empty; } })">
+                                                    Select All
+                                                </MudCheckBox>
+                                                <br />
+                                                @foreach (var item in listItems.ToList().OrderBy(o => o.ToString()))
+                                                {
+                                                    <MudCheckBox T="bool" Dense="true"
+                                                                 Value="@(setting.Filter.Contains(item.Id.ToString()))"
+                                                                 ValueChanged="@(e => { if (e) { setting.AddToFilter(item.Id); } else { setting.RemoveFromFilter(item.Id); } })">
+                                                        @item.ToString()
+                                                    </MudCheckBox>
+                                                    <br />
+                                                }
+                                            </div>
+                                        }
+                                    }
+                                </DialogContent>
+                                <DialogActions>
+                                    <MudButton OnClick="@(e => setting.FilterDialogIsOpen = false)">Cancel</MudButton>
+                                    <MudButton Color="Color.Primary"
+                                               OnClick="@(e => { setting.FilterDialogIsOpen = false; SortAndFilter(); })">
+                                        OK
+                                    </MudButton>
+                                </DialogActions>
+                            </MudDialog>
+                        </th>
+                    }
+                    <th style="padding-left:12px;">
+                        <span style="white-space:nowrap;">
+                            @foreach (var command in (AdditionalSortRowCommands).Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                if (command != "|")
+                                {
+                                    <MudButton OnClick="@(e => SortRowIconClicked(command))"
+                                               Variant="Variant.Text"
+                                               Size="Size.Small">
+                                        <i class="@command"></i>
+                                    </MudButton>
+                                }
+                                else
+                                {
+                                    <MudButton Disabled="true"
+                                               Variant="Variant.Text"
+                                               Size="Size.Small" />
+                                }
+                            }
+                        </span>
+                    </th>
+                </tr>
+            }
+        </thead>
+        <tbody>
+            @for (int i = 0; i < ViewItems.Count; i++)
+            {
+                var context = ViewItems[i];
+                var rowNumber = PageIndex * PageSize + i + 1;
+                <tr class="@(RowClass != null ? RowClass(context) : string.Empty)" style="@(RowStyle != null ? RowStyle(context) : string.Empty)">
+                    <td style="white-space:nowrap;">
+                        <MudButton Variant="Variant.Text"
+                                   Size="Size.Small"
+                                   OnClick="@(e => SelectionChanged(context, string.Empty))">
+                            @rowNumber
+                        </MudButton>
+                    </td>
+                    @foreach (var setting in listViewSetting.DisplaySettings)
+                    {
+                        var formatString = ((DisplayFormatAttribute)setting.PropertyInfo
+                                        .GetCustomAttributes(typeof(DisplayFormatAttribute), false)
+                                        .DefaultIfEmpty(new DisplayFormatAttribute() { DataFormatString = "{0}" })
+                                        .First()).DataFormatString;
+
+                        var hasInlineEditor = setting.PropertyInfo.GetCustomAttribute(typeof(AllowInlineEditAttribute), false) != null;
+
+                        var rawValue = setting.PropertyInfo.GetValue(context);
+                        var renderTemplate = GetRenderTemplate(setting.PropertyInfo);
+
+                        var token = HttpContextAccessor?.HttpContext?.Request.Cookies["TimezoneOffset"];
+                        if (rawValue != null && rawValue.GetType() == typeof(DateTime) && !string.IsNullOrEmpty(token))
+                        {
+                            var offsetInMinutes = Convert.ToInt32(token);
+                            rawValue = ((DateTime)rawValue).AddMinutes(offsetInMinutes);
+                        }
+                        else if (setting.PropertyInfo.PropertyType.IsEnum && rawValue != null && renderTemplate == null)
+                        {
+                            rawValue = ((Enum)rawValue).GetDescription();
+                        }
+                        var propertyValue = string.Format(formatString, rawValue);
+
+                        var linkOnField = (LinkOnFieldAttribute)setting.PropertyInfo
+                                        .GetCustomAttributes(typeof(LinkOnFieldAttribute), false)
+                                        .FirstOrDefault();
+
+                        var propertyName = setting.PropertyInfo.DisplayNameOrDefault();
+                        <td>
+                            <div style="white-space:nowrap; width:@(setting.DisplayWidth)px; overflow:hidden; text-overflow:ellipsis;">
+                                @if (hasInlineEditor && !string.IsNullOrEmpty(InlineEditor) && InlineEditor.Contains(propertyName))
+                                {
+                                    if (setting.PropertyInfo.PropertyType == typeof(decimal))
+                                    {
+                                        <MudTextField T="int"
+                                                      Style="padding: 0px 12px 5px 12px; height:unset !important;"
+                                                      Value="@(Convert.ToInt32((setting.PropertyInfo.GetValue(context) ?? 0)))"
+                                                      ValueChanged="@(e => { setting.PropertyInfo.SetValue(context, Convert.ToDecimal(e)); })" />
+                                    }
+                                }
+                                else
+                                {
+                                    if (renderTemplate != null)
+                                    {
+                                        @renderTemplate(rawValue)
+                                    }
+                                    else
+                                    {
+                                        @(propertyValue)
+                                    }
+                                }
+                            </div>
+                        </td>
+                    }
+                    <td>
+                        <span style="white-space:nowrap;">
+                            @foreach (var command in (AdditionalCommands?.Invoke(context) ?? string.Empty).Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+                            {
+                                <MudButton Variant="Variant.Text"
+                                           Size="Size.Small"
+                                           OnClick="@(e => SelectionChanged(context, command))">
+                                    <i class="@command"></i>
+                                </MudButton>
+                            }
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    }
+    else if (currentViewMode == FlexTableViewMode.Chips)
+    {
+        <div style="display:flex; flex-wrap:wrap; gap:8px; padding:8px;">
+            @foreach (var item in ViewItems)
+            {
+                @if (ChipTemplate != null)
+                {
+                    <div @onclick="@(() => SelectionChanged?.Invoke(item, string.Empty))" style="cursor:pointer;">
+                        @ChipTemplate(item)
+                    </div>
+                }
+                else
+                {
+                    <MudChip T="string"
+                             Color="@(ChipColor?.Invoke(item) ?? MudBlazor.Color.Default)"
+                             OnClick="@(() => SelectionChanged?.Invoke(item, string.Empty))"
+                             Style="cursor:pointer;">
+                        @GetChipDisplay(item)
+                    </MudChip>
+                }
+            }
+        </div>
+    }
+    else if (currentViewMode == FlexTableViewMode.Kanban && KanbanEnabled)
+    {
+        <div style="display:flex; gap:12px; overflow-x:auto; padding:8px; align-items:flex-start;">
+            @foreach (var column in GetKanbanColumnValues())
+            {
+                var columnItems = GetKanbanColumnItems(column);
+                <div style="min-width:220px; flex:1; background:var(--mud-palette-background-grey); border-radius:8px; padding:8px;">
+                    <MudText Typo="Typo.subtitle2" Class="mb-2 pa-1" Style="font-weight:600;">
+                        @{
+                            var kanbanTemplate = _kanbanGroupProperty != null ? GetRenderTemplate(_kanbanGroupProperty) : null;
+                        }
+                        @if (kanbanTemplate != null && _kanbanGroupProperty!.PropertyType.IsEnum)
+                        {
+                            var parsed = Enum.Parse(_kanbanGroupProperty.PropertyType, column);
+                            @kanbanTemplate(parsed)
+                        }
+                        else
+                        {
+                            @column
+                        }
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@columnItems.Count</MudChip>
+                    </MudText>
+                    @foreach (var item in columnItems)
+                    {
+                        @if (KanbanCardTemplate != null)
+                        {
+                            <div @onclick="@(() => SelectionChanged?.Invoke(item, string.Empty))" style="cursor:pointer; margin-bottom:8px;">
+                                @KanbanCardTemplate(item)
+                            </div>
+                        }
+                        else
+                        {
+                            <MudPaper Elevation="1" Class="pa-2 mb-2" Style="cursor:pointer;"
+                                      @onclick="@(() => SelectionChanged?.Invoke(item, string.Empty))">
+                                <MudText Typo="Typo.body2">@GetKanbanCardDisplay(item)</MudText>
+                            </MudPaper>
+                        }
+                    }
+                    @if (columnItems.Count == 0)
+                    {
+                        <MudText Typo="Typo.caption" Style="color:var(--mud-palette-text-disabled); padding:8px; text-align:center;">
+                            No items
+                        </MudText>
+                    }
+                </div>
+            }
+        </div>
+    }
+}
+
+@* View Editor Dialog *@
+<MudDialog @bind-Visible="isEditViewDialogOpen" Options="@(new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true })">
+    <TitleContent>
+        <MudText Typo="Typo.h6" Style="display:inline;">Edit View</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudTextField T="string" @bind-Value="editViewName" Label="View Name"
+                      Variant="Variant.Outlined" Margin="Margin.Dense"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@Icons.Material.Filled.Undo"
+                      OnAdornmentClick="@(() => editViewName = listViewSetting?.Name ?? string.Empty)" />
+        @if (listViewSetting != null)
+        {
+            <ul style="list-style:none; padding:0; margin-top:12px;">
+                @foreach (var col in allEditorColumns)
+                {
+                    var isIncluded = listViewSetting.DisplaySettings.Any(d => d.Id == col.Id);
+                    <li style="margin:4px 0; padding:0; border-radius:4px; display:flex; align-items:center;
+                               background-color:@(isIncluded ? "var(--mud-palette-primary)" : "var(--mud-palette-lines-default)");
+                               color:@(isIncluded ? "white" : "inherit");
+                               border-bottom:@(_dragEnterColumn == col ? "3px solid var(--mud-palette-primary-darken)" : "none");"
+                        @key="col.Id"
+                        ondragover="event.preventDefault()"
+                        @ondrop="@(() => OnEditorDrop(col))"
+                        @ondragenter="@(() => _dragEnterColumn = col)">
+                        <span draggable="true"
+                              style="cursor:grab; padding:10px; display:flex; align-items:center;"
+                              @ondragstart="@(e => OnEditorDragStart(e, col))">
+                            <MudIcon Icon="@Icons.Material.Filled.DragIndicator" Size="Size.Small"
+                                     Style="@(isIncluded ? "color:white;" : "")" />
+                        </span>
+                        <span style="flex:1; padding:8px 4px;">@col.DisplayName</span>
+                        <span @ondragstart:stopPropagation="true" @ondragstart:preventDefault="true" style="padding-right:8px;">
+                            <MudSwitch T="bool" Value="@isIncluded"
+                                       ValueChanged="@(v => ToggleColumn(v, col))"
+                                       Color="Color.Default" />
+                        </span>
+                    </li>
+                }
+            </ul>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="DeleteView"
+                   Disabled="@(string.IsNullOrEmpty(listViewSetting?.CustomizedForUser))"
+                   Color="Color.Error" Variant="Variant.Text" Size="Size.Small">Delete View</MudButton>
+        <MudSpacer />
+        <MudButton OnClick="@(() => isEditViewDialogOpen = false)" Variant="Variant.Text">Cancel</MudButton>
+        <MudButton OnClick="SaveEditMode" Color="Color.Primary" Variant="Variant.Filled">Save</MudButton>
+    </DialogActions>
+</MudDialog>

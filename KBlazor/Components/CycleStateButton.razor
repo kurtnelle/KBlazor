@@ -1,0 +1,38 @@
+<MudTooltip Text="@Tooltip">
+    <MudToggleGroup T="int" Value="@State" ValueChanged="@CycleStateAsync" Outlined=false>
+        @switch(State){
+            case 0:
+                    <MudToggleItem Value="1">
+                        <ChildContent>
+                            <MudPaper Elevation="1" Class="sortButtonPaper">
+                                <i class="fa-solid fa-circle-dot"></i>
+                                <span>@Label</span>
+                            </MudPaper>
+                        </ChildContent>
+                    </MudToggleItem>
+                    break;
+            case 1:
+                    <MudToggleItem Value="2">
+                        <ChildContent>
+                            <MudPaper Elevation="1" Class="sortButtonPaper">
+                                <i class="fa-solid fa-circle-arrow-up"></i>
+                                <span>@Label</span>
+                            </MudPaper>
+                        </ChildContent>
+                    </MudToggleItem>
+                    break;
+            case 2:
+                    <MudToggleItem Value="0">
+                        <ChildContent>
+                            <MudPaper Elevation="1" Class="sortButtonPaper">
+                                <i class="fa-solid fa-circle-arrow-down"></i>
+                                <span>@Label</span>
+                            </MudPaper>
+                        </ChildContent>
+                    </MudToggleItem>
+                    break;
+            default:
+                break;
+        }
+    </MudToggleGroup>
+</MudTooltip>

@@ -1,0 +1,223 @@
+@using System.ComponentModel.DataAnnotations
+@using System.ComponentModel.DataAnnotations.Schema
+@using System.Reflection
+@using System.Globalization
+@using KBlazor.Attributes
+@using KBlazor.Models
+@using KBlazor.Services
+@inject IEntityLookupProvider EntityProvider
+@typeparam TItem
+@if (Item != null)
+{
+    var fieldValues = Fields?.Split(',', StringSplitOptions.None);
+    List<PropertyInfo> displayProperties = fieldValues?.Length > 0 ? new List<PropertyInfo>() : propertyList;
+    Dictionary<string, string> autoCompleteTexts = new Dictionary<string, string>();
+    if (!string.IsNullOrEmpty(Fields))
+    {
+        foreach (var field in fieldValues)
+        {
+            var prop = propertyList.Where(w => ((DisplayAttribute)w.GetCustomAttribute(typeof(DisplayAttribute))).Name == field).FirstOrDefault();
+            displayProperties.Add(prop);
+            if (prop != null)
+            {
+                autoCompleteTexts.Add(prop.Name, string.Empty);
+            }
+        }
+    }
+    <MudGrid>
+        <MudItem xs="10">
+            @if (Save != null)
+            {
+                <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="Save">Save</MudButton>
+            }
+        </MudItem>
+        <MudItem xs="1">
+            <MudButton StartIcon="@Icons.Material.Filled.Cancel" OnClick="Close">Close</MudButton>
+        </MudItem>
+    </MudGrid>
+    <MudText Typo="Typo.h6" Style="padding: 12px 0px 0px 12px;">@headerText : @Item.ToString()</MudText>
+    @foreach (var properties in displayProperties.SplitInto(Columns))
+    {
+        <MudGrid>
+            @foreach (var p in properties)
+            {
+
+                if (p != null && p.GetCustomAttributes(typeof(DisplayAttribute), false) != null)
+                {
+                    var label = ((DisplayAttribute)p.GetCustomAttributes(typeof(DisplayAttribute), false).FirstOrDefault()).Name;
+                    bool isReadOnlyOnEdit = p.GetCustomAttribute(typeof(ReadOnlyOnEditAttribute), false) != null;
+                    bool isEditable = p.GetCustomAttribute(typeof(EditableAttribute), false) == null;
+                    var dataFormatString = ((DisplayFormatAttribute)p.GetCustomAttribute(typeof(DisplayFormatAttribute), false))?.DataFormatString;
+                    if (isReadOnlyOnEdit && !((IKBusinessEntity)Item).IsNew)
+                    {
+                        isEditable = false;
+                    }
+                    bool isRequired = p.GetCustomAttribute(typeof(RequiredAttribute), false) != null;
+                    bool isMemo = p.GetCustomAttribute(typeof(MemoDisplayAttribute), false) != null;
+                    bool enableTime = p.GetCustomAttribute(typeof(EnableTimeAttribute), false) != null;
+                    string icon = isEditable ? string.Empty : "lock";
+                    if (p.PropertyType == typeof(string))
+                    {
+                        if (isMemo)
+                        {
+                            icon = icon == string.Empty && !string.IsNullOrEmpty((string)p.GetValue(Item)) ? "edit" : string.Empty;
+
+                            <MudItem xs="@(12 / Columns)">
+                                <MudButton Disabled="!isEditable" StartIcon="@(icon == "edit" ? Icons.Material.Filled.Edit : "")" OnClick="@(e=> memoDialogIsOpened[p]= true)">Edit @label</MudButton>
+                                <MudDialog @bind-Visible="memoDialogIsOpened[p]">
+                                    <TitleContent>
+                                        <MudText Typo="Typo.h6">Edit @label</MudText>
+                                    </TitleContent>
+                                    <DialogContent>
+                                        <MudTextField T="string" Lines="10" Value="@((string)p.GetValue(Item))" ValueChanged="@(v => p.SetValue(Item, v))" Label="@label" FullWidth ReadOnly="!isEditable" Adornment="@(icon != string.Empty ? Adornment.End : Adornment.None)" AdornmentIcon="@Icons.Material.Filled.Lock" />
+                                    </DialogContent>
+                                    <DialogActions>
+                                        <MudButton OnClick="@(e=> memoDialogIsOpened[p] = false)">OK</MudButton>
+                                    </DialogActions>
+                                </MudDialog>
+                            </MudItem>
+                        }
+                        else
+                        {
+                            <MudItem xs="@(12 / Columns)">
+                                <MudTextField T="string" Value="@((string)p.GetValue(Item))" ValueChanged="@(v => p.SetValue(Item, v))" Label="@label" FullWidth ReadOnly="!isEditable" Adornment="@(icon != string.Empty ? Adornment.End : Adornment.None)" AdornmentIcon="@Icons.Material.Filled.Lock" />
+                            </MudItem>
+                        }
+                    }
+                    else if (p.PropertyType.IsEnum)
+                    {
+                        if (isEditable)
+                        {
+                            <MudItem xs="@(12 / Columns)">
+                                <MudSelect Label="@label" T="int" ValueChanged="@(v => p.SetValue(Item, v))" Value="@((int)p.GetValue(Item))" FullWidth>
+                                    @foreach (int val in Enum.GetValues(p.PropertyType))
+                                    {
+                                        <MudSelectItem T="int" Value="@val">@FormatCamlCase(Enum.GetName(p.PropertyType, val))</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                        }
+                        else
+                        {
+                            <MudItem xs="@(12 / Columns)">
+                                <MudTextField T="string" Value="@Enum.GetName(p.PropertyType, (int)p.GetValue(Item))" Label="@label" FullWidth ReadOnly="!isEditable" Adornment="@Adornment.End" AdornmentIcon="@Icons.Material.Filled.Lock" />
+                            </MudItem>
+                        }
+                    }
+                    else if (p.PropertyType == typeof(DateTime))
+                    {
+                        <MudItem xs="@(12 / Columns)">
+                            <MudDatePicker Label="@label" Date="@((DateTime?)((DateTime)p.GetValue(Item)))" DateChanged="@(v => { if (v.HasValue) p.SetValue(Item, v.Value); })" DateFormat="MMM d, yyyy" ReadOnly="!isEditable" Adornment="@(icon != string.Empty ? Adornment.End : Adornment.None)" AdornmentIcon="@Icons.Material.Filled.Lock" />
+                        </MudItem>
+                    }
+                    else if (p.PropertyType == typeof(TimeSpan))
+                    {
+                        <MudItem xs="@(12 / Columns)">
+                            <MudTextField T="string" Value="@(string.Format("{0:t}", p.GetValue(Item)))" ValueChanged="@(e=> { p.SetValue(Item, DateTime.ParseExact(e,"h:mm tt", System.Globalization.CultureInfo.InvariantCulture).TimeOfDay); })" Label="@label" FullWidth Adornment="@Adornment.End" AdornmentIcon="@Icons.Material.Filled.Schedule" />
+                        </MudItem>
+                    }
+                    else if (p.PropertyType == typeof(int))
+                    {
+                        <MudItem xs="@(12 / Columns)">
+                            <MudTextField T="int" Format="@dataFormatString" Value="@((int)p.GetValue(Item))" ValueChanged="@(v => p.SetValue(Item, v))" Label="@label" FullWidth ReadOnly="!isEditable" Adornment="@(icon != string.Empty ? Adornment.End : Adornment.None)" AdornmentIcon="@Icons.Material.Filled.Lock" />
+                        </MudItem>
+                    }
+                    else if (p.PropertyType == typeof(decimal))
+                    {
+                        <MudItem xs="@(12 / Columns)">
+                            <MudTextField T="decimal" Value="@((decimal)p.GetValue(Item))" ValueChanged="@(v => p.SetValue(Item, v))" Label="@label" FullWidth ReadOnly="!isEditable" Adornment="@(icon != string.Empty ? Adornment.End : Adornment.None)" AdornmentIcon="@Icons.Material.Filled.Lock" />
+                        </MudItem>
+                    }
+                    else if (p.PropertyType == typeof(double))
+                    {
+                        <MudItem xs="@(12 / Columns)">
+                            <MudTextField T="double" Value="@((double)p.GetValue(Item))" ValueChanged="@(v => p.SetValue(Item, v))" Label="@label" FullWidth ReadOnly="!isEditable" Adornment="@(icon != string.Empty ? Adornment.End : Adornment.None)" AdornmentIcon="@Icons.Material.Filled.Lock" />
+                        </MudItem>
+                    }
+                    else if (p.PropertyType == typeof(bool))
+                    {
+                        <MudItem xs="@(12 / Columns)" Style="margin-top:10px;">
+                            <MudSwitch T="bool" ValueChanged="@(v => p.SetValue(Item, v))" Value="@((bool)p.GetValue(Item))" /><span style="padding-left:10px">@label&nbsp;</span>
+                        </MudItem>
+                    }
+                    else if (EntityProvider.IsKnownEntityType(p.PropertyType))
+                    {
+                        var alsoInclude = (AlsoIncludeAttribute)p.PropertyType.GetCustomAttribute(typeof(AlsoIncludeAttribute));
+                        var foreginKeyName = ((ForeignKeyAttribute)p.PropertyType.GetProperty("Id").GetCustomAttribute(typeof(ForeignKeyAttribute))).Name;
+                        var f = typeof(TItem).GetProperty(foreginKeyName);
+                        if (f == null)
+                        {
+                            var alternativeKeyName = typeof(TItem)
+                                .GetProperties()
+                                .Where(w => ((ForeignKeyAttribute)w.GetCustomAttribute(typeof(ForeignKeyAttribute)))?.Name == p.Name)
+                                .FirstOrDefault()?.Name;
+                            if (alternativeKeyName != null)
+                            {
+                                f = typeof(TItem).GetProperty(alternativeKeyName);
+                            }
+                            else
+                            {
+                                isEditable = false;
+                            }
+                        }
+                        var useAutoComplete = p.GetCustomAttribute(typeof(AutoCompleteAttribute)) != null;
+                        IQueryable<IKBusinessEntity> list = null;
+                        if (alsoInclude != null)
+                        {
+                            list = EntityProvider.GetEntitiesWithInclude(p.PropertyType, alsoInclude.Name);
+                        }
+                        else
+                        {
+                            list = EntityProvider.GetEntities(p.PropertyType);
+                        }
+                        if (isEditable)
+                        {
+                            if (useAutoComplete)
+                            {
+                                <MudItem xs="@(12 / Columns)">
+                                    <MudAutocomplete T="object" Label="@label" FullWidth
+                                                     SearchFunc="@(async (string s, CancellationToken ct) => {
+                                                         var items = list.ToList();
+                                                         return string.IsNullOrEmpty(s)
+                                                             ? items.Cast<object>()
+                                                             : items.Where(w => w.ToString().Contains(s, StringComparison.OrdinalIgnoreCase)).Cast<object>();
+                                                     })"
+                                                     ValueChanged="@(v => p.SetValue(Item, v))"
+                                                     Value="@(p.GetValue(Item))"
+                                                     Clearable="true" />
+                                </MudItem>
+                            }
+                            else
+                            {
+                                <MudItem xs="@(12 / Columns)">
+                                    <MudSelect Label="@label" T="Guid?" ValueChanged="@(v => f.SetValue(Item, v))" Value="@((Guid)(f.GetValue(Item) ?? Guid.Empty))" FullWidth>
+                                        @foreach (object i in list)
+                                        {
+                                            <MudSelectItem T="Guid?" Value="@((Guid)p.PropertyType.GetProperty("Id").GetValue(i))">@i</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </MudItem>
+                            }
+                        }
+                        else if (p.GetValue(Item) != null)
+                        {
+                            <MudItem xs="@(12 / Columns)">
+                                <MudTextField Disabled="true" Label="@label" T="string" Value="@p.GetValue(Item)?.ToString()" FullWidth />
+                            </MudItem>
+                        }
+                    }
+                    else
+                    {
+                        <MudItem xs="@(12 / Columns)">
+                            @label
+                        </MudItem>
+                    }
+                }
+                else if (p == null)
+                {
+                    <MudItem xs="@(12 / Columns)"><span>&nbsp;</span></MudItem>
+                }
+            }
+        </MudGrid>
+    }
+}
