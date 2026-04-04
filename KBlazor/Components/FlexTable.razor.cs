@@ -230,7 +230,7 @@ namespace KBlazor.Components
                 UserCanUpdate = IsAdmin || enablePersonalViews;
                 if (enablePersonalViews)
                 {
-                    currentUsername = authenticationState.User.Identity?.Name ?? string.Empty;
+                    currentUsername = authenticationState.User.Identity?.Name ?? "anonymous";
                 }
             }
             catch (InvalidOperationException invEx)
