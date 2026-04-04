@@ -9,7 +9,7 @@
     <div class="demo-body">
         <div class="demo-header">
             <h2>BasicEdit</h2>
-            <p class="demo-sub">Auto-generated forms from [Display] attributes. Click any row to edit.</p>
+            <p class="demo-sub">Auto-generated forms from [Display] attributes — multi-column layouts and <code>,,</code> cell skipping.</p>
         </div>
         <div class="demo-content">
             <div class="split-demo">
@@ -24,14 +24,35 @@
                         </div>
                     }
                 </div>
-                <div class="edit-panel @(_editing != null ? "visible" : "")">
+                <div class="edit-panel">
                     @if (_editing != null)
                     {
+                        <div class="toolbar">
+                            <div class="toolbar-group">
+                                <span class="toolbar-label">COLUMNS</span>
+                                @foreach (var n in new[] { 1, 2, 3 })
+                                {
+                                    <button class="col-btn @(_columns == n ? "active" : "")" @onclick="() => _columns = n">@n</button>
+                                }
+                            </div>
+                            <div class="toolbar-hint">
+                                <code>,,</code> in <code>Fields</code> inserts a blank cell — skips a column slot
+                            </div>
+                        </div>
+                        <div class="fields-preview">
+                            @foreach (var part in _fields.Split(','))
+                            {
+                                <span class="field-chip @(part == "" ? "skip-chip" : "")">
+                                    @(part == "" ? "skip" : part)
+                                </span>
+                            }
+                        </div>
                         <BasicEdit TItem="PurchaseOrder"
                                    Item="@_editing"
+                                   Fields="@_fields"
                                    Save="SaveOrder"
                                    Close="CloseEditor"
-                                   Columns="2" />
+                                   Columns="@_columns" />
                     }
                     else
                     {
@@ -55,15 +76,31 @@
     .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
     .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
     .demo-content { flex: 1; padding: 24px 32px; }
-    .split-demo { display: flex; gap: 24px; height: 100%; }
-    .order-list { width: 320px; display: flex; flex-direction: column; gap: 4px; }
+
+    .split-demo { display: flex; gap: 24px; min-height: 100%; }
+    .order-list { width: 280px; min-width: 280px; display: flex; flex-direction: column; gap: 4px; }
     .order-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); }
     .order-row:hover { border-color: var(--accent); }
     .order-row.active { border-color: var(--accent); background: #1E1A3A; }
     .order-name { font-weight: 600; font-size: 13px; flex: 1; }
     .order-customer { font-size: 12px; color: var(--text-muted); flex: 1; }
-    .edit-panel { flex: 1; background: var(--bg-card); border-radius: 12px; padding: 24px; border: 1px solid var(--border); }
+
+    .edit-panel { flex: 1; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
     .edit-placeholder { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--text-muted); }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #13112A; border-bottom: 1px solid var(--border); gap: 16px; flex-wrap: wrap; }
+    .toolbar-group { display: flex; align-items: center; gap: 8px; }
+    .toolbar-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #4A4868; }
+    .col-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .col-btn:hover { border-color: var(--accent); color: var(--text-primary); }
+    .col-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .toolbar-hint { font-size: 12px; color: var(--text-muted); }
+    .toolbar-hint code { background: #0A0918; padding: 1px 5px; border-radius: 4px; color: #B2CCFF; font-size: 11px; }
+
+    .fields-preview { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; background: #0F0D1E; border-bottom: 1px solid var(--border); }
+    .field-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #1E1A3A; color: var(--text-muted); border: 1px solid var(--border); }
+    .skip-chip { background: transparent; color: #4A4868; border-style: dashed; font-style: italic; }
+
     .status-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
     .status-badge.new { background: #1C1A3A; color: #B2CCFF; }
     .status-badge.pending { background: #2A2414; color: #FFD9B2; }
@@ -74,6 +111,10 @@
 
 @code {
     private PurchaseOrder? _editing;
+    private int _columns = 2;
+
+    // ,, after Amount inserts a blank cell — Urgent always starts at column 1
+    private const string _fields = "Order #,Customer,Status,Order Date,Amount,,Urgent,Delivery Date,Reference,Notes";
 
     private void SelectOrder(PurchaseOrder order) => _editing = order;
 
