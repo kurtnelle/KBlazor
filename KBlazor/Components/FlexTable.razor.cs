@@ -483,6 +483,17 @@ namespace KBlazor.Components
 
         protected void CreateNewView()
         {
+            // If an unsaved "New View" already exists for this user, just re-open its editor
+            var existingNew = ViewStore.GetByUserAndView(typeof(TItem).FullName, currentUsername, "New View");
+            if (existingNew != null)
+            {
+                listViewSetting = existingNew;
+                listViewSetting.InitilizeDefinition();
+                OpenEditView();
+                StateHasChanged();
+                return;
+            }
+
             // Find the default view to base the new view on
             var defaultView = availableViews.FirstOrDefault(v => string.IsNullOrEmpty(v.CustomizedForUser))
                 ?? availableViews.First();
