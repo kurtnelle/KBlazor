@@ -13,17 +13,19 @@
         </div>
 
         <div class="demo-content">
-            <FlexTable TItem="PurchaseOrder"
-                       Items="@_orders"
-                       Fields="Order #,Customer,Status,Amount,Order Date,Urgent"
-                       ViewName="FlexTableDemo"
-                       PageSize="10"
-                       SelectionChanged="OnRowClicked"
-                       SortFilter="OnSortFilter"
-                       InlineEditor="IsUrgent"
-                       AdditionalCommands="GetCommands"
-                       RenderTemplates="@_templates"
-                       SelectedItem="@_selected" />
+            <MudPaper Elevation="4" Class="table-paper">
+                <FlexTable TItem="PurchaseOrder"
+                           Items="@_orders"
+                           Fields="Order #,Customer,Status,Amount,Order Date,Urgent"
+                           ViewName="FlexTableDemo"
+                           PageSize="10"
+                           SelectionChanged="OnRowClicked"
+                           SortFilter="OnSortFilter"
+                           InlineEditor="IsUrgent"
+                           AdditionalCommands="GetCommands"
+                           RenderTemplates="@_templates"
+                           SelectedItem="@_selected" />
+            </MudPaper>
         </div>
 
         <DocPanel ComponentName="FlexTable"
@@ -39,6 +41,7 @@
     .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
     .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
     .demo-content { flex: 1; padding: 24px 32px; }
+    .table-paper { background: #1E1C33 !important; border: 1px solid var(--border); border-radius: 12px !important; overflow: hidden; }
 </style>
 
 @code {
