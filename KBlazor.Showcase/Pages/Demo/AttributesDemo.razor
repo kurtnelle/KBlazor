@@ -1,0 +1,110 @@
+@* KBlazor.Showcase/Pages/Demo/AttributesDemo.razor *@
+@page "/demo/attributes"
+
+<PageTitle>Attributes — KBlazor</PageTitle>
+
+<div class="demo-layout">
+    <NavMenu />
+    <div class="demo-body">
+        <div class="demo-header">
+            <h2>Attributes</h2>
+            <p class="demo-sub">KBlazor attributes decorate model properties to control how they appear in FlexTable and BasicEdit.</p>
+        </div>
+        <div class="demo-content">
+            <div class="attr-grid">
+                @foreach (var attr in _attrs)
+                {
+                    <div class="attr-card">
+                        <div class="attr-name">@attr.Name</div>
+                        <p class="attr-desc">@attr.Description</p>
+                        <pre><code>@attr.Example</code></pre>
+                        <div class="attr-applies">
+                            @foreach (var tag in attr.AppliesTo)
+                            {
+                                <span class="applies-tag">@tag</span>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .demo-layout { display: flex; min-height: calc(100vh - 64px); }
+    .demo-body { flex: 1; display: flex; flex-direction: column; }
+    .demo-header { padding: 32px 32px 16px; border-bottom: 1px solid var(--border); }
+    .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
+    .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
+    .demo-content { flex: 1; padding: 24px 32px; }
+    .attr-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+    .attr-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .attr-name { font-size: 15px; font-weight: 700; color: var(--accent); }
+    .attr-desc { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .attr-card pre { margin: 0; font-size: 12px; }
+    .attr-applies { display: flex; gap: 6px; flex-wrap: wrap; }
+    .applies-tag { font-size: 11px; background: #1E1A3A; color: #B2CCFF; padding: 2px 8px; border-radius: 999px; }
+</style>
+
+@code {
+    private record AttrInfo(string Name, string Description, string Example, string[] AppliesTo);
+
+    private static readonly AttrInfo[] _attrs = new[]
+    {
+        new AttrInfo("[AllowInlineEdit]",
+            "Marks a property editable directly within the FlexTable row. Use with the InlineEditor parameter.",
+            "[Display(Name = \"Urgent\")]\n[AllowInlineEdit]\npublic bool IsUrgent { get; set; }",
+            new[] { "FlexTable" }),
+
+        new AttrInfo("[AlsoInclude]",
+            "Tells BasicEdit to eager-load a related navigation property when resolving lookups.",
+            "[AlsoInclude(Name = \"Lines\")]\npublic virtual ICollection<OrderLine> Lines { get; set; }",
+            new[] { "BasicEdit" }),
+
+        new AttrInfo("[AutoComplete]",
+            "Renders the field as an autocomplete input in BasicEdit, populated from IEntityLookupProvider.",
+            "[Display(Name = \"Customer\")]\n[AutoComplete]\npublic Guid? CustomerId { get; set; }",
+            new[] { "BasicEdit" }),
+
+        new AttrInfo("[CasscadeLookup]",
+            "Creates a dependent dropdown filtered by another property's value.",
+            "[Display(Name = \"Sub-Category\")]\n[CasscadeLookup(AdditionalProperties = \"CategoryId\")]\npublic Guid? SubCategoryId { get; set; }",
+            new[] { "BasicEdit" }),
+
+        new AttrInfo("[DisplayNoWrap]",
+            "Prevents text wrapping in the FlexTable column for this property.",
+            "[Display(Name = \"Amount\")]\n[DisplayNoWrap]\npublic decimal Amount { get; set; }",
+            new[] { "FlexTable" }),
+
+        new AttrInfo("[EnableTime]",
+            "Enables time selection on a DateTime field in BasicEdit (default is date-only).",
+            "[Display(Name = \"Order Date\")]\n[EnableTime]\npublic DateTime OrderDate { get; set; }",
+            new[] { "BasicEdit" }),
+
+        new AttrInfo("[LinkOnField]",
+            "Renders the field value as a clickable link in FlexTable.",
+            "[Display(Name = \"Reference\")]\n[LinkOnField]\npublic string Reference { get; set; }",
+            new[] { "FlexTable" }),
+
+        new AttrInfo("[MemoDisplay]",
+            "Renders the field as a multiline textarea in BasicEdit instead of a single-line input.",
+            "[Display(Name = \"Notes\")]\n[MemoDisplay]\npublic string Notes { get; set; }",
+            new[] { "BasicEdit" }),
+
+        new AttrInfo("[ReadOnlyOnEdit]",
+            "Makes the field read-only when editing an existing entity (IsNew == false).",
+            "[Display(Name = \"Order #\")]\n[ReadOnlyOnEdit]\npublic string Name { get; set; }",
+            new[] { "BasicEdit" }),
+
+        new AttrInfo("[SortAndFilterOn]",
+            "Specifies that sort and filter should operate on a different member than the displayed property.",
+            "[Display(Name = \"Status\")]\n[SortAndFilterOn(Member = \"Status\")]\npublic OrderStatus Status { get; set; }",
+            new[] { "FlexTable" }),
+
+        new AttrInfo("[ToolTipOnField]",
+            "Displays a tooltip sourced from another property when hovering this field in FlexTable.",
+            "[Display(Name = \"Name\")]\n[ToolTipOnField(PropertyName = \"Description\")]\npublic string Name { get; set; }",
+            new[] { "FlexTable" }),
+    };
+}
