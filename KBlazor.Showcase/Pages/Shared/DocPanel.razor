@@ -1,0 +1,50 @@
+@* KBlazor.Showcase/Pages/Shared/DocPanel.razor *@
+<div class="doc-panel @(IsExpanded ? "expanded" : "")">
+    <button class="doc-toggle" @onclick="Toggle">
+        <span>@(IsExpanded ? "▲" : "▼")</span>
+        <span>How to use @ComponentName</span>
+    </button>
+    @if (IsExpanded)
+    {
+        <div class="doc-body">
+            <div class="doc-columns">
+                <div class="doc-col">
+                    <div class="doc-label">USAGE</div>
+                    <pre><code>@UsageCode</code></pre>
+                </div>
+                <div class="doc-col">
+                    <div class="doc-label">EXPLANATION</div>
+                    <p>@((MarkupString)Explanation)</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .doc-panel {
+        border-top: 1px solid var(--border);
+        background: var(--bg-sidebar);
+    }
+    .doc-toggle {
+        display: flex; align-items: center; gap: 8px;
+        width: 100%; padding: 12px 24px;
+        background: none; border: none; color: var(--text-muted);
+        font-size: 13px; cursor: pointer; text-align: left;
+    }
+    .doc-toggle:hover { color: var(--text-primary); }
+    .doc-body { padding: 0 24px 24px; }
+    .doc-columns { display: flex; gap: 40px; }
+    .doc-col { flex: 1; }
+    .doc-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #4A4868; margin-bottom: 8px; }
+    .doc-col p { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin: 0; }
+</style>
+
+@code {
+    [Parameter, EditorRequired] public string ComponentName { get; set; } = "";
+    [Parameter, EditorRequired] public string UsageCode { get; set; } = "";
+    [Parameter, EditorRequired] public string Explanation { get; set; } = "";
+
+    private bool IsExpanded = false;
+    private void Toggle() => IsExpanded = !IsExpanded;
+}
