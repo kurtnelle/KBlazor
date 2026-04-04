@@ -36,6 +36,7 @@ public static class DocContent
     public const string BasicEditUsage = """
         <BasicEdit TItem="PurchaseOrder"
                    Item="@selectedOrder"
+                   Fields="Order #,Customer,Status,Order Date,Amount,,Urgent,Delivery Date,Reference,Notes"
                    Save="SaveOrder"
                    Close="CloseEditor"
                    Columns="2" />
@@ -43,9 +44,11 @@ public static class DocContent
 
     public const string BasicEditExplained = """
         BasicEdit auto-generates a form from your model's [Display] attributes.
-        [MemoDisplay] renders a textarea. [EnableTime] adds a time picker to DateTime fields.
-        [AutoComplete] wires a field to IEntityLookupProvider for live search.
-        [ReadOnlyOnEdit] locks a field when editing existing records.
+        Use Columns="2" (or 3) to lay fields out in a grid. The Fields parameter
+        controls which fields appear and their order — an empty entry (,,) inserts
+        a blank cell, letting you push the next field to a specific column position.
+        [MemoDisplay] renders a textarea. [EnableTime] adds a time picker.
+        [AutoComplete] wires to IEntityLookupProvider. [ReadOnlyOnEdit] locks a field on edit.
         """;
 
     public const string CycleStateUsage = """
