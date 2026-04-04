@@ -17,7 +17,7 @@ namespace KBlazor.Components
         string headerText = typeof(TItem)
             .GetCustomAttributes(typeof(DisplayAttribute), false)
             .Cast<DisplayAttribute>()
-            .First().Name ?? "Item";
+            .FirstOrDefault()?.Name ?? typeof(TItem).Name;
 
         [Parameter]
         public TItem Item { get; set; }
