@@ -16,7 +16,7 @@
             — all driven by your model attributes.
         </p>
         <div class="hero-btns">
-            <NavLink href="/demo/flextable" class="btn-primary">See Live Demo</NavLink>
+            <a href="/demo/flextable" class="btn-primary">See Live Demo</a>
             <a href="https://github.com/your-org/KBlazor" target="_blank" class="btn-secondary">Read Docs</a>
         </div>
     </div>
@@ -81,6 +81,7 @@
     .status-badge.inprogress { background: #1A2040; color: #93C5FD; }
     .status-badge.delivered { background: #1E3A2A; color: #A1E5A1; }
     .status-badge.cancelled { background: #3A1A1A; color: #FFBFB2; }
+    .status-badge:not(.new):not(.pending):not(.inprogress):not(.delivered):not(.cancelled) { background: #1E1A3A; color: var(--text-muted); }
 
     .attr-strip { display: flex; align-items: center; justify-content: space-around; height: 64px; background: #13112A; border-top: 1px solid var(--border); padding: 0 40px; }
     .attr-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
@@ -88,7 +89,7 @@
 </style>
 
 @code {
-    private string[] _attrs = new[]
+    private static readonly string[] _attrs = new[]
     {
         "[Display] driven columns",
         "[AllowInlineEdit] in-row editing",
