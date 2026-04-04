@@ -1,3 +1,35 @@
+// KBlazor.Showcase/Program.cs
+using KBlazor.Services;
+using KBlazor.Showcase.Data;
+using KBlazor.Showcase.Services;
+using MudBlazor.Services;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
+builder.Services.AddMudServices();
+builder.Services.AddHttpContextAccessor();
+
+// KBlazor required services
+builder.Services.AddScoped<IFlexTableSettings, InMemoryFlexTableSettings>();
+builder.Services.AddScoped<IListViewSettingStore, InMemoryListViewSettingStore>();
+builder.Services.AddScoped<IEntityLookupProvider, InMemoryEntityLookupProvider>();
+
+// Singleton data store — seeded once at startup
+builder.Services.AddSingleton(SeedData.Create());
+
 var app = builder.Build();
+
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Error");
+    app.UseHsts();
+}
+
+app.UseStaticFiles();
+app.UseRouting();
+app.MapBlazorHub();
+app.MapFallbackToPage("/_Host");
+
 app.Run();
