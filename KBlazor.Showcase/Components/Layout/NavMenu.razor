@@ -1,0 +1,50 @@
+@* KBlazor.Showcase/Components/Layout/NavMenu.razor *@
+<nav class="demo-sidebar">
+    <div class="sidebar-section-title">COMPONENTS</div>
+    <NavLink href="/demo/flextable" Match="NavLinkMatch.All" class="sidebar-item">
+        <span class="sidebar-indicator"></span> FlexTable
+    </NavLink>
+    <NavLink href="/demo/kanban" Match="NavLinkMatch.All" class="sidebar-item">
+        <span class="sidebar-indicator"></span> Kanban View
+    </NavLink>
+    <NavLink href="/demo/basicedit" Match="NavLinkMatch.All" class="sidebar-item">
+        <span class="sidebar-indicator"></span> BasicEdit
+    </NavLink>
+    <NavLink href="/demo/cyclestate" Match="NavLinkMatch.All" class="sidebar-item">
+        <span class="sidebar-indicator"></span> CycleStateButton
+    </NavLink>
+    <NavLink href="/demo/datepicker" Match="NavLinkMatch.All" class="sidebar-item">
+        <span class="sidebar-indicator"></span> RelativeDatePicker
+    </NavLink>
+    <NavLink href="/demo/attributes" Match="NavLinkMatch.All" class="sidebar-item">
+        <span class="sidebar-indicator"></span> Attributes
+    </NavLink>
+</nav>
+
+<style>
+    .demo-sidebar {
+        width: 200px; min-width: 200px;
+        background: var(--bg-sidebar);
+        padding: 16px 0;
+        display: flex; flex-direction: column; gap: 2px;
+        border-right: 1px solid var(--border);
+        min-height: calc(100vh - 64px);
+    }
+    .sidebar-section-title {
+        font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+        color: #4A4868; padding: 0 16px 8px;
+    }
+    .sidebar-item {
+        display: flex; align-items: center; gap: 10px;
+        height: 36px; padding: 0 16px;
+        font-size: 13px; color: var(--text-muted);
+        text-decoration: none; border-radius: 6px;
+    }
+    .sidebar-item:hover { color: var(--text-primary); background: rgba(87,73,244,0.1); }
+    .sidebar-item.active { color: var(--text-primary); background: #1E1A3A; font-weight: 600; }
+    .sidebar-item.active .sidebar-indicator {
+        display: block; width: 3px; height: 20px;
+        background: var(--accent); border-radius: 2px;
+    }
+    .sidebar-indicator { display: block; width: 3px; height: 20px; }
+</style>

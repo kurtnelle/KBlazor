@@ -1,0 +1,67 @@
+@* KBlazor.Showcase/Components/Layout/MainLayout.razor *@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="_theme" IsDarkMode="true" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div class="showcase-shell">
+    <nav class="top-nav">
+        <div class="nav-logo">
+            <div class="logo-mark"></div>
+            <span class="logo-text">KBlazor</span>
+        </div>
+        <div class="nav-links">
+            <NavLink href="/demo/flextable">Components</NavLink>
+            <NavLink href="/docs">Docs</NavLink>
+            <a href="https://github.com/your-org/KBlazor" target="_blank">GitHub</a>
+        </div>
+        <NavLink href="/demo/flextable" class="btn-primary-sm">Get Started</NavLink>
+    </nav>
+
+    <main class="main-content">
+        @Body
+    </main>
+</div>
+
+<style>
+    .showcase-shell { display: flex; flex-direction: column; min-height: 100vh; }
+
+    .top-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        height: 64px;
+        padding: 0 40px;
+        background: var(--bg);
+        border-bottom: 1px solid var(--border);
+        position: sticky; top: 0; z-index: 100;
+    }
+
+    .nav-logo { display: flex; align-items: center; gap: 10px; }
+    .logo-mark { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; }
+    .logo-text { font-size: 18px; font-weight: 800; color: var(--text-primary); }
+
+    .nav-links { display: flex; gap: 32px; }
+    .nav-links a { font-size: 14px; color: var(--text-muted); text-decoration: none; }
+    .nav-links a:hover { color: var(--text-primary); }
+
+    .btn-primary-sm {
+        display: flex; align-items: center;
+        height: 36px; padding: 0 16px;
+        background: var(--accent); color: #fff !important;
+        border-radius: 6px; font-size: 14px; font-weight: 600;
+        text-decoration: none !important;
+    }
+
+    .main-content { flex: 1; }
+</style>
+
+@code {
+    private MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight { Primary = "#5749F4" },
+        PaletteDark = new PaletteDark { Primary = "#5749F4", Background = "#0F0E1A", Surface = "#1A182E" }
+    };
+}
