@@ -1,5 +1,6 @@
 // KBlazor.Showcase.Tests/SeedDataTests.cs
 using KBlazor.Showcase.Data;
+using KBlazor.Showcase.Domain;
 using Xunit;
 
 namespace KBlazor.Showcase.Tests;
@@ -32,7 +33,15 @@ public class SeedDataTests
     public void Seed_AllStatusesRepresented()
     {
         var store = SeedData.Create();
-        var statuses = store.Orders.Select(o => o.Status).Distinct().ToList();
-        Assert.Equal(5, statuses.Count);
+        var seededStatuses = store.Orders.Select(o => o.Status).ToHashSet();
+        var allStatuses = Enum.GetValues<OrderStatus>().ToHashSet();
+        Assert.True(allStatuses.SetEquals(seededStatuses));
+    }
+
+    [Fact]
+    public void Seed_AllOrdersHaveNavigationPropertyWired()
+    {
+        var store = SeedData.Create();
+        Assert.All(store.Orders, o => Assert.NotNull(o.Customer));
     }
 }
