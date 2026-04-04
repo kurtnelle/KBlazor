@@ -1,0 +1,52 @@
+@* KBlazor.Showcase/Pages/Demo/CycleStateDemo.razor *@
+@page "/demo/cyclestate"
+
+<PageTitle>CycleStateButton — KBlazor</PageTitle>
+
+<div class="demo-layout">
+    <NavMenu />
+    <div class="demo-body">
+        <div class="demo-header">
+            <h2>CycleStateButton</h2>
+            <p class="demo-sub">A button that cycles through integer states on each click. Bind it to any int or enum property.</p>
+        </div>
+        <div class="demo-content">
+            <div class="cycle-demo-grid">
+                @for (int i = 0; i < 5; i++)
+                {
+                    var idx = i;
+                    <div class="cycle-demo-card">
+                        <div class="cycle-label">Order @(idx + 1) Status</div>
+                        <CycleStateButton @bind-Value="_values[idx]"
+                                          States="@_states"
+                                          Labels="@_labels" />
+                        <div class="cycle-value">Current: <strong>@((OrderStatus)_values[idx])</strong></div>
+                    </div>
+                }
+            </div>
+        </div>
+        <DocPanel ComponentName="CycleStateButton"
+                  UsageCode="@DocContent.CycleStateUsage"
+                  Explanation="@DocContent.CycleStateExplained" />
+    </div>
+</div>
+
+<style>
+    .demo-layout { display: flex; min-height: calc(100vh - 64px); }
+    .demo-body { flex: 1; display: flex; flex-direction: column; }
+    .demo-header { padding: 32px 32px 16px; border-bottom: 1px solid var(--border); }
+    .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
+    .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
+    .demo-content { flex: 1; padding: 24px 32px; }
+    .cycle-demo-grid { display: flex; flex-wrap: wrap; gap: 16px; }
+    .cycle-demo-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; min-width: 220px; }
+    .cycle-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .cycle-value { font-size: 13px; color: var(--text-muted); }
+    .cycle-value strong { color: var(--text-primary); }
+</style>
+
+@code {
+    private int[] _values = new[] { 0, 1, 2, 3, 4 };
+    private int[] _states = new[] { 0, 1, 2, 3, 4 };
+    private string[] _labels = new[] { "New", "Pending", "In Progress", "Delivered", "Cancelled" };
+}

@@ -1,0 +1,68 @@
+@* KBlazor.Showcase/Pages/Demo/DatePickerDemo.razor *@
+@page "/demo/datepicker"
+
+<PageTitle>RelativeDatePicker — KBlazor</PageTitle>
+
+<div class="demo-layout">
+    <NavMenu />
+    <div class="demo-body">
+        <div class="demo-header">
+            <h2>RelativeDatePicker</h2>
+            <p class="demo-sub">Supports both absolute date selection and relative expressions like "This Week" or "Last Month".</p>
+        </div>
+        <div class="demo-content">
+            <div class="picker-demo">
+                <div class="picker-card">
+                    <div class="picker-label">Selected value</div>
+                    <RelativeDatePicker @bind-Value="_date" Label="Filter by date" />
+                    <div class="picker-output">
+                        @if (!string.IsNullOrEmpty(_date))
+                        {
+                            <span>@_date</span>
+                        }
+                        else
+                        {
+                            <span style="color:var(--text-muted)">No date selected</span>
+                        }
+                    </div>
+                </div>
+                <div class="relative-examples">
+                    <div class="example-label">Relative date strings supported by FlexTable filters:</div>
+                    @foreach (var example in _examples)
+                    {
+                        <div class="example-chip">@example</div>
+                    }
+                </div>
+            </div>
+        </div>
+        <DocPanel ComponentName="RelativeDatePicker"
+                  UsageCode="@DocContent.DatePickerUsage"
+                  Explanation="@DocContent.DatePickerExplained" />
+    </div>
+</div>
+
+<style>
+    .demo-layout { display: flex; min-height: calc(100vh - 64px); }
+    .demo-body { flex: 1; display: flex; flex-direction: column; }
+    .demo-header { padding: 32px 32px 16px; border-bottom: 1px solid var(--border); }
+    .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
+    .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
+    .demo-content { flex: 1; padding: 24px 32px; }
+    .picker-demo { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
+    .picker-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; min-width: 280px; }
+    .picker-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .picker-output { font-size: 14px; color: var(--text-primary); padding: 10px; background: var(--bg-sidebar); border-radius: 6px; }
+    .relative-examples { display: flex; flex-direction: column; gap: 8px; }
+    .example-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+    .example-chip { display: inline-block; background: #1E1A3A; color: #B2CCFF; padding: 4px 12px; border-radius: 999px; font-size: 13px; width: fit-content; }
+</style>
+
+@code {
+    private string _date = string.Empty;
+    private static readonly string[] _examples = new[]
+    {
+        "Today", "This Week", "This Month", "This Year",
+        "Last Week", "Last Month", "Last Year",
+        "Next Week", "Next Month", "Next Year"
+    };
+}
