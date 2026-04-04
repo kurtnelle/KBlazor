@@ -1,0 +1,20 @@
+pool:
+  vmImage: windows-latest
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    version: '8.x'
+
+- task: DotNetCoreCLI@2
+  displayName: Restore
+  inputs:
+    command: 'restore'
+    projects: 'KBlazor.sln'
+
+- task: DotNetCoreCLI@2
+  displayName: Build
+  inputs:
+    command: 'build'
+    projects: 'KBlazor.sln'
+    arguments: '--configuration Release --no-restore'
