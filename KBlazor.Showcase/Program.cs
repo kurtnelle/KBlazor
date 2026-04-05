@@ -13,7 +13,7 @@ builder.Services.AddHttpContextAccessor();
 
 // KBlazor required services
 builder.Services.AddScoped<IFlexTableSettings, InMemoryFlexTableSettings>();
-builder.Services.AddScoped<IListViewSettingStore, InMemoryListViewSettingStore>();
+builder.Services.AddSingleton<IListViewSettingStore, InMemoryListViewSettingStore>();
 builder.Services.AddScoped<IEntityLookupProvider, InMemoryEntityLookupProvider>();
 
 // Singleton data store — seeded once at startup
