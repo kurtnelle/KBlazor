@@ -27,6 +27,7 @@ namespace KBlazor.Components
         [Inject] AuthenticationStateProvider AuthProvider { get; set; }
         [Inject] IJSRuntime Js { get; set; }
         [Inject] IHttpContextAccessor HttpContextAccessor { get; set; }
+        [Inject] ILicenseProvider LicenseProvider { get; set; }
 
         [Parameter]
         public bool AllowSelection { get; set; } = true;
@@ -344,7 +345,7 @@ namespace KBlazor.Components
 
         protected void AutoSaveView()
         {
-            if (listViewSetting != null)
+            if (listViewSetting != null && LicenseProvider.IsLicensed)
             {
                 listViewSetting.UpdateDefinition();
                 ViewStore.Update(listViewSetting);
@@ -452,6 +453,8 @@ namespace KBlazor.Components
 
         protected void SaveEditMode()
         {
+            if (!LicenseProvider.IsLicensed) return;
+
             if (string.IsNullOrEmpty(listViewSetting.CustomizedForUser) && !IsAdmin)
             {
                 // Non-admin editing base view — clone into a user-specific view
@@ -485,6 +488,8 @@ namespace KBlazor.Components
 
         protected void CreateNewView()
         {
+            if (!LicenseProvider.IsLicensed) return;
+
             // If an unsaved "New View" already exists for this user, just re-open its editor
             var existingNew = ViewStore.GetByUserAndView(typeof(TItem).FullName, currentUsername, "New View");
             if (existingNew != null)
@@ -522,6 +527,8 @@ namespace KBlazor.Components
 
         protected void DeleteView()
         {
+            if (!LicenseProvider.IsLicensed) return;
+
             if (!string.IsNullOrEmpty(listViewSetting.CustomizedForUser))
             {
                 ViewStore.Delete(listViewSetting.Id);
@@ -545,6 +552,8 @@ namespace KBlazor.Components
 
         protected void ResetView()
         {
+            if (!LicenseProvider.IsLicensed) return;
+
             listViewSetting.ResetToParent();
             listViewSetting.UpdateDefinition();
             ViewStore.Update(listViewSetting);
