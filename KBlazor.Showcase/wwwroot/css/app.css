@@ -1,11 +1,16 @@
 :root {
-    --bg: #0F0E1A;
-    --bg-card: #1A182E;
-    --bg-sidebar: #13112A;
-    --accent: #5749F4;
-    --text-primary: #FFFFFF;
-    --text-muted: #888799;
-    --border: #2B283D;
+    --bg: #0B0A14;
+    --bg-card: #151326;
+    --bg-sidebar: #0F0E1C;
+    --accent: #6C5CE7;
+    --accent-glow: rgba(108,92,231,0.35);
+    --accent-soft: rgba(108,92,231,0.12);
+    --green: #00D68F;
+    --text-primary: #F0EFF4;
+    --text-muted: #7B7A8E;
+    --border: #1F1D35;
+    --border-hover: #36345A;
+    --mono: 'JetBrains Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
 }
 
 * { box-sizing: border-box; }
@@ -15,20 +20,113 @@ html, body {
     padding: 0;
     background: var(--bg);
     color: var(--text-primary);
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+a { color: var(--accent); text-decoration: none; transition: color 0.2s ease; }
+a:hover { color: #8B7FFF; text-decoration: none; }
 
 code, pre {
-    font-family: 'Fira Mono', 'Consolas', monospace;
+    font-family: var(--mono);
     font-size: 13px;
     background: #0A0918;
     border-radius: 6px;
     padding: 2px 6px;
-    color: #E8E8EA;
+    color: #E0DDF2;
 }
 
 pre { padding: 16px; overflow-x: auto; }
+
+/* ═══════════════════════════════════════════════════════
+   SHARED DEMO LAYOUT — used by all demo pages
+   ═══════════════════════════════════════════════════════ */
+.demo-layout { display: flex; min-height: calc(100vh - 64px); }
+.demo-body { flex: 1; display: flex; flex-direction: column; }
+.demo-header {
+    padding: 40px 36px 20px;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+}
+.demo-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -40px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    opacity: 0.3;
+    pointer-events: none;
+}
+.demo-header h2 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    position: relative;
+}
+.demo-sub {
+    margin: 0;
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.6;
+    position: relative;
+}
+.demo-content { flex: 1; padding: 28px 36px; }
+
+/* ═══════════════════════════════════════════════════════
+   SHARED TABLE PAPER — dark card for FlexTable wrapper
+   ═══════════════════════════════════════════════════════ */
+.table-paper {
+    background: #151326 !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 14px !important;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.3), 0 0 0 1px rgba(108,92,231,0.05) !important;
+}
+.table-paper .flex-table th { color: rgba(255,255,255,.65) !important; border-bottom-color: rgba(255,255,255,.08) !important; font-weight: 600 !important; }
+.table-paper .flex-table th span { color: rgba(255,255,255,.65) !important; }
+.table-paper .flex-table td { color: var(--text-primary) !important; border-bottom-color: rgba(255,255,255,.04) !important; }
+.table-paper .flex-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,.02) !important; }
+.table-paper .flex-table tbody tr:hover { background-color: rgba(108,92,231,0.06) !important; }
+
+/* ═══════════════════════════════════════════════════════
+   STATUS BADGES — reusable across demos
+   ═══════════════════════════════════════════════════════ */
+.status-badge { display: inline-block; padding: 3px 12px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.3px; }
+.status-badge.new { background: rgba(108,92,231,0.15); color: #B2CCFF; }
+.status-badge.pending { background: rgba(255,177,66,0.12); color: #FFD9B2; }
+.status-badge.inprogress { background: rgba(59,130,246,0.12); color: #93C5FD; }
+.status-badge.delivered { background: rgba(0,214,143,0.12); color: #86EFAC; }
+.status-badge.cancelled { background: rgba(239,68,68,0.12); color: #FCA5A5; }
+
+/* ═══════════════════════════════════════════════════════
+   UTILITY ANIMATIONS
+   ═══════════════════════════════════════════════════════ */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.4; }
+    50%      { opacity: 0.7; }
+}
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+
+/* ═══════════════════════════════════════════════════════
+   SCROLLBAR
+   ═══════════════════════════════════════════════════════ */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #2B283D; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #3D3A5E; }
+
+/* ═══════════════════════════════════════════════════════
+   SELECTION
+   ═══════════════════════════════════════════════════════ */
+::selection { background: rgba(108,92,231,0.3); color: #fff; }

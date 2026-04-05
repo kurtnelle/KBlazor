@@ -33,15 +33,17 @@
 </div>
 
 <style>
-    .demo-layout { display: flex; min-height: calc(100vh - 64px); }
-    .demo-body { flex: 1; display: flex; flex-direction: column; }
-    .demo-header { padding: 32px 32px 16px; border-bottom: 1px solid var(--border); }
-    .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
-    .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
-    .demo-content { flex: 1; padding: 24px 32px; }
     .cycle-demo-grid { display: flex; flex-wrap: wrap; gap: 16px; }
-    .cycle-demo-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; min-width: 220px; }
-    .cycle-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .cycle-demo-card {
+        background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+        padding: 24px; display: flex; flex-direction: column; gap: 16px; min-width: 200px;
+        transition: all 0.2s ease;
+    }
+    .cycle-demo-card:hover {
+        border-color: var(--border-hover);
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    }
+    .cycle-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; }
     .cycle-value { font-size: 13px; color: var(--text-muted); }
     .cycle-value strong { color: var(--text-primary); }
 </style>

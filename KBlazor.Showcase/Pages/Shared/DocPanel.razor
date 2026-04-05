@@ -3,16 +3,16 @@
 
 <div class="doc-panel">
     <div class="doc-toolbar">
-        <button class="doc-btn" @onclick="ToggleCode">
+        <button class="doc-btn @(_showCode ? "doc-btn--active" : "")" @onclick="ToggleCode">
             @if (_showCode)
             {
-                <span class="doc-icon">✕</span>
-                <span>Hide code</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span>Hide Code</span>
             }
             else
             {
-                <span class="doc-icon">❮❯</span>
-                <span>Show code</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+                <span>Show Code</span>
             }
         </button>
     </div>
@@ -26,24 +26,31 @@
                     <p>@((MarkupString)Explanation)</p>
                 </div>
             }
-            <div class="doc-code-block">
-                <div class="doc-code-label">RAZOR</div>
-                <pre class="doc-code"><code class="language-xml">@UsageCode.Trim()</code></pre>
+            <div class="doc-tabs">
+                <button class="doc-tab @(_activeTab == "razor" ? "doc-tab--active" : "")" @onclick='() => _activeTab = "razor"'>Razor</button>
+                @if (!string.IsNullOrEmpty(CodeBehind))
+                {
+                    <button class="doc-tab @(_activeTab == "cs" ? "doc-tab--active" : "")" @onclick='() => _activeTab = "cs"'>C#</button>
+                }
+                @if (!string.IsNullOrEmpty(ModelCode))
+                {
+                    <button class="doc-tab @(_activeTab == "model" ? "doc-tab--active" : "")" @onclick='() => _activeTab = "model"'>Model</button>
+                }
             </div>
-            @if (!string.IsNullOrEmpty(CodeBehind))
-            {
-                <div class="doc-code-block">
-                    <div class="doc-code-label">C#</div>
+            <div class="doc-code-block">
+                @if (_activeTab == "razor")
+                {
+                    <pre class="doc-code"><code class="language-xml">@UsageCode.Trim()</code></pre>
+                }
+                else if (_activeTab == "cs" && !string.IsNullOrEmpty(CodeBehind))
+                {
                     <pre class="doc-code"><code class="language-csharp">@CodeBehind.Trim()</code></pre>
-                </div>
-            }
-            @if (!string.IsNullOrEmpty(ModelCode))
-            {
-                <div class="doc-code-block">
-                    <div class="doc-code-label">MODEL</div>
+                }
+                else if (_activeTab == "model" && !string.IsNullOrEmpty(ModelCode))
+                {
                     <pre class="doc-code"><code class="language-csharp">@ModelCode.Trim()</code></pre>
-                </div>
-            }
+                }
+            </div>
         </div>
     }
 </div>
@@ -54,38 +61,38 @@
         background: var(--bg-sidebar);
     }
 
-    /* ── Toolbar bar ── */
+    /* ── Toolbar ── */
     .doc-toolbar {
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 8px;
-        padding: 14px 24px;
+        padding: 16px 24px;
     }
     .doc-btn {
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        padding: 8px 28px;
-        height: 42px;
-        background: rgba(87,73,244,0.08);
-        border: 1px solid rgba(87,73,244,0.3);
-        border-radius: 8px;
+        padding: 8px 24px;
+        height: 40px;
+        background: rgba(108,92,231,0.06);
+        border: 1px solid rgba(108,92,231,0.2);
+        border-radius: 10px;
         color: var(--accent);
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 600;
         cursor: pointer;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
+        font-family: 'Inter', sans-serif;
     }
     .doc-btn:hover {
         color: #fff;
-        border-color: var(--accent);
-        background: rgba(87,73,244,0.2);
+        border-color: rgba(108,92,231,0.5);
+        background: rgba(108,92,231,0.12);
+        box-shadow: 0 2px 12px rgba(108,92,231,0.15);
     }
-    .doc-icon {
-        font-size: 12px;
-        font-weight: 700;
-        letter-spacing: -1px;
+    .doc-btn--active {
+        background: rgba(108,92,231,0.12);
+        border-color: rgba(108,92,231,0.35);
     }
 
     /* ── Code area ── */
@@ -93,13 +100,15 @@
         padding: 0 24px 24px;
         display: flex;
         flex-direction: column;
-        gap: 16px;
+        gap: 0;
+        animation: fadeIn 0.25s ease;
     }
     .doc-explain {
-        background: #13112A;
+        background: rgba(108,92,231,0.06);
         border-left: 3px solid var(--accent);
-        border-radius: 0 8px 8px 0;
-        padding: 12px 16px;
+        border-radius: 0 10px 10px 0;
+        padding: 14px 18px;
+        margin-bottom: 16px;
     }
     .doc-explain p {
         font-size: 14px;
@@ -108,27 +117,48 @@
         margin: 0;
     }
     .doc-explain code {
-        background: #0A0918;
+        background: rgba(108,92,231,0.1);
         border-radius: 4px;
         padding: 1px 6px;
         font-size: 12px;
-        color: #A78BFA;
-        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+        color: #B4A8FF;
+        font-family: var(--mono);
     }
+
+    /* ── Tabs ── */
+    .doc-tabs {
+        display: flex; gap: 0;
+        background: #0C0B1A;
+        border-radius: 10px 10px 0 0;
+        border: 1px solid var(--border);
+        border-bottom: none;
+        overflow: hidden;
+    }
+    .doc-tab {
+        padding: 10px 20px;
+        font-size: 12px; font-weight: 600;
+        letter-spacing: 0.3px;
+        color: var(--text-muted);
+        background: transparent;
+        border: none; border-right: 1px solid var(--border);
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-family: 'Inter', sans-serif;
+        text-transform: uppercase;
+    }
+    .doc-tab:last-child { border-right: none; }
+    .doc-tab:hover { color: var(--text-primary); background: rgba(108,92,231,0.06); }
+    .doc-tab--active {
+        color: var(--accent) !important;
+        background: rgba(108,92,231,0.08) !important;
+        box-shadow: inset 0 -2px 0 var(--accent);
+    }
+
     .doc-code-block {
-        border-radius: 10px;
+        border-radius: 0 0 10px 10px;
         overflow: hidden;
         border: 1px solid var(--border);
-    }
-    .doc-code-label {
-        background: #13112A;
-        padding: 6px 14px;
-        font-size: 11px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        color: var(--text-muted);
-        border-bottom: 1px solid var(--border);
-        text-transform: uppercase;
+        border-top: 1px solid var(--border);
     }
     .doc-code {
         margin: 0;
@@ -136,14 +166,14 @@
         border-radius: 0;
     }
 
-    /* Override highlight.js theme background to match our dark palette */
+    /* Override highlight.js theme background */
     .doc-code code.hljs,
     .doc-code code {
-        background: #0D0C1A !important;
-        padding: 16px 18px !important;
-        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace !important;
+        background: #0A0918 !important;
+        padding: 18px 20px !important;
+        font-family: var(--mono) !important;
         font-size: 13px !important;
-        line-height: 1.75 !important;
+        line-height: 1.8 !important;
         border-radius: 0 !important;
     }
 </style>
@@ -156,13 +186,14 @@
     [Parameter] public string ModelCode { get; set; } = "";
 
     private bool _showCode = false;
+    private string _activeTab = "razor";
 
     private async Task ToggleCode()
     {
         _showCode = !_showCode;
         if (_showCode)
         {
-            // Let Blazor render the code elements, then highlight them
+            _activeTab = "razor";
             await Task.Yield();
             StateHasChanged();
             await Task.Delay(50);

@@ -222,18 +222,21 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        background: #1E1A3A;
+        background: rgba(108,92,231,0.1);
+        border: 1px solid rgba(108,92,231,0.2);
         border-radius: 999px;
-        padding: 6px 14px;
+        padding: 6px 16px;
         font-size: 12px;
         color: var(--text-muted);
         width: fit-content;
+        font-weight: 500;
     }
     .gs-badge-dot {
         width: 8px; height: 8px;
         background: var(--accent);
         border-radius: 50%;
         display: inline-block;
+        box-shadow: 0 0 8px var(--accent-glow);
     }
     .gs-hero h1 {
         font-size: 42px;
@@ -271,7 +274,7 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         width: 38px; height: 38px;
         min-width: 38px;
         border-radius: 50%;
-        background: #1E1A3A;
+        background: rgba(108,92,231,0.12);
         border: 2px solid var(--accent);
         display: flex;
         align-items: center;
@@ -309,7 +312,7 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
 
     /* ── Code blocks ── */
     .gs-tab-group {
-        border-radius: 10px;
+        border-radius: 12px;
         overflow: hidden;
         border: 1px solid var(--border);
     }
@@ -327,15 +330,15 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         background: #0D0C1A;
         margin: 0;
         padding: 16px 18px;
-        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+        font-family: var(--mono);
         font-size: 13px;
         line-height: 1.75;
         overflow-x: auto;
         color: #C8C2F0;
         white-space: pre;
     }
-    .gs-code .ck  { color: #7C6FCD; }   /* keyword / command */
-    .gs-code .cv  { color: #79D4A5; }   /* value / highlight */
+    .gs-code .ck  { color: #B4A8FF; }   /* keyword / command */
+    .gs-code .cv  { color: #7EDBB4; }   /* value / highlight */
     .gs-code .cx  { color: #9B95C9; }   /* neutral text */
 
     /* ── Callouts ── */
@@ -354,12 +357,12 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
     .gs-callout code,
     .gs-step-body p code,
     .gs-step-body h2 code {
-        background: #1E1A3A;
+        background: rgba(108,92,231,0.1);
         border-radius: 4px;
         padding: 1px 6px;
         font-size: 12px;
-        color: #A78BFA;
-        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+        color: #B4A8FF;
+        font-family: var(--mono);
     }
 
     /* ── Service cards ── */
@@ -378,9 +381,9 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         gap: 16px;
     }
     .gs-service-name {
-        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+        font-family: var(--mono);
         font-size: 13px;
-        color: #A78BFA;
+        color: #B4A8FF;
         min-width: 220px;
         font-weight: 600;
     }
@@ -394,8 +397,8 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         border-radius: 4px;
         padding: 1px 5px;
         font-size: 12px;
-        color: #A78BFA;
-        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+        color: #B4A8FF;
+        font-family: var(--mono);
     }
 
     /* ── CTA row ── */
@@ -407,22 +410,26 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
     }
     .gs-btn-primary {
         display: flex; align-items: center;
-        height: 40px; padding: 0 20px;
-        background: var(--accent);
+        height: 42px; padding: 0 22px;
+        background: linear-gradient(135deg, #6C5CE7 0%, #A855F7 100%);
         color: #fff !important;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 14px; font-weight: 600;
         text-decoration: none !important;
+        box-shadow: 0 2px 12px rgba(108,92,231,0.25);
+        transition: all 0.2s ease;
     }
     .gs-btn-secondary {
         display: flex; align-items: center;
-        height: 40px; padding: 0 20px;
-        background: #1E1A3A;
+        height: 42px; padding: 0 22px;
+        background: rgba(108,92,231,0.08);
+        border: 1px solid rgba(108,92,231,0.2);
         color: var(--text-muted) !important;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 14px; font-weight: 600;
         text-decoration: none !important;
+        transition: all 0.2s ease;
     }
-    .gs-btn-primary:hover  { opacity: 0.9; }
-    .gs-btn-secondary:hover { color: #fff !important; background: #2A2650; }
+    .gs-btn-primary:hover  { box-shadow: 0 4px 20px rgba(108,92,231,0.4); transform: translateY(-1px); }
+    .gs-btn-secondary:hover { color: #fff !important; border-color: rgba(108,92,231,0.4); background: rgba(108,92,231,0.15); }
 </style>

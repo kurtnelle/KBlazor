@@ -12,7 +12,7 @@
             <p class="demo-sub">FlexTable in Card mode — render items as clickable chips with colour-coding.</p>
         </div>
         <div class="demo-content">
-            <MudPaper Elevation="4" Class="table-paper">
+            <MudPaper Elevation="0" Class="table-paper" Style="padding:12px;">
                 <FlexTable TItem="PurchaseOrder"
                            Items="@_orders"
                            Fields="Order #,Customer,Status,Amount"
@@ -28,8 +28,8 @@
                     <div class="selected-label">Selected Order</div>
                     <div class="selected-row"><span class="field-name">Order #</span> <span>@_selected.Name</span></div>
                     <div class="selected-row"><span class="field-name">Customer</span> <span>@_selected.CustomerName</span></div>
-                    <div class="selected-row"><span class="field-name">Status</span> <span>@_selected.Status</span></div>
-                    <div class="selected-row"><span class="field-name">Amount</span> <span>@_selected.Amount.ToString("C")</span></div>
+                    <div class="selected-row"><span class="field-name">Status</span> <span class="status-badge @_selected.Status.ToString().ToLower()">@_selected.Status</span></div>
+                    <div class="selected-row"><span class="field-name">Amount</span> <span style="font-family:var(--mono);">$@_selected.Amount.ToString("N2")</span></div>
                 </div>
             }
         </div>
@@ -42,28 +42,15 @@
 </div>
 
 <style>
-    .demo-layout { display: flex; min-height: calc(100vh - 64px); }
-    .demo-body { flex: 1; display: flex; flex-direction: column; }
-    .demo-header { padding: 32px 32px 16px; border-bottom: 1px solid var(--border); }
-    .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
-    .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
-    .demo-content { flex: 1; padding: 24px 32px; display: flex; flex-direction: column; gap: 20px; }
-    .table-paper { background: #1E1C33 !important; border: 1px solid var(--border); border-radius: 12px !important; overflow: hidden; padding: 12px; }
-
-    /* Dark-theme overrides for the FlexTable native HTML table */
-    .table-paper .flex-table th { color: rgba(255,255,255,.7) !important; border-bottom-color: rgba(255,255,255,.12) !important; }
-    .table-paper .flex-table th span { color: rgba(255,255,255,.7) !important; }
-    .table-paper .flex-table td { color: #fff !important; border-bottom-color: rgba(255,255,255,.06) !important; }
-    .table-paper .flex-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,.03) !important; }
-    .table-paper .flex-table tbody tr:hover { background-color: rgba(255,255,255,.07) !important; }
-
     .selected-card {
-        background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
-        padding: 20px; display: flex; flex-direction: column; gap: 10px; max-width: 400px;
+        background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+        padding: 22px; display: flex; flex-direction: column; gap: 12px; max-width: 400px;
+        animation: fadeIn 0.2s ease;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.2);
     }
-    .selected-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
-    .selected-row { display: flex; gap: 12px; font-size: 14px; color: var(--text-primary); }
-    .field-name { color: var(--text-muted); min-width: 80px; font-weight: 600; }
+    .selected-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.2px; }
+    .selected-row { display: flex; align-items: center; gap: 12px; font-size: 14px; color: var(--text-primary); }
+    .field-name { color: var(--text-muted); min-width: 80px; font-weight: 600; font-size: 12px; }
 </style>
 
 @code {
