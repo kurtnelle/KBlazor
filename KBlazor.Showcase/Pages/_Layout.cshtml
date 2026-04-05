@@ -9,6 +9,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>KBlazor — Blazor Component Library</title>
     <base href="~/" />
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png" />
+    <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <link rel="manifest" href="site.webmanifest" />
+    <meta name="theme-color" content="#0B0A14" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
@@ -24,5 +30,13 @@
 
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script>
+        window.highlightAllCode = function () {
+            document.querySelectorAll('pre.doc-code code').forEach(function (el) {
+                el.removeAttribute('data-highlighted');
+                hljs.highlightElement(el);
+            });
+        };
+    </script>
 </body>
 </html>

@@ -5,6 +5,11 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>KBlazor</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>KBlazor</Authors>
+    <Description>Blazor Server component library — FlexTable, BasicEdit, CycleStateButton, RelativeDatePicker, and more. Driven by model attributes.</Description>
+    <PackageProjectUrl>https://kblazor.com</PackageProjectUrl>
+    <PackageTags>blazor;mudblazor;flextable;components;data-table</PackageTags>
     <RootNamespace>KBlazor</RootNamespace>
   </PropertyGroup>
 

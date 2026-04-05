@@ -36,30 +36,24 @@
     </div>
 
     <div class="hero-right">
-        <div class="table-preview">
-            <div class="tp-chrome">
-                <span class="tp-dot" style="background:#FF5F56;"></span>
-                <span class="tp-dot" style="background:#FFBD2E;"></span>
-                <span class="tp-dot" style="background:#27C93F;"></span>
-                <span class="tp-title">FlexTable Demo</span>
-            </div>
-            <div class="tp-header">
-                <span class="th">Order #</span>
-                <span class="th">Customer</span>
-                <span class="th">Status</span>
-                <span class="th th-right">Amount</span>
-            </div>
-            @foreach (var order in Store.Orders.Take(5))
-            {
-                <div class="tp-row">
-                    <span class="td">@order.Name</span>
-                    <span class="td">@order.Customer?.Name</span>
-                    <span class="td"><span class="status-badge @order.Status.ToString().ToLower()">@order.Status</span></span>
-                    <span class="td td-right td-mono">$@order.Amount.ToString("N2")</span>
-                </div>
-            }
-            <div class="tp-fade"></div>
-        </div>
+        <MudPaper Elevation="0" Class="table-paper hero-table">
+            <FlexTable TItem="PurchaseOrder"
+                       Items="@_orders"
+                       Fields="Order #,Customer,Status,Amount"
+                       PageSize="5"
+                       RenderTemplates="@_templates" />
+        </MudPaper>
+
+        <MudPaper Elevation="0" Class="table-paper hero-table" Style="margin-top:20px;">
+            <FlexTable TItem="PurchaseOrder"
+                       Items="@_orders"
+                       Fields="Order #,Customer,Amount"
+                       DefaultViewMode="FlexTableViewMode.Kanban"
+                       KanbanGroupField="Status"
+                       KanbanColumns="New,Pending,InProgress,Delivered,Cancelled"
+                       KanbanCardDisplayField="Order #"
+                       RenderTemplates="@_templates" />
+        </MudPaper>
     </div>
 </div>
 
@@ -129,7 +123,9 @@
         background: linear-gradient(135deg, #6C5CE7 0%, #A855F7 40%, #EC4899 100%);
         -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         background-clip: text;
+        user-select: none;
     }
+    .hero-left h1 { user-select: none; }
     .hero-sub {
         font-size: 16px; color: var(--text-muted);
         line-height: 1.7; margin: 0; max-width: 460px;
@@ -177,32 +173,10 @@
     .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
     .stat-sep { width: 1px; height: 32px; background: var(--border); }
 
-    /* ── Table preview ── */
+    /* ── Hero table ── */
     .hero-right { flex: 1; position: relative; z-index: 1; }
-    .table-preview {
-        background: #111025; border-radius: 14px; overflow: hidden;
-        border: 1px solid rgba(108,92,231,0.15);
-        box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(108,92,231,0.08);
-        position: relative;
-    }
-    .tp-chrome {
-        display: flex; align-items: center; gap: 6px;
-        padding: 10px 14px; background: #0C0B1A;
-        border-bottom: 1px solid var(--border);
-    }
-    .tp-dot { width: 10px; height: 10px; border-radius: 50%; }
-    .tp-title { font-size: 11px; color: var(--text-muted); margin-left: 8px; font-weight: 500; }
-    .tp-header { display: flex; background: #0E0D1E; padding: 0 18px; height: 40px; align-items: center; }
-    .th { flex: 1; font-size: 11px; font-weight: 700; color: rgba(108,92,231,0.8); text-transform: uppercase; letter-spacing: 0.5px; }
-    .th-right { text-align: right; }
-    .tp-row { display: flex; padding: 0 18px; height: 42px; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
-    .tp-row:hover { background: rgba(108,92,231,0.04); }
-    .td { flex: 1; font-size: 13px; color: #D8D6E8; }
-    .td-right { text-align: right; }
-    .td-mono { font-family: var(--mono); font-size: 13px; }
-    .tp-fade {
-        height: 60px;
-        background: linear-gradient(to bottom, transparent, #111025);
+    .hero-table {
+        box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(108,92,231,0.1) !important;
     }
 
     /* ── Features strip ── */
@@ -231,6 +205,31 @@
 </style>
 
 @code {
+    private IQueryable<PurchaseOrder> _orders = default!;
+
+    private Dictionary<Type, RenderFragment<object?>> _templates = new()
+    {
+        [typeof(OrderStatus)] = val =>
+        {
+            var status = (OrderStatus?)val;
+            var (bg, fg, label) = status switch
+            {
+                OrderStatus.New        => ("rgba(108,92,231,0.15)", "#B2CCFF", "New"),
+                OrderStatus.Pending    => ("rgba(255,177,66,0.12)", "#FFD9B2", "Pending"),
+                OrderStatus.InProgress => ("rgba(59,130,246,0.12)", "#93C5FD", "In Progress"),
+                OrderStatus.Delivered  => ("rgba(0,214,143,0.12)", "#86EFAC", "Delivered"),
+                OrderStatus.Cancelled  => ("rgba(239,68,68,0.12)", "#FCA5A5", "Cancelled"),
+                _                      => ("#333", "#ccc", val?.ToString() ?? "")
+            };
+            return @<span style="display:inline-block;padding:3px 12px;border-radius:999px;font-size:11px;font-weight:600;background:@bg;color:@fg">@label</span>;
+        }
+    };
+
+    protected override void OnInitialized()
+    {
+        _orders = Store.Orders.AsQueryable();
+    }
+
     private record Feature(string Icon, string Name, string Desc);
 
     private static readonly Feature[] _features = new[]

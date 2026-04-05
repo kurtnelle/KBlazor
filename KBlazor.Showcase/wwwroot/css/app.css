@@ -43,7 +43,7 @@ pre { padding: 16px; overflow-x: auto; }
 /* ═══════════════════════════════════════════════════════
    SHARED DEMO LAYOUT — used by all demo pages
    ═══════════════════════════════════════════════════════ */
-.demo-layout { display: flex; min-height: calc(100vh - 64px); }
+.demo-layout { display: flex; }
 .demo-body { flex: 1; display: flex; flex-direction: column; }
 .demo-header {
     padding: 40px 36px 20px;

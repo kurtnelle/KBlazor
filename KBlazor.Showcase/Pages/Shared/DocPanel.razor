@@ -27,14 +27,14 @@
                 </div>
             }
             <div class="doc-tabs">
-                <button class="doc-tab @(_activeTab == "razor" ? "doc-tab--active" : "")" @onclick='() => _activeTab = "razor"'>Razor</button>
+                <button class="doc-tab @(_activeTab == "razor" ? "doc-tab--active" : "")" @onclick='() => SwitchTab("razor")'>Razor</button>
                 @if (!string.IsNullOrEmpty(CodeBehind))
                 {
-                    <button class="doc-tab @(_activeTab == "cs" ? "doc-tab--active" : "")" @onclick='() => _activeTab = "cs"'>C#</button>
+                    <button class="doc-tab @(_activeTab == "cs" ? "doc-tab--active" : "")" @onclick='() => SwitchTab("cs")'>C#</button>
                 }
                 @if (!string.IsNullOrEmpty(ModelCode))
                 {
-                    <button class="doc-tab @(_activeTab == "model" ? "doc-tab--active" : "")" @onclick='() => _activeTab = "model"'>Model</button>
+                    <button class="doc-tab @(_activeTab == "model" ? "doc-tab--active" : "")" @onclick='() => SwitchTab("model")'>Model</button>
                 }
             </div>
             <div class="doc-code-block">
@@ -194,10 +194,21 @@
         if (_showCode)
         {
             _activeTab = "razor";
-            await Task.Yield();
-            StateHasChanged();
-            await Task.Delay(50);
-            await JS.InvokeVoidAsync("hljs.highlightAll");
+            await HighlightAsync();
         }
+    }
+
+    private async Task SwitchTab(string tab)
+    {
+        _activeTab = tab;
+        await HighlightAsync();
+    }
+
+    private async Task HighlightAsync()
+    {
+        await Task.Yield();
+        StateHasChanged();
+        await Task.Delay(50);
+        await JS.InvokeVoidAsync("highlightAllCode");
     }
 }
