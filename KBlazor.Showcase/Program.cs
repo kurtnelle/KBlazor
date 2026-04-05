@@ -16,6 +16,9 @@ builder.Services.AddScoped<IFlexTableSettings, InMemoryFlexTableSettings>();
 builder.Services.AddSingleton<IListViewSettingStore, InMemoryListViewSettingStore>();
 builder.Services.AddScoped<IEntityLookupProvider, InMemoryEntityLookupProvider>();
 
+// Showcase always runs fully licensed (demo site)
+builder.Services.AddSingleton<ILicenseProvider, DemoLicenseProvider>();
+
 // Singleton data store — seeded once at startup
 builder.Services.AddSingleton(SeedData.Create());
 
