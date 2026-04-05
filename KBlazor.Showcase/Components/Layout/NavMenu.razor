@@ -57,8 +57,8 @@
     {
         get
         {
-            var buildDate = DateTimeOffset.FromUnixTimeSeconds(
-                Assembly.GetExecutingAssembly().GetName().Version!.Build * 86400).UtcDateTime;
+            var build = Assembly.GetExecutingAssembly().GetName().Version!.Build;
+            var buildDate = new DateTime(2000, 1, 1).AddDays(build);
             return buildDate.ToLongDateString();
         }
     }
