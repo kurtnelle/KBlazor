@@ -5,24 +5,44 @@
 <PageTitle>KBlazor — Blazor Component Library</PageTitle>
 
 <div class="hero">
+    <div class="hero-glow hero-glow--1"></div>
+    <div class="hero-glow hero-glow--2"></div>
+
     <div class="hero-left">
         <div class="hero-badge">
             <span class="badge-dot"></span>
             Blazor Server Component Library
         </div>
-        <h1>Build data-driven UIs<br />in minutes</h1>
+        <h1>Build <span class="gradient-text">data-driven</span> UIs<br />in minutes</h1>
         <p class="hero-sub">
             KBlazor gives you a powerful table, auto-generated forms, and rich data controls
-            — all driven by your model attributes.
+            — all driven by your model's <code>[Display]</code> attributes.
         </p>
         <div class="hero-btns">
-            <a href="/demo/flextable" class="btn-primary">See Live Demo</a>
-            <a href="/getting-started" class="btn-secondary">Getting Started</a>
+            <a href="/demo/flextable" class="btn-hero-primary">
+                See Live Demo
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a href="/getting-started" class="btn-hero-secondary">Getting Started</a>
+        </div>
+
+        <div class="hero-stats">
+            <div class="stat"><span class="stat-num">3</span><span class="stat-label">View Modes</span></div>
+            <div class="stat-sep"></div>
+            <div class="stat"><span class="stat-num">11</span><span class="stat-label">Attributes</span></div>
+            <div class="stat-sep"></div>
+            <div class="stat"><span class="stat-num">0</span><span class="stat-label">Config Files</span></div>
         </div>
     </div>
 
     <div class="hero-right">
         <div class="table-preview">
+            <div class="tp-chrome">
+                <span class="tp-dot" style="background:#FF5F56;"></span>
+                <span class="tp-dot" style="background:#FFBD2E;"></span>
+                <span class="tp-dot" style="background:#27C93F;"></span>
+                <span class="tp-title">FlexTable Demo</span>
+            </div>
             <div class="tp-header">
                 <span class="th">Order #</span>
                 <span class="th">Customer</span>
@@ -35,7 +55,7 @@
                     <span class="td">@order.Name</span>
                     <span class="td">@order.Customer?.Name</span>
                     <span class="td"><span class="status-badge @order.Status.ToString().ToLower()">@order.Status</span></span>
-                    <span class="td td-right">$@order.Amount.ToString("N2")</span>
+                    <span class="td td-right td-mono">$@order.Amount.ToString("N2")</span>
                 </div>
             }
             <div class="tp-fade"></div>
@@ -43,57 +63,185 @@
     </div>
 </div>
 
-<div class="attr-strip">
-    @foreach (var attr in _attrs)
+<div class="features-strip">
+    @foreach (var feat in _features)
     {
-        <div class="attr-item">
-            <span class="attr-icon"></span>
-            <span>@attr</span>
+        <div class="feature-item">
+            <div class="feature-icon">@((MarkupString)feat.Icon)</div>
+            <div class="feature-text">
+                <div class="feature-name">@feat.Name</div>
+                <div class="feature-desc">@feat.Desc</div>
+            </div>
         </div>
     }
 </div>
 
 <style>
-    .hero { display: flex; align-items: center; gap: 80px; padding: 80px 40px; min-height: calc(100vh - 64px - 64px); }
-    .hero-left { width: 520px; min-width: 520px; display: flex; flex-direction: column; gap: 24px; }
-    .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: #1E1A3A; border-radius: 999px; padding: 6px 14px; font-size: 12px; color: var(--text-muted); width: fit-content; }
-    .badge-dot { width: 8px; height: 8px; background: var(--accent); border-radius: 50%; display: inline-block; }
-    .hero-left h1 { font-size: 52px; font-weight: 800; line-height: 1.1; margin: 0; color: #fff; }
-    .hero-sub { font-size: 16px; color: var(--text-muted); line-height: 1.7; margin: 0; }
+    /* ── Hero ── */
+    .hero {
+        display: flex; align-items: center; gap: 64px;
+        padding: 80px 48px 60px;
+        min-height: calc(100vh - 64px - 100px);
+        position: relative; overflow: hidden;
+    }
+    .hero-glow {
+        position: absolute; border-radius: 50%;
+        pointer-events: none; filter: blur(80px);
+    }
+    .hero-glow--1 {
+        width: 500px; height: 500px;
+        background: rgba(108,92,231,0.15);
+        top: -100px; left: -100px;
+        animation: pulse-glow 6s ease-in-out infinite;
+    }
+    .hero-glow--2 {
+        width: 400px; height: 400px;
+        background: rgba(168,85,247,0.1);
+        bottom: -120px; right: 5%;
+        animation: pulse-glow 8s ease-in-out 2s infinite;
+    }
+
+    .hero-left {
+        width: 520px; min-width: 480px;
+        display: flex; flex-direction: column; gap: 24px;
+        position: relative; z-index: 1;
+    }
+    .hero-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(108,92,231,0.1);
+        border: 1px solid rgba(108,92,231,0.2);
+        border-radius: 999px; padding: 6px 16px;
+        font-size: 12px; color: var(--text-muted);
+        width: fit-content; font-weight: 500;
+    }
+    .badge-dot {
+        width: 8px; height: 8px;
+        background: var(--accent); border-radius: 50%;
+        display: inline-block;
+        box-shadow: 0 0 8px var(--accent-glow);
+    }
+    .hero-left h1 {
+        font-size: 52px; font-weight: 800;
+        line-height: 1.08; margin: 0; color: #fff;
+        letter-spacing: -1.5px;
+    }
+    .gradient-text {
+        background: linear-gradient(135deg, #6C5CE7 0%, #A855F7 40%, #EC4899 100%);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    .hero-sub {
+        font-size: 16px; color: var(--text-muted);
+        line-height: 1.7; margin: 0; max-width: 460px;
+    }
+    .hero-sub code {
+        background: rgba(108,92,231,0.12); color: #B4A8FF;
+        padding: 1px 7px; border-radius: 4px; font-size: 13px;
+        font-family: var(--mono);
+    }
+
     .hero-btns { display: flex; gap: 12px; }
-    .btn-primary { display: flex; align-items: center; height: 44px; padding: 0 24px; background: var(--accent); color: #fff !important; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none !important; }
-    .btn-secondary { display: flex; align-items: center; height: 44px; padding: 0 24px; background: #1E1A3A; color: var(--text-muted) !important; border-radius: 8px; font-size: 15px; font-weight: 600; text-decoration: none !important; }
-    .hero-right { flex: 1; }
+    .btn-hero-primary {
+        display: flex; align-items: center; gap: 8px;
+        height: 48px; padding: 0 28px;
+        background: linear-gradient(135deg, #6C5CE7 0%, #A855F7 100%);
+        color: #fff !important; border-radius: 10px;
+        font-size: 15px; font-weight: 600;
+        text-decoration: none !important;
+        box-shadow: 0 4px 20px rgba(108,92,231,0.3);
+        transition: all 0.25s ease;
+    }
+    .btn-hero-primary:hover {
+        box-shadow: 0 6px 28px rgba(108,92,231,0.45);
+        transform: translateY(-2px);
+    }
+    .btn-hero-secondary {
+        display: flex; align-items: center;
+        height: 48px; padding: 0 28px;
+        background: rgba(108,92,231,0.08);
+        border: 1px solid rgba(108,92,231,0.25);
+        color: var(--text-muted) !important; border-radius: 10px;
+        font-size: 15px; font-weight: 600;
+        text-decoration: none !important;
+        transition: all 0.25s ease;
+    }
+    .btn-hero-secondary:hover {
+        color: #fff !important;
+        border-color: rgba(108,92,231,0.5);
+        background: rgba(108,92,231,0.15);
+    }
 
-    .table-preview { background: var(--bg-card); border-radius: 12px; overflow: hidden; position: relative; }
-    .tp-header { display: flex; background: #13112A; padding: 0 16px; height: 40px; align-items: center; }
-    .th { flex: 1; font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px; }
+    .hero-stats { display: flex; align-items: center; gap: 24px; padding-top: 8px; }
+    .stat { display: flex; flex-direction: column; gap: 2px; }
+    .stat-num { font-size: 24px; font-weight: 800; color: #fff; }
+    .stat-label { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .stat-sep { width: 1px; height: 32px; background: var(--border); }
+
+    /* ── Table preview ── */
+    .hero-right { flex: 1; position: relative; z-index: 1; }
+    .table-preview {
+        background: #111025; border-radius: 14px; overflow: hidden;
+        border: 1px solid rgba(108,92,231,0.15);
+        box-shadow: 0 8px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(108,92,231,0.08);
+        position: relative;
+    }
+    .tp-chrome {
+        display: flex; align-items: center; gap: 6px;
+        padding: 10px 14px; background: #0C0B1A;
+        border-bottom: 1px solid var(--border);
+    }
+    .tp-dot { width: 10px; height: 10px; border-radius: 50%; }
+    .tp-title { font-size: 11px; color: var(--text-muted); margin-left: 8px; font-weight: 500; }
+    .tp-header { display: flex; background: #0E0D1E; padding: 0 18px; height: 40px; align-items: center; }
+    .th { flex: 1; font-size: 11px; font-weight: 700; color: rgba(108,92,231,0.8); text-transform: uppercase; letter-spacing: 0.5px; }
     .th-right { text-align: right; }
-    .tp-row { display: flex; padding: 0 16px; height: 40px; align-items: center; border-top: 1px solid var(--border); }
-    .tp-row:nth-child(odd) { background: #17152B; }
-    .td { flex: 1; font-size: 13px; color: #E8E8EA; }
+    .tp-row { display: flex; padding: 0 18px; height: 42px; align-items: center; border-top: 1px solid rgba(255,255,255,0.04); transition: background 0.15s; }
+    .tp-row:hover { background: rgba(108,92,231,0.04); }
+    .td { flex: 1; font-size: 13px; color: #D8D6E8; }
     .td-right { text-align: right; }
-    .tp-fade { height: 60px; background: linear-gradient(to bottom, transparent, var(--bg-card)); }
+    .td-mono { font-family: var(--mono); font-size: 13px; }
+    .tp-fade {
+        height: 60px;
+        background: linear-gradient(to bottom, transparent, #111025);
+    }
 
-    .status-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-    .status-badge.new { background: #1C1A3A; color: #B2CCFF; }
-    .status-badge.pending { background: #2A2414; color: #FFD9B2; }
-    .status-badge.inprogress { background: #1A2040; color: #93C5FD; }
-    .status-badge.delivered { background: #1E3A2A; color: #A1E5A1; }
-    .status-badge.cancelled { background: #3A1A1A; color: #FFBFB2; }
-    .status-badge:not(.new):not(.pending):not(.inprogress):not(.delivered):not(.cancelled) { background: #1E1A3A; color: var(--text-muted); }
-
-    .attr-strip { display: flex; align-items: center; justify-content: space-around; height: 64px; background: #13112A; border-top: 1px solid var(--border); padding: 0 40px; }
-    .attr-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--text-muted); }
-    .attr-icon { width: 20px; height: 20px; background: var(--accent); border-radius: 4px; display: inline-block; }
+    /* ── Features strip ── */
+    .features-strip {
+        display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+        background: var(--border);
+        border-top: 1px solid var(--border);
+    }
+    .feature-item {
+        display: flex; align-items: center; gap: 14px;
+        padding: 24px 28px;
+        background: var(--bg);
+        transition: background 0.2s ease;
+    }
+    .feature-item:hover { background: rgba(108,92,231,0.04); }
+    .feature-icon {
+        width: 40px; height: 40px; min-width: 40px;
+        border-radius: 10px;
+        background: rgba(108,92,231,0.1);
+        border: 1px solid rgba(108,92,231,0.15);
+        display: flex; align-items: center; justify-content: center;
+        color: var(--accent); font-size: 18px;
+    }
+    .feature-name { font-size: 13px; font-weight: 700; color: var(--text-primary); }
+    .feature-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 </style>
 
 @code {
-    private static readonly string[] _attrs = new[]
+    private record Feature(string Icon, string Name, string Desc);
+
+    private static readonly Feature[] _features = new[]
     {
-        "[Display] driven columns",
-        "[AllowInlineEdit] in-row editing",
-        "[SortAndFilterOn] backing fields",
-        "[MemoDisplay] multiline forms"
+        new Feature("<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='3' y='3' width='7' height='7'/><rect x='14' y='3' width='7' height='7'/><rect x='3' y='14' width='7' height='7'/><rect x='14' y='14' width='7' height='7'/></svg>",
+            "[Display] Driven", "Columns & forms from attributes"),
+        new Feature("<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7'/><path d='M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z'/></svg>",
+            "Inline Editing", "Edit cells directly in the table"),
+        new Feature("<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><line x1='4' y1='21' x2='4' y2='14'/><line x1='4' y1='10' x2='4' y2='3'/><line x1='12' y1='21' x2='12' y2='12'/><line x1='12' y1='8' x2='12' y2='3'/><line x1='20' y1='21' x2='20' y2='16'/><line x1='20' y1='12' x2='20' y2='3'/></svg>",
+            "Sort & Filter", "Built-in via [SortAndFilterOn]"),
+        new Feature("<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='2' y='7' width='20' height='14' rx='2' ry='2'/><path d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/></svg>",
+            "3 View Modes", "Table, Card, and Kanban"),
     };
 }

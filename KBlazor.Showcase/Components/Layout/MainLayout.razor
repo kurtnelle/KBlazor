@@ -8,15 +8,19 @@
 
 <div class="showcase-shell">
     <nav class="top-nav">
-        <div class="nav-logo">
-            <div class="logo-mark"></div>
+        <a href="/" class="nav-logo">
+            <div class="logo-mark"><span>K</span></div>
             <span class="logo-text">KBlazor</span>
-        </div>
+        </a>
         <div class="nav-links">
-            <NavLink href="/demo/flextable">Components</NavLink>
-            <NavLink href="/docs">Docs</NavLink>
+            <NavLink href="/demo/flextable" class="nav-link">Components</NavLink>
+            <NavLink href="/demo/attributes" class="nav-link">API</NavLink>
+            <a href="https://github.com" target="_blank" class="nav-link nav-link--dim">GitHub</a>
         </div>
-        <NavLink href="/getting-started" class="btn-primary-sm">Get Started</NavLink>
+        <NavLink href="/getting-started" class="btn-get-started">
+            Get Started
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </NavLink>
     </nav>
 
     <main class="main-content">
@@ -32,26 +36,59 @@
         align-items: center;
         justify-content: space-between;
         height: 64px;
-        padding: 0 40px;
-        background: var(--bg);
-        border-bottom: 1px solid var(--border);
+        padding: 0 32px;
+        background: rgba(11,10,20,0.75);
+        backdrop-filter: blur(16px) saturate(180%);
+        -webkit-backdrop-filter: blur(16px) saturate(180%);
+        border-bottom: 1px solid rgba(108,92,231,0.08);
         position: sticky; top: 0; z-index: 100;
     }
 
-    .nav-logo { display: flex; align-items: center; gap: 10px; }
-    .logo-mark { width: 28px; height: 28px; background: var(--accent); border-radius: 6px; }
-    .logo-text { font-size: 18px; font-weight: 800; color: var(--text-primary); }
-
-    .nav-links { display: flex; gap: 32px; }
-    .nav-links a { font-size: 14px; color: var(--text-muted); text-decoration: none; }
-    .nav-links a:hover { color: var(--text-primary); }
-
-    .btn-primary-sm {
-        display: flex; align-items: center;
-        height: 36px; padding: 0 16px;
-        background: var(--accent); color: #fff !important;
-        border-radius: 6px; font-size: 14px; font-weight: 600;
+    .nav-logo {
+        display: flex; align-items: center; gap: 10px;
         text-decoration: none !important;
+    }
+    .logo-mark {
+        width: 32px; height: 32px;
+        background: linear-gradient(135deg, #6C5CE7 0%, #A855F7 100%);
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; font-size: 16px; color: #fff;
+        box-shadow: 0 2px 12px rgba(108,92,231,0.3);
+    }
+    .logo-text {
+        font-size: 18px; font-weight: 800; color: var(--text-primary);
+        letter-spacing: -0.3px;
+    }
+
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link {
+        font-size: 14px; color: var(--text-muted) !important;
+        text-decoration: none !important;
+        padding: 6px 14px; border-radius: 8px;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+    .nav-link:hover { color: var(--text-primary) !important; background: rgba(108,92,231,0.08); }
+    .nav-link.active { color: var(--text-primary) !important; background: rgba(108,92,231,0.12); }
+    .nav-link--dim { opacity: 0.7; }
+    .nav-link--dim:hover { opacity: 1; }
+
+    .btn-get-started {
+        display: flex; align-items: center; gap: 6px;
+        height: 36px; padding: 0 18px;
+        background: linear-gradient(135deg, #6C5CE7 0%, #A855F7 100%);
+        color: #fff !important;
+        border-radius: 8px;
+        font-size: 13px; font-weight: 600;
+        text-decoration: none !important;
+        box-shadow: 0 2px 12px rgba(108,92,231,0.25);
+        transition: all 0.2s ease;
+        letter-spacing: 0.2px;
+    }
+    .btn-get-started:hover {
+        box-shadow: 0 4px 20px rgba(108,92,231,0.4);
+        transform: translateY(-1px);
     }
 
     .main-content { flex: 1; }
@@ -60,7 +97,14 @@
 @code {
     private MudTheme _theme = new()
     {
-        PaletteLight = new PaletteLight { Primary = "#5749F4" },
-        PaletteDark = new PaletteDark { Primary = "#5749F4", Background = "#0F0E1A", Surface = "#1A182E", TextPrimary = "#FFFFFF", TextSecondary = "#888799" }
+        PaletteLight = new PaletteLight { Primary = "#6C5CE7" },
+        PaletteDark = new PaletteDark
+        {
+            Primary = "#6C5CE7",
+            Background = "#0B0A14",
+            Surface = "#151326",
+            TextPrimary = "#F0EFF4",
+            TextSecondary = "#7B7A8E"
+        }
     };
 }

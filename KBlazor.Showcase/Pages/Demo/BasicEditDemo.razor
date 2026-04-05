@@ -57,7 +57,8 @@
                     else
                     {
                         <div class="edit-placeholder">
-                            <p>← Select an order to edit</p>
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="opacity:0.4;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                            <p>Select an order to edit</p>
                         </div>
                     }
                 </div>
@@ -72,43 +73,51 @@
 </div>
 
 <style>
-    .demo-layout { display: flex; min-height: calc(100vh - 64px); }
-    .demo-body { flex: 1; display: flex; flex-direction: column; }
-    .demo-header { padding: 32px 32px 16px; border-bottom: 1px solid var(--border); }
-    .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
-    .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
-    .demo-content { flex: 1; padding: 24px 32px; }
-
-    .split-demo { display: flex; gap: 24px; min-height: 100%; }
+    .split-demo { display: flex; gap: 20px; min-height: 100%; }
     .order-list { width: 280px; min-width: 280px; display: flex; flex-direction: column; gap: 4px; }
-    .order-row { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; cursor: pointer; border: 1px solid var(--border); background: var(--bg-card); }
-    .order-row:hover { border-color: var(--accent); }
-    .order-row.active { border-color: var(--accent); background: #1E1A3A; }
+    .order-row {
+        display: flex; align-items: center; gap: 12px;
+        padding: 12px 16px; border-radius: 10px; cursor: pointer;
+        border: 1px solid var(--border); background: var(--bg-card);
+        transition: all 0.15s ease;
+    }
+    .order-row:hover { border-color: var(--border-hover); background: rgba(108,92,231,0.04); }
+    .order-row.active { border-color: var(--accent); background: rgba(108,92,231,0.08); box-shadow: 0 0 0 1px rgba(108,92,231,0.15); }
     .order-name { font-weight: 600; font-size: 13px; flex: 1; }
     .order-customer { font-size: 12px; color: var(--text-muted); flex: 1; }
 
-    .edit-panel { flex: 1; background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; }
-    .edit-placeholder { display: flex; align-items: center; justify-content: center; height: 200px; color: var(--text-muted); }
+    .edit-panel {
+        flex: 1; background: var(--bg-card); border-radius: 14px;
+        border: 1px solid var(--border); overflow: hidden;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .edit-placeholder {
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        gap: 8px; height: 200px; color: var(--text-muted); font-size: 14px;
+    }
 
-    .toolbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; background: #13112A; border-bottom: 1px solid var(--border); gap: 16px; flex-wrap: wrap; }
+    .toolbar {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 12px 16px; background: #0C0B1A;
+        border-bottom: 1px solid var(--border); gap: 16px; flex-wrap: wrap;
+    }
     .toolbar-group { display: flex; align-items: center; gap: 8px; }
     .toolbar-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #4A4868; }
-    .col-btn { width: 32px; height: 32px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-card); color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; }
+    .col-btn {
+        width: 32px; height: 32px; border-radius: 8px;
+        border: 1px solid var(--border); background: var(--bg-card);
+        color: var(--text-muted); font-size: 13px; font-weight: 600;
+        cursor: pointer; transition: all 0.15s ease;
+        font-family: 'Inter', sans-serif;
+    }
     .col-btn:hover { border-color: var(--accent); color: var(--text-primary); }
-    .col-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .col-btn.active { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(108,92,231,0.3); }
     .toolbar-hint { font-size: 12px; color: var(--text-muted); }
-    .toolbar-hint code { background: #0A0918; padding: 1px 5px; border-radius: 4px; color: #B2CCFF; font-size: 11px; }
+    .toolbar-hint code { background: rgba(108,92,231,0.1); padding: 1px 5px; border-radius: 4px; color: #B4A8FF; font-size: 11px; font-family: var(--mono); }
 
-    .fields-preview { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; background: #0F0D1E; border-bottom: 1px solid var(--border); }
-    .field-chip { font-size: 11px; padding: 2px 8px; border-radius: 999px; background: #1E1A3A; color: var(--text-muted); border: 1px solid var(--border); }
-    .skip-chip { background: transparent; color: #4A4868; border-style: dashed; font-style: italic; }
-
-    .status-badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
-    .status-badge.new { background: #1C1A3A; color: #B2CCFF; }
-    .status-badge.pending { background: #2A2414; color: #FFD9B2; }
-    .status-badge.inprogress { background: #1A2040; color: #93C5FD; }
-    .status-badge.delivered { background: #1E3A2A; color: #A1E5A1; }
-    .status-badge.cancelled { background: #3A1A1A; color: #FFBFB2; }
+    .fields-preview { display: flex; flex-wrap: wrap; gap: 6px; padding: 10px 16px; background: #0A0918; border-bottom: 1px solid var(--border); }
+    .field-chip { font-size: 11px; padding: 2px 10px; border-radius: 999px; background: rgba(108,92,231,0.1); color: var(--text-muted); border: 1px solid rgba(108,92,231,0.15); }
+    .skip-chip { background: transparent; color: #4A4868; border-style: dashed; border-color: var(--border); font-style: italic; }
 </style>
 
 @code {
@@ -122,7 +131,6 @@
 
     private void SaveOrder()
     {
-        // In-memory: changes are already applied to the object in the DataStore list
         _editing = null;
         StateHasChanged();
     }
