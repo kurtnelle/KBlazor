@@ -7,9 +7,9 @@
     <PackageId>KBlazor</PackageId>
     <Version>1.0.0</Version>
     <Authors>KBlazor</Authors>
-    <Description>Blazor Server component library — FlexTable, BasicEdit, CycleStateButton, RelativeDatePicker, and more. Driven by model attributes.</Description>
+    <Description>AI-ready Blazor components with FlexTable, BasicEdit, and DatePicker. Supports Table, Card, and Kanban views with zero configuration.</Description>
     <PackageProjectUrl>https://kblazor.com</PackageProjectUrl>
-    <PackageTags>blazor;mudblazor;flextable;components;data-table</PackageTags>
+    <PackageTags>blazor;mudblazor;flextable;kanban;components;ai-ready</PackageTags>
     <RootNamespace>KBlazor</RootNamespace>
   </PropertyGroup>
 

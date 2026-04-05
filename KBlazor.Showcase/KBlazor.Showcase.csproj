@@ -15,4 +15,9 @@
     <PackageReference Include="MudBlazor" Version="8.15.0" />
   </ItemGroup>
 
+  <!-- Pack KBlazor and copy .nupkg to wwwroot/packages after build -->
+  <Target Name="PackKBlazorNuGet" AfterTargets="Build">
+    <Exec Command="dotnet pack &quot;$(ProjectDir)..\KBlazor\KBlazor.csproj&quot; -c $(Configuration) -o &quot;$(ProjectDir)wwwroot\packages&quot; --no-build" />
+  </Target>
+
 </Project>

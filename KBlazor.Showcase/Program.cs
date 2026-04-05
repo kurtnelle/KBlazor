@@ -1,6 +1,7 @@
 // KBlazor.Showcase/Program.cs
 using KBlazor.Services;
 using KBlazor.Showcase.Data;
+using KBlazor.Showcase.Endpoints;
 using KBlazor.Showcase.Services;
 using MudBlazor.Services;
 
@@ -19,6 +20,9 @@ builder.Services.AddScoped<IEntityLookupProvider, InMemoryEntityLookupProvider>(
 // Showcase always runs fully licensed (demo site)
 builder.Services.AddSingleton<ILicenseProvider, DemoLicenseProvider>();
 
+// NuGet v3 feed service (serves packages from wwwroot/packages)
+builder.Services.AddSingleton<NuGetFeedService>();
+
 // Singleton data store — seeded once at startup
 builder.Services.AddSingleton(SeedData.Create());
 
@@ -32,6 +36,7 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
+app.MapNuGetFeedEndpoints();
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
 
