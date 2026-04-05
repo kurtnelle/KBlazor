@@ -1,4 +1,5 @@
 @* KBlazor.Showcase/Components/Layout/NavMenu.razor *@
+@using System.Reflection
 <nav class="demo-sidebar">
     <div class="sidebar-section-title">OVERVIEW</div>
     <NavLink href="/getting-started" Match="NavLinkMatch.All" class="sidebar-item">
@@ -35,7 +36,33 @@
     <NavLink href="/demo/attributes" Match="NavLinkMatch.All" class="sidebar-item">
         <span class="sidebar-indicator"></span> Attributes
     </NavLink>
+
+    <div class="sidebar-footer">
+        <span class="sidebar-footer-version">v@(Version)</span>
+        <span class="sidebar-footer-date">@BuildDate</span>
+    </div>
 </nav>
+
+@code {
+    protected string Version
+    {
+        get
+        {
+            var ver = Assembly.GetExecutingAssembly().GetName().Version;
+            return $"{ver!.Major}.{ver.Minor}.{ver.Build}";
+        }
+    }
+
+    protected string BuildDate
+    {
+        get
+        {
+            var buildDate = DateTimeOffset.FromUnixTimeSeconds(
+                Assembly.GetExecutingAssembly().GetName().Version!.Build * 86400).UtcDateTime;
+            return buildDate.ToLongDateString();
+        }
+    }
+}
 
 <style>
     .demo-sidebar {
@@ -88,4 +115,20 @@
     }
     .sidebar-sub:hover { color: var(--text-primary) !important; }
     .sidebar-sub.active { color: var(--text-primary) !important; }
+
+    .sidebar-footer {
+        margin-top: auto;
+        padding: 16px 20px;
+        border-top: 1px solid var(--border);
+        display: flex; flex-direction: column; gap: 2px;
+    }
+    .sidebar-footer-version {
+        font-size: 11px; font-weight: 600;
+        color: var(--accent); opacity: 0.7;
+        font-family: var(--mono, 'JetBrains Mono', monospace);
+    }
+    .sidebar-footer-date {
+        font-size: 10px;
+        color: var(--text-muted); opacity: 0.5;
+    }
 </style>
