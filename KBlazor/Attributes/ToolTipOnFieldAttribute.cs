@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace KBlazor.Attributes
 {
-    public class ToolTipAttribute: Attribute
+    public class ToolTipOnFieldAttribute: Attribute
     {
         public string PropertyName { get; set; }
     }

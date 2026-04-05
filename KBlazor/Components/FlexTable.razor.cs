@@ -301,7 +301,9 @@ namespace KBlazor.Components
                 listViewSetting.InitilizeDefinition();
             }
             currentListViewName = listViewSetting.Name;
-            currentViewMode = listViewSetting.ViewMode;
+            currentViewMode = DefaultViewMode != FlexTableViewMode.Table
+                ? DefaultViewMode
+                : listViewSetting.ViewMode;
             defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize).Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
             SortAndFilter();
             StateHasChanged();

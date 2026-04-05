@@ -171,7 +171,7 @@ public static class DocContent
         Switch FlexTable to Kanban mode with <code>DefaultViewMode</code>.
         <code>KanbanGroupField</code> names the property that determines which column a card appears in.
         <code>KanbanColumns</code> controls column order and labels.
-        <code>RenderTemplates</code> lets you replace column headers with custom markup &mdash; great for colored status badges.
+        <code>RenderTemplates</code> lets you customise how specific types render in cells &mdash; great for colored status badges.
         """;
 
     // ── BasicEdit ───────────────────────────────────────────────────────
@@ -188,7 +188,6 @@ public static class DocContent
     public const string BasicEditCodeBehind = """
         @code {
             private PurchaseOrder _editing = new();
-            private int _columns = 2;
 
             private void SaveOrder()
             {
@@ -216,7 +215,7 @@ public static class DocContent
 
     public const string CycleStateUsage = """
         <CycleStateButton State="@_state"
-                          OnStateChanged="@(v => _state = v % 5)"
+                          OnStateChanged="@(v => { _state = v % 5; })"
                           Label="@_labels[_state]"
                           Tooltip="Click to advance status" />
         """;
@@ -268,5 +267,52 @@ public static class DocContent
         Bind <code>StartDate</code> and <code>EndDate</code> to get the resolved <code>DateTime</code> range
         automatically &mdash; no need to call <code>RelativeDateCalc</code> yourself.
         FlexTable uses it internally for DateTime column filters when <code>SortFilter</code> is wired up.
+        """;
+
+    // ── Chips View ─────────────────────────────────────────────────────
+
+    public const string ChipsUsage = """
+        <FlexTable TItem="PurchaseOrder"
+                   Items="@_orders"
+                   Fields="Order #,Customer,Status,Amount"
+                   DefaultViewMode="FlexTableViewMode.Chips"
+                   ChipDisplayField="Name"
+                   ChipColor="@GetChipColor"
+                   SelectionChanged="OnChipClicked" />
+        """;
+
+    public const string ChipsCodeBehind = """
+        @inject DataStore Store
+
+        @code {
+            private IQueryable<PurchaseOrder> _orders = default!;
+            private PurchaseOrder? _selected;
+
+            protected override void OnInitialized()
+                => _orders = Store.Orders.AsQueryable();
+
+            private MudBlazor.Color GetChipColor(PurchaseOrder order)
+                => order.Status switch
+                {
+                    OrderStatus.New        => MudBlazor.Color.Default,
+                    OrderStatus.Pending    => MudBlazor.Color.Warning,
+                    OrderStatus.InProgress => MudBlazor.Color.Info,
+                    OrderStatus.Delivered  => MudBlazor.Color.Success,
+                    OrderStatus.Cancelled  => MudBlazor.Color.Error,
+                    _                      => MudBlazor.Color.Default,
+                };
+
+            private void OnChipClicked(PurchaseOrder order, string command)
+            {
+                _selected = order;
+            }
+        }
+        """;
+
+    public const string ChipsExplained = """
+        Set <code>DefaultViewMode="FlexTableViewMode.Chips"</code> to render items as clickable chips instead of table rows.
+        <code>ChipDisplayField</code> names the property whose value appears as the chip label.
+        <code>ChipColor</code> accepts a <code>Func&lt;TItem, Color&gt;</code> to colour-code chips by any logic &mdash; great for status indicators.
+        For full control, use <code>ChipTemplate</code> to supply a custom <code>RenderFragment&lt;TItem&gt;</code> for each chip.
         """;
 }
