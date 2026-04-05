@@ -15,6 +15,7 @@
         <div class="nav-links">
             <NavLink href="/demo/flextable" class="nav-link">Components</NavLink>
             <NavLink href="/demo/attributes" class="nav-link">API</NavLink>
+            <a href="https://github.com" target="_blank" class="nav-link nav-link--dim">GitHub</a>
         </div>
         <NavLink href="/getting-started" class="btn-get-started">
             Get Started
@@ -25,21 +26,6 @@
     <main class="main-content">
         @Body
     </main>
-
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-logo">
-                <div class="logo-mark"><span>K</span></div>
-                <span class="logo-text" style="font-size:14px;">KBlazor</span>
-            </div>
-            <div class="footer-copy">&copy; 2026@(DateTime.Now.Year > 2026 ? $"–{DateTime.Now.Year}" : "") KBlazor. All rights reserved.</div>
-            <div class="footer-links">
-                <a href="/getting-started">Docs</a>
-                <a href="/demo/flextable">Components</a>
-                <a href="/demo/attributes">API</a>
-            </div>
-        </div>
-    </footer>
 </div>
 
 <style>
@@ -106,33 +92,6 @@
     }
 
     .main-content { flex: 1; }
-
-    .site-footer {
-        border-top: 1px solid var(--border);
-        background: var(--bg-sidebar);
-        padding: 32px 40px;
-    }
-    .footer-inner {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .footer-logo { display: flex; align-items: center; gap: 8px; }
-    .footer-copy {
-        font-size: 13px;
-        color: var(--text-muted);
-        letter-spacing: 0.2px;
-    }
-    .footer-links { display: flex; gap: 20px; }
-    .footer-links a {
-        font-size: 13px;
-        color: var(--text-muted) !important;
-        text-decoration: none !important;
-        transition: color 0.15s ease;
-    }
-    .footer-links a:hover { color: var(--text-primary) !important; }
 </style>
 
 @code {

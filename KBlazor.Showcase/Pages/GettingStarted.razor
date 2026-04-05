@@ -74,54 +74,9 @@
         </div>
     </div>
 
-    <!-- ── Step 3: AI-ready documentation ──────────────────────────────── -->
+    <!-- ── Step 3: Register services ─────────────────────────────────── -->
     <div class="gs-step">
         <div class="gs-step-num">3</div>
-        <div class="gs-step-body">
-            <h2>AI-ready documentation included</h2>
-            <p>The KBlazor NuGet package ships with embedded <strong>Markdown documentation</strong> files that AI coding agents (Claude Code, GitHub Copilot, Cursor, etc.) can read automatically.</p>
-
-            <div class="gs-ai-cards">
-                <div class="gs-ai-card">
-                    <div class="gs-ai-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-                    </div>
-                    <div>
-                        <div class="gs-ai-name">Component guides</div>
-                        <div class="gs-ai-desc">FlexTable, BasicEdit, and all component usage patterns</div>
-                    </div>
-                </div>
-                <div class="gs-ai-card">
-                    <div class="gs-ai-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-                    </div>
-                    <div>
-                        <div class="gs-ai-name">Attribute reference</div>
-                        <div class="gs-ai-desc">Every attribute, its parameters, and where it applies</div>
-                    </div>
-                </div>
-                <div class="gs-ai-card">
-                    <div class="gs-ai-icon">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-                    </div>
-                    <div>
-                        <div class="gs-ai-name">Code examples</div>
-                        <div class="gs-ai-desc">Copy-paste Razor + C# snippets for every component</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="gs-callout gs-callout--ai">
-                When you ask an AI agent to <em>"add a FlexTable to my page"</em>, it will automatically discover
-                the embedded docs in your <code>packages</code> folder and generate correct KBlazor code
-                — no manual copy-paste from a website needed.
-            </div>
-        </div>
-    </div>
-
-    <!-- ── Step 4: Register services ─────────────────────────────────── -->
-    <div class="gs-step">
-        <div class="gs-step-num">4</div>
         <div class="gs-step-body">
             <h2>Register services in <code>Program.cs</code></h2>
             <p>KBlazor needs three scoped services and MudBlazor's service collection.</p>
@@ -158,9 +113,9 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 5: Add imports ────────────────────────────────────────── -->
+    <!-- ── Step 4: Add imports ────────────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">5</div>
+        <div class="gs-step-num">4</div>
         <div class="gs-step-body">
             <h2>Add namespaces to <code>_Imports.razor</code></h2>
             <p>Add these usings so every component in your project can reference KBlazor types without qualification.</p>
@@ -175,9 +130,9 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 6: Decorate your model ─────────────────────────────────── -->
+    <!-- ── Step 5: Decorate your model ─────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">6</div>
+        <div class="gs-step-num">5</div>
         <div class="gs-step-body">
             <h2>Decorate your model with attributes</h2>
             <p>KBlazor reads <code>[Display]</code> attributes to build columns and form fields automatically. Additional attributes control editing behaviour, sorting, and rendering.</p>
@@ -218,7 +173,7 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 7: Done ───────────────────────────────────────────────── -->
+    <!-- ── Step 6: Done ───────────────────────────────────────────────── -->
     <div class="gs-step gs-step--last">
         <div class="gs-step-num gs-step-num--done">✓</div>
         <div class="gs-step-body">
@@ -245,7 +200,7 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
 </div>
 
 <style>
-    .gs-layout { display: flex; }
+    .gs-layout { display: flex; min-height: calc(100vh - 64px); }
     .gs-page {
         flex: 1;
         max-width: 860px;
@@ -397,38 +352,8 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         line-height: 1.6;
     }
     .gs-callout--info {
-        border-left-color: #7EDBB4;
+        border-left-color: #79D4A5;
     }
-    .gs-callout--ai {
-        border-left-color: #A855F7;
-        background: rgba(168,85,247,0.06);
-    }
-    .gs-callout--ai em { color: var(--text-primary); font-style: normal; font-weight: 600; }
-
-    /* ── AI doc cards ── */
-    .gs-ai-cards {
-        display: flex; flex-direction: column; gap: 8px;
-    }
-    .gs-ai-card {
-        display: flex; align-items: center; gap: 14px;
-        background: #0C0B1A; border: 1px solid var(--border);
-        border-radius: 10px; padding: 14px 16px;
-        transition: all 0.15s ease;
-    }
-    .gs-ai-card:hover {
-        border-color: rgba(168,85,247,0.3);
-        box-shadow: 0 2px 12px rgba(168,85,247,0.08);
-    }
-    .gs-ai-icon {
-        width: 38px; height: 38px; min-width: 38px;
-        border-radius: 10px;
-        background: rgba(168,85,247,0.1);
-        border: 1px solid rgba(168,85,247,0.15);
-        display: flex; align-items: center; justify-content: center;
-        color: #A855F7;
-    }
-    .gs-ai-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-    .gs-ai-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
     .gs-callout code,
     .gs-step-body p code,
     .gs-step-body h2 code {
