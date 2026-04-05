@@ -5,10 +5,14 @@
         <span class="sidebar-indicator"></span> Getting Started
     </NavLink>
     <div class="sidebar-section-title" style="margin-top:16px;">COMPONENTS</div>
-    <NavLink href="/demo/flextable" Match="NavLinkMatch.All" class="sidebar-item">
-        <span class="sidebar-indicator"></span> FlexTable
+    <div class="sidebar-parent">FlexTable</div>
+    <NavLink href="/demo/flextable" Match="NavLinkMatch.All" class="sidebar-item sidebar-sub">
+        <span class="sidebar-indicator"></span> Table View
     </NavLink>
-    <NavLink href="/demo/kanban" Match="NavLinkMatch.All" class="sidebar-item">
+    <NavLink href="/demo/chips" Match="NavLinkMatch.All" class="sidebar-item sidebar-sub">
+        <span class="sidebar-indicator"></span> Card View
+    </NavLink>
+    <NavLink href="/demo/kanban" Match="NavLinkMatch.All" class="sidebar-item sidebar-sub">
         <span class="sidebar-indicator"></span> Kanban View
     </NavLink>
     <NavLink href="/demo/basicedit" Match="NavLinkMatch.All" class="sidebar-item">
@@ -51,4 +55,10 @@
         background: var(--accent); border-radius: 2px;
     }
     .sidebar-indicator { display: block; width: 3px; height: 20px; }
+
+    .sidebar-parent {
+        font-size: 13px; font-weight: 600; color: var(--text-primary);
+        padding: 6px 16px; margin-top: 2px;
+    }
+    .sidebar-sub { padding-left: 28px !important; font-size: 12px !important; }
 </style>
