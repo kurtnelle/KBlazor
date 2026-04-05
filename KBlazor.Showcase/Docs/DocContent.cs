@@ -241,18 +241,32 @@ public static class DocContent
     // ── RelativeDatePicker ──────────────────────────────────────────────
 
     public const string DatePickerUsage = """
-        <RelativeDatePicker @bind-Value="selectedDate" />
+        <RelativeDatePicker @bind-Value="selectedDate"
+                            @bind-StartDate="startDate"
+                            @bind-EndDate="endDate" />
         """;
 
     public const string DatePickerCodeBehind = """
         @code {
             private string selectedDate = string.Empty;
+            private DateTime? startDate;
+            private DateTime? endDate;
+
+            // startDate and endDate are automatically resolved
+            // from the relative expression (e.g. "Last Week")
+            // via RelativeDateCalc.GetLowerDate / GetUpperDate.
+            //
+            // Use them directly in queries:
+            // query.Where(o => o.OrderDate >= startDate
+            //               && o.OrderDate <= endDate);
         }
         """;
 
     public const string DatePickerExplained = """
         RelativeDatePicker supports both absolute date selection and relative expressions:
         <code>Today</code>, <code>This Week</code>, <code>Last Month</code>, <code>Next Year</code>, and more.
-        FlexTable uses it automatically for DateTime column filters when <code>SortFilter</code> is wired up.
+        Bind <code>StartDate</code> and <code>EndDate</code> to get the resolved <code>DateTime</code> range
+        automatically &mdash; no need to call <code>RelativeDateCalc</code> yourself.
+        FlexTable uses it internally for DateTime column filters when <code>SortFilter</code> is wired up.
         """;
 }

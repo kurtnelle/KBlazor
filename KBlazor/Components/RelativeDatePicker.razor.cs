@@ -12,6 +12,38 @@ namespace KBlazor.Components
         [Parameter]
         public EventCallback<string> ValueChanged { get; set; }
 
+        /// <summary>The resolved lower bound of the selected relative date expression.</summary>
+        [Parameter]
+        public DateTime? StartDate { get; set; }
+
+        [Parameter]
+        public EventCallback<DateTime?> StartDateChanged { get; set; }
+
+        /// <summary>The resolved upper bound of the selected relative date expression.</summary>
+        [Parameter]
+        public DateTime? EndDate { get; set; }
+
+        [Parameter]
+        public EventCallback<DateTime?> EndDateChanged { get; set; }
+
+        /// <summary>Resolves the current Value via RelativeDateCalc and fires StartDateChanged / EndDateChanged.</summary>
+        private async Task ResolveDates()
+        {
+            var val = Value;
+            if (RelativeDateCalc.IsValidRelativeDate(val))
+            {
+                StartDate = RelativeDateCalc.GetLowerDate(val);
+                EndDate = RelativeDateCalc.GetUpperDate(val);
+            }
+            else
+            {
+                StartDate = null;
+                EndDate = null;
+            }
+            await StartDateChanged.InvokeAsync(StartDate);
+            await EndDateChanged.InvokeAsync(EndDate);
+        }
+
         [Parameter]
         public string Value
         {

@@ -1,5 +1,5 @@
 <div style="white-space:nowrap;">
-    <MudSelect T="string" Value="@relativeChoice" ValueChanged="@(e => { relativeChoice = e; ValueChanged.InvokeAsync(Value); StateHasChanged(); })" Style="min-width:150px !important;">
+    <MudSelect T="string" Value="@relativeChoice" ValueChanged="@(e => { relativeChoice = e; ValueChanged.InvokeAsync(Value); ResolveDates(); StateHasChanged(); })" Style="min-width:150px !important;">
         @foreach (var item in RelativeDateCalc.PartA)
         {
             <MudSelectItem T="string" Value="@item">@item</MudSelectItem>
@@ -9,13 +9,13 @@
     {
         if (relativeChoice != "Today" && relativeChoice != "This")
         {
-            <MudTextField T="int?" Label="# of" Value="@xNumber" ValueChanged="@(e => { xNumber = e; ValueChanged.InvokeAsync(Value); StateHasChanged(); })" Style="max-width:150px;" />
+            <MudTextField T="int?" Label="# of" Value="@xNumber" ValueChanged="@(e => { xNumber = e; ValueChanged.InvokeAsync(Value); ResolveDates(); StateHasChanged(); })" Style="max-width:150px;" />
         }
         else
         {
             xNumber = null;
         }
-        <MudSelect T="string" Value="@datePart" ValueChanged="@(e => { datePart = e; ValueChanged.InvokeAsync(Value); StateHasChanged(); })" Style="min-width:150px !important;">
+        <MudSelect T="string" Value="@datePart" ValueChanged="@(e => { datePart = e; ValueChanged.InvokeAsync(Value); ResolveDates(); StateHasChanged(); })" Style="min-width:150px !important;">
             @foreach (var item in RelativeDateCalc.PartC)
             {
                 <MudSelectItem T="string" Value="@item">@($"{item}(s)")</MudSelectItem>
