@@ -98,8 +98,8 @@
             new[] { "BasicEdit" }),
 
         new AttrInfo("[SortAndFilterOn]",
-            "Specifies that sort and filter should operate on a different member than the displayed property.",
-            "[Display(Name = \"Status\")]\n[SortAndFilterOn(Member = \"Status\")]\npublic OrderStatus Status { get; set; }",
+            "Specifies that sort and filter should operate on a different member than the displayed property — essential for computed or navigation properties.",
+            "[Display(Name = \"Customer\")]\n[SortAndFilterOn(Member = \"Customer.Name\")]\npublic string CustomerName => Customer?.Name ?? string.Empty;",
             new[] { "FlexTable" }),
 
         new AttrInfo("[ToolTipOnField]",

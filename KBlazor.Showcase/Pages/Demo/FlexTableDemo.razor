@@ -30,6 +30,8 @@
 
         <DocPanel ComponentName="FlexTable"
                   UsageCode="@DocContent.FlexTableUsage"
+                  CodeBehind="@DocContent.FlexTableCodeBehind"
+                  ModelCode="@DocContent.PurchaseOrderModel"
                   Explanation="@DocContent.FlexTableExplained" />
     </div>
 </div>
@@ -42,6 +44,13 @@
     .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
     .demo-content { flex: 1; padding: 24px 32px; }
     .table-paper { background: #1E1C33 !important; border: 1px solid var(--border); border-radius: 12px !important; overflow: hidden; }
+
+    /* Dark-theme overrides for the FlexTable native HTML table */
+    .table-paper .flex-table th { color: rgba(255,255,255,.7) !important; border-bottom-color: rgba(255,255,255,.12) !important; }
+    .table-paper .flex-table th span { color: rgba(255,255,255,.7) !important; }
+    .table-paper .flex-table td { color: #fff !important; border-bottom-color: rgba(255,255,255,.06) !important; }
+    .table-paper .flex-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,.03) !important; }
+    .table-paper .flex-table tbody tr:hover { background-color: rgba(255,255,255,.07) !important; }
 </style>
 
 @code {

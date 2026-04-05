@@ -15,11 +15,14 @@ public class PurchaseOrder : IKBusinessEntity
     [ReadOnlyOnEdit]
     public string Name { get; set; } = string.Empty;
 
-    [Display(Name = "Customer", Order = 2)]
     [AutoComplete]
     public Guid? CustomerId { get; set; }
 
     public virtual Customer? Customer { get; set; }
+
+    [Display(Name = "Customer", Order = 2)]
+    [SortAndFilterOn(Member = "Customer.Name")]
+    public string CustomerName => Customer?.Name ?? string.Empty;
 
     [Display(Name = "Status", Order = 3)]
     [SortAndFilterOn(Member = "Status")]

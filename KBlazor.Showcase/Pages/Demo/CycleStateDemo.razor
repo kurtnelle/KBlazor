@@ -17,9 +17,9 @@
                     var idx = i;
                     <div class="cycle-demo-card">
                         <div class="cycle-label">Order @(idx + 1) Status</div>
-                        <CycleStateButton @bind-Value="_values[idx]"
-                                          States="@_states"
-                                          Labels="@_labels" />
+                        <CycleStateButton State="@_values[idx]"
+                                          OnStateChanged="@(v => _values[idx] = v % _labels.Length)"
+                                          Label="@_labels[_values[idx]]" />
                         <div class="cycle-value">Current: <strong>@((OrderStatus)_values[idx])</strong></div>
                     </div>
                 }
@@ -27,6 +27,7 @@
         </div>
         <DocPanel ComponentName="CycleStateButton"
                   UsageCode="@DocContent.CycleStateUsage"
+                  CodeBehind="@DocContent.CycleStateCodeBehind"
                   Explanation="@DocContent.CycleStateExplained" />
     </div>
 </div>

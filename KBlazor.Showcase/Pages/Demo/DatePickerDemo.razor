@@ -14,7 +14,7 @@
             <div class="picker-demo">
                 <div class="picker-card">
                     <div class="picker-label">Selected value</div>
-                    <RelativeDatePicker @bind-Value="_date" Label="Filter by date" />
+                    <RelativeDatePicker @bind-Value="_date" />
                     <div class="picker-output">
                         @if (!string.IsNullOrEmpty(_date))
                         {
@@ -37,6 +37,7 @@
         </div>
         <DocPanel ComponentName="RelativeDatePicker"
                   UsageCode="@DocContent.DatePickerUsage"
+                  CodeBehind="@DocContent.DatePickerCodeBehind"
                   Explanation="@DocContent.DatePickerExplained" />
     </div>
 </div>

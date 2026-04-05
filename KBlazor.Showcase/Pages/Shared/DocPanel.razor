@@ -1,22 +1,49 @@
 @* KBlazor.Showcase/Pages/Shared/DocPanel.razor *@
-<div class="doc-panel @(IsExpanded ? "expanded" : "")">
-    <button class="doc-toggle" @onclick="Toggle">
-        <span>@(IsExpanded ? "▲" : "▼")</span>
-        <span>How to use @ComponentName</span>
-    </button>
-    @if (IsExpanded)
+@inject IJSRuntime JS
+
+<div class="doc-panel">
+    <div class="doc-toolbar">
+        <button class="doc-btn" @onclick="ToggleCode">
+            @if (_showCode)
+            {
+                <span class="doc-icon">✕</span>
+                <span>Hide code</span>
+            }
+            else
+            {
+                <span class="doc-icon">❮❯</span>
+                <span>Show code</span>
+            }
+        </button>
+    </div>
+
+    @if (_showCode)
     {
-        <div class="doc-body">
-            <div class="doc-columns">
-                <div class="doc-col">
-                    <div class="doc-label">USAGE</div>
-                    <pre><code>@UsageCode</code></pre>
-                </div>
-                <div class="doc-col">
-                    <div class="doc-label">EXPLANATION</div>
+        <div class="doc-code-area">
+            @if (!string.IsNullOrEmpty(Explanation))
+            {
+                <div class="doc-explain">
                     <p>@((MarkupString)Explanation)</p>
                 </div>
+            }
+            <div class="doc-code-block">
+                <div class="doc-code-label">RAZOR</div>
+                <pre class="doc-code"><code class="language-xml">@UsageCode.Trim()</code></pre>
             </div>
+            @if (!string.IsNullOrEmpty(CodeBehind))
+            {
+                <div class="doc-code-block">
+                    <div class="doc-code-label">C#</div>
+                    <pre class="doc-code"><code class="language-csharp">@CodeBehind.Trim()</code></pre>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(ModelCode))
+            {
+                <div class="doc-code-block">
+                    <div class="doc-code-label">MODEL</div>
+                    <pre class="doc-code"><code class="language-csharp">@ModelCode.Trim()</code></pre>
+                </div>
+            }
         </div>
     }
 </div>
@@ -26,25 +53,120 @@
         border-top: 1px solid var(--border);
         background: var(--bg-sidebar);
     }
-    .doc-toggle {
-        display: flex; align-items: center; gap: 8px;
-        width: 100%; padding: 12px 24px;
-        background: none; border: none; color: var(--text-muted);
-        font-size: 13px; cursor: pointer; text-align: left;
+
+    /* ── Toolbar bar ── */
+    .doc-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 14px 24px;
     }
-    .doc-toggle:hover { color: var(--text-primary); }
-    .doc-body { padding: 0 24px 24px; }
-    .doc-columns { display: flex; gap: 40px; }
-    .doc-col { flex: 1; }
-    .doc-label { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; color: #4A4868; margin-bottom: 8px; }
-    .doc-col p { font-size: 14px; color: var(--text-muted); line-height: 1.7; margin: 0; }
+    .doc-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 28px;
+        height: 42px;
+        background: rgba(87,73,244,0.08);
+        border: 1px solid rgba(87,73,244,0.3);
+        border-radius: 8px;
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+    .doc-btn:hover {
+        color: #fff;
+        border-color: var(--accent);
+        background: rgba(87,73,244,0.2);
+    }
+    .doc-icon {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: -1px;
+    }
+
+    /* ── Code area ── */
+    .doc-code-area {
+        padding: 0 24px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+    .doc-explain {
+        background: #13112A;
+        border-left: 3px solid var(--accent);
+        border-radius: 0 8px 8px 0;
+        padding: 12px 16px;
+    }
+    .doc-explain p {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin: 0;
+    }
+    .doc-explain code {
+        background: #0A0918;
+        border-radius: 4px;
+        padding: 1px 6px;
+        font-size: 12px;
+        color: #A78BFA;
+        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    }
+    .doc-code-block {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+    }
+    .doc-code-label {
+        background: #13112A;
+        padding: 6px 14px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        color: var(--text-muted);
+        border-bottom: 1px solid var(--border);
+        text-transform: uppercase;
+    }
+    .doc-code {
+        margin: 0;
+        padding: 0;
+        border-radius: 0;
+    }
+
+    /* Override highlight.js theme background to match our dark palette */
+    .doc-code code.hljs,
+    .doc-code code {
+        background: #0D0C1A !important;
+        padding: 16px 18px !important;
+        font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace !important;
+        font-size: 13px !important;
+        line-height: 1.75 !important;
+        border-radius: 0 !important;
+    }
 </style>
 
 @code {
     [Parameter, EditorRequired] public string ComponentName { get; set; } = "";
     [Parameter, EditorRequired] public string UsageCode { get; set; } = "";
     [Parameter, EditorRequired] public string Explanation { get; set; } = "";
+    [Parameter] public string CodeBehind { get; set; } = "";
+    [Parameter] public string ModelCode { get; set; } = "";
 
-    private bool IsExpanded = false;
-    private void Toggle() => IsExpanded = !IsExpanded;
+    private bool _showCode = false;
+
+    private async Task ToggleCode()
+    {
+        _showCode = !_showCode;
+        if (_showCode)
+        {
+            // Let Blazor render the code elements, then highlight them
+            await Task.Yield();
+            StateHasChanged();
+            await Task.Delay(50);
+            await JS.InvokeVoidAsync("hljs.highlightAll");
+        }
+    }
 }

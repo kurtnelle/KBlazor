@@ -12,18 +12,22 @@
             <p class="demo-sub">FlexTable in Kanban mode — group items into columns by any property.</p>
         </div>
         <div class="demo-content">
-            <FlexTable TItem="PurchaseOrder"
-                       Items="@_orders"
-                       Fields="Order #,Customer,Amount"
-                       DefaultViewMode="FlexTableViewMode.Kanban"
-                       KanbanGroupField="Status"
-                       KanbanColumns="New,Pending,InProgress,Delivered,Cancelled"
-                       KanbanCardDisplayField="Order #"
-                       SelectionChanged="OnRowClicked"
-                       RenderTemplates="@_templates" />
+            <MudPaper Elevation="4" Class="table-paper">
+                <FlexTable TItem="PurchaseOrder"
+                           Items="@_orders"
+                           Fields="Order #,Customer,Amount"
+                           DefaultViewMode="FlexTableViewMode.Kanban"
+                           KanbanGroupField="Status"
+                           KanbanColumns="New,Pending,InProgress,Delivered,Cancelled"
+                           KanbanCardDisplayField="Order #"
+                           SelectionChanged="OnRowClicked"
+                           RenderTemplates="@_templates" />
+            </MudPaper>
         </div>
         <DocPanel ComponentName="FlexTable (Kanban)"
                   UsageCode="@DocContent.KanbanUsage"
+                  CodeBehind="@DocContent.KanbanCodeBehind"
+                  ModelCode="@DocContent.PurchaseOrderModel"
                   Explanation="@DocContent.KanbanExplained" />
     </div>
 </div>
@@ -35,6 +39,14 @@
     .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
     .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
     .demo-content { flex: 1; padding: 24px 32px; overflow-x: auto; }
+    .table-paper { background: #1E1C33 !important; border: 1px solid var(--border); border-radius: 12px !important; overflow: hidden; }
+
+    /* Dark-theme overrides for the FlexTable native HTML table */
+    .table-paper .flex-table th { color: rgba(255,255,255,.7) !important; border-bottom-color: rgba(255,255,255,.12) !important; }
+    .table-paper .flex-table th span { color: rgba(255,255,255,.7) !important; }
+    .table-paper .flex-table td { color: #fff !important; border-bottom-color: rgba(255,255,255,.06) !important; }
+    .table-paper .flex-table tbody tr:nth-child(even) { background-color: rgba(255,255,255,.03) !important; }
+    .table-paper .flex-table tbody tr:hover { background-color: rgba(255,255,255,.07) !important; }
 </style>
 
 @code {
