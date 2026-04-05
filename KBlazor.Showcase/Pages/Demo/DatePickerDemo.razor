@@ -14,7 +14,9 @@
             <div class="picker-demo">
                 <div class="picker-card">
                     <div class="picker-label">Selected value</div>
-                    <RelativeDatePicker @bind-Value="_date" />
+                    <RelativeDatePicker @bind-Value="_date"
+                                        @bind-StartDate="_start"
+                                        @bind-EndDate="_end" />
                     <div class="picker-output">
                         @if (!string.IsNullOrEmpty(_date))
                         {
@@ -25,13 +27,52 @@
                             <span style="color:var(--text-muted)">No date selected</span>
                         }
                     </div>
-                </div>
-                <div class="relative-examples">
-                    <div class="example-label">Relative date strings supported by FlexTable filters:</div>
-                    @foreach (var example in _examples)
+
+                    @if (_start.HasValue && _end.HasValue)
                     {
-                        <div class="example-chip">@example</div>
+                        <div class="picker-label">Resolved date range</div>
+                        <div class="resolved-range">
+                            <div class="range-row">
+                                <span class="range-label">From</span>
+                                <span class="range-value">@_start.Value.ToString("ddd, dd MMM yyyy")</span>
+                            </div>
+                            <div class="range-row">
+                                <span class="range-label">To</span>
+                                <span class="range-value">@_end.Value.ToString("ddd, dd MMM yyyy HH:mm")</span>
+                            </div>
+                        </div>
                     }
+                </div>
+
+                <div class="examples-card">
+                    <div class="example-label">Relative date strings supported by FlexTable filters</div>
+                    <div class="examples-grid">
+                        @foreach (var example in _examples)
+                        {
+                            <button class="example-chip @(example == _date ? "active" : "")"
+                                    @onclick="() => SelectExample(example)">
+                                @example
+                            </button>
+                        }
+                    </div>
+
+                    <div class="calc-label">How it works</div>
+                    <div class="calc-flow">
+                        <div class="flow-step">
+                            <div class="flow-num">1</div>
+                            <div class="flow-text"><strong>RelativeDatePicker</strong> builds a string<br /><code>"Last 2 Week"</code></div>
+                        </div>
+                        <div class="flow-arrow"></div>
+                        <div class="flow-step">
+                            <div class="flow-num">2</div>
+                            <div class="flow-text"><strong>RelativeDateCalc</strong> resolves to dates<br /><code>GetLowerDate() / GetUpperDate()</code></div>
+                        </div>
+                        <div class="flow-arrow"></div>
+                        <div class="flow-step">
+                            <div class="flow-num">3</div>
+                            <div class="flow-text"><strong>FlexTable</strong> applies as a<br /><code>WHERE date BETWEEN ... AND ...</code></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,17 +90,53 @@
     .demo-header h2 { margin: 0 0 8px; font-size: 28px; font-weight: 800; }
     .demo-sub { margin: 0; font-size: 15px; color: var(--text-muted); }
     .demo-content { flex: 1; padding: 24px 32px; }
-    .picker-demo { display: flex; gap: 40px; align-items: flex-start; flex-wrap: wrap; }
-    .picker-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; min-width: 280px; }
+    .picker-demo { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
+
+    .picker-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; min-width: 280px; flex: 1; max-width: 400px; }
     .picker-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
     .picker-output { font-size: 14px; color: var(--text-primary); padding: 10px; background: var(--bg-sidebar); border-radius: 6px; }
-    .relative-examples { display: flex; flex-direction: column; gap: 8px; }
-    .example-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-    .example-chip { display: inline-block; background: #1E1A3A; color: #B2CCFF; padding: 4px 12px; border-radius: 999px; font-size: 13px; width: fit-content; }
+
+    .resolved-range { display: flex; flex-direction: column; gap: 8px; }
+    .range-row { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: #13112A; border-radius: 6px; border: 1px solid var(--border); }
+    .range-label { font-size: 11px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; min-width: 40px; }
+    .range-value { font-size: 14px; color: var(--text-primary); font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; }
+
+    .examples-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 24px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+    .example-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+    .examples-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+    .example-chip {
+        display: inline-block; background: #1E1A3A; color: #B2CCFF; padding: 6px 14px; border-radius: 999px; font-size: 13px;
+        border: 1px solid transparent; cursor: pointer; transition: all 0.15s ease;
+    }
+    .example-chip:hover { border-color: var(--accent); color: #fff; }
+    .example-chip.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .calc-label { font-size: 12px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; }
+    .calc-flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; }
+    .flow-step { display: flex; align-items: flex-start; gap: 10px; background: #13112A; border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; min-width: 180px; }
+    .flow-num { width: 22px; height: 22px; min-width: 22px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-top: 2px; }
+    .flow-text { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+    .flow-text strong { color: var(--text-primary); }
+    .flow-text code { background: #0A0918; padding: 1px 5px; border-radius: 3px; font-size: 11px; color: #A78BFA; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; }
+    .flow-arrow { width: 24px; height: 2px; background: var(--accent); position: relative; flex-shrink: 0; }
+    .flow-arrow::after { content: ''; position: absolute; right: 0; top: -4px; border: 5px solid transparent; border-left-color: var(--accent); }
 </style>
 
 @code {
     private string _date = string.Empty;
+    private DateTime? _start;
+    private DateTime? _end;
+
+    private void SelectExample(string example)
+    {
+        _date = example;
+        if (KBlazor.Models.RelativeDateCalc.IsValidRelativeDate(_date))
+        {
+            _start = KBlazor.Models.RelativeDateCalc.GetLowerDate(_date);
+            _end = KBlazor.Models.RelativeDateCalc.GetUpperDate(_date);
+        }
+    }
+
     private static readonly string[] _examples = new[]
     {
         "Today", "This Week", "This Month", "This Year",
