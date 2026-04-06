@@ -24,5 +24,13 @@
 
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script>
+        function highlightAllCode() {
+            document.querySelectorAll('pre code').forEach(function (el) {
+                el.removeAttribute('data-highlighted');
+                hljs.highlightElement(el);
+            });
+        }
+    </script>
 </body>
 </html>
