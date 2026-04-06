@@ -222,18 +222,87 @@ pre { padding: 16px; overflow-x: auto; }
 
     /* Getting Started */
     .gs-layout { flex-direction: column !important; }
-    .gs-page { padding: 0 16px 40px !important; }
-    .gs-hero { padding: 28px 0 !important; }
-    .gs-hero h1 { font-size: 26px !important; }
-    .gs-hero p { font-size: 14px !important; }
-    .gs-step { padding-left: 28px !important; }
-    .gs-step-num { width: 28px !important; height: 28px !important; font-size: 12px !important; left: -14px !important; }
-    .gs-step-body h2 { font-size: 17px !important; }
+    .gs-page {
+        padding: 20px 16px 40px !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+    .gs-hero { padding: 16px 0 28px !important; }
+    .gs-hero h1 { font-size: 26px !important; letter-spacing: -0.5px !important; }
+    .gs-hero p { font-size: 14px !important; max-width: 100% !important; }
+    .gs-hero-badge { font-size: 11px !important; padding: 5px 12px !important; }
+
+    /* Steps — compact timeline on mobile */
+    .gs-step {
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 0 0 32px !important;
+        padding-left: 0 !important;
+    }
+    .gs-step:not(.gs-step--last)::before {
+        display: none !important;
+    }
+    .gs-step-num {
+        width: 28px !important; height: 28px !important;
+        min-width: 28px !important;
+        font-size: 12px !important;
+        position: static !important;
+    }
+    .gs-step-body { gap: 10px !important; }
+    .gs-step-body h2 { font-size: 17px !important; padding-top: 0 !important; }
+    .gs-step-body p { font-size: 13px !important; }
+
+    /* Code blocks */
+    .gs-tab-group {
+        border-radius: 8px !important;
+        max-width: 100% !important;
+        overflow: hidden !important;
+    }
+    .gs-code {
+        font-size: 11px !important;
+        padding: 12px !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        max-width: 100% !important;
+    }
+
+    /* Service cards & callouts */
     .gs-service-card { flex-direction: column !important; gap: 4px !important; }
-    .gs-service-name { min-width: unset !important; }
-    .gs-code { font-size: 11px !important; overflow-x: auto !important; }
+    .gs-service-name { min-width: unset !important; font-size: 12px !important; }
+    .gs-service-desc { font-size: 12px !important; }
+    .gs-callout { font-size: 12px !important; padding: 8px 12px !important; }
+
+    /* CTA */
     .gs-cta-row { flex-direction: column !important; }
-    .gs-btn-primary, .gs-btn-secondary { width: 100% !important; justify-content: center !important; }
+    .gs-btn-primary, .gs-btn-secondary {
+        width: 100% !important; justify-content: center !important;
+        height: 40px !important; font-size: 13px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* BasicEdit demo — stack vertically, hide order list */
+    .split-demo { flex-direction: column !important; gap: 12px !important; }
+    .order-list {
+        width: 100% !important; min-width: unset !important;
+        flex-direction: row !important; flex-wrap: wrap !important;
+        gap: 6px !important;
+    }
+    .order-row {
+        flex: 1 1 auto !important; min-width: 140px !important;
+        padding: 8px 12px !important;
+    }
+    .order-customer { display: none !important; }
+    .order-name { font-size: 12px !important; }
+    .edit-panel { border-radius: 10px !important; }
+    .toolbar { flex-direction: column !important; align-items: flex-start !important; gap: 8px !important; padding: 10px 12px !important; }
+    .toolbar-hint { font-size: 11px !important; }
+    .fields-preview { padding: 8px 12px !important; }
+    .field-chip { font-size: 10px !important; padding: 2px 8px !important; }
+
+    /* MudBlazor form fields — force single column on mobile */
+    .edit-panel .mud-grid { flex-direction: column !important; }
+    .edit-panel .mud-grid .mud-item { max-width: 100% !important; flex-basis: 100% !important; }
 
     /* Code blocks */
     pre { font-size: 11px !important; padding: 12px !important; overflow-x: auto; }
