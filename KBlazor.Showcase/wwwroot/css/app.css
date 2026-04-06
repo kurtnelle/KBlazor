@@ -22,6 +22,7 @@ html, body {
     color: var(--text-primary);
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     min-height: 100vh;
+    overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
@@ -130,3 +131,110 @@ pre { padding: 16px; overflow-x: auto; }
    SELECTION
    ═══════════════════════════════════════════════════════ */
 ::selection { background: rgba(108,92,231,0.3); color: #fff; }
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — TABLET (≤ 1024px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+    /* Navbar */
+    .top-nav { padding: 0 20px !important; }
+
+    .demo-header { padding: 28px 20px 16px; }
+    .demo-header h2 { font-size: 24px; }
+    .demo-content { padding: 20px; }
+    .table-paper { border-radius: 10px !important; overflow-x: auto; }
+
+    /* Hero */
+    .hero { flex-direction: column !important; gap: 40px !important; padding: 48px 32px 40px !important; min-height: auto !important; }
+    .hero-left { width: 100% !important; min-width: unset !important; }
+    .hero-left h1 { font-size: 40px !important; }
+    .features-strip { grid-template-columns: repeat(2, 1fr) !important; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — MOBILE (≤ 768px)
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    /* Sidebar → horizontal nav strip */
+    .demo-layout { flex-direction: column; }
+    .demo-sidebar {
+        width: 100% !important; min-width: unset !important;
+        min-height: unset !important;
+        border-right: none !important;
+        border-bottom: 1px solid var(--border);
+        padding: 12px 0 !important;
+        flex-direction: row !important;
+        flex-wrap: wrap;
+        gap: 0 !important;
+    }
+    .sidebar-section-title { display: none; }
+    .sidebar-parent { display: none; }
+    .sidebar-footer { display: none; }
+    .sidebar-item {
+        height: 32px !important; padding: 0 12px !important;
+        font-size: 12px !important; margin: 0 4px !important;
+        border-radius: 6px !important;
+    }
+    .sidebar-sub { padding-left: 12px !important; }
+    .sidebar-indicator { display: none !important; }
+
+    /* Navbar — !important to override inline <style> from MainLayout.razor */
+    .top-nav { padding: 0 16px !important; height: 52px !important; }
+    .logo-mark { width: 28px !important; height: 28px !important; font-size: 14px !important; border-radius: 6px !important; }
+    .logo-text { font-size: 16px !important; }
+    .nav-links { display: none !important; }
+    .btn-get-started { height: 32px !important; padding: 0 14px !important; font-size: 12px !important; }
+    .btn-get-started svg { display: none !important; }
+
+    /* Demo pages */
+    .demo-header { padding: 20px 16px 14px; }
+    .demo-header h2 { font-size: 20px; }
+    .demo-header::before { display: none; }
+    .demo-sub { font-size: 13px; }
+    .demo-content { padding: 16px; }
+    .table-paper {
+        border-radius: 8px !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .table-paper .flex-table { min-width: 600px; }
+
+    /* Hero — !important to override inline <style> from Home.razor */
+    .hero { padding: 32px 16px 28px !important; gap: 28px !important; min-height: auto !important; }
+    .hero-left { width: 100% !important; min-width: unset !important; }
+    .hero-left h1 { font-size: 28px !important; letter-spacing: -1px !important; line-height: 1.15 !important; }
+    .hero-sub { font-size: 14px !important; max-width: 100% !important; }
+    .hero-right { display: none !important; }
+    .hero-badge { font-size: 11px !important; padding: 5px 12px !important; }
+    .hero-btns { flex-direction: column !important; }
+    .btn-hero-primary, .btn-hero-secondary {
+        width: 100% !important; justify-content: center !important;
+        height: 44px !important; font-size: 14px !important;
+        box-sizing: border-box !important;
+    }
+    .hero-stats { gap: 16px !important; flex-wrap: wrap !important; }
+    .stat-num { font-size: 20px !important; }
+    .stat-label { font-size: 10px !important; }
+
+    /* Features strip */
+    .features-strip { grid-template-columns: 1fr !important; }
+    .feature-item { padding: 16px 20px !important; }
+
+    /* Getting Started */
+    .gs-layout { flex-direction: column !important; }
+    .gs-page { padding: 0 16px 40px !important; }
+    .gs-hero { padding: 28px 0 !important; }
+    .gs-hero h1 { font-size: 26px !important; }
+    .gs-hero p { font-size: 14px !important; }
+    .gs-step { padding-left: 28px !important; }
+    .gs-step-num { width: 28px !important; height: 28px !important; font-size: 12px !important; left: -14px !important; }
+    .gs-step-body h2 { font-size: 17px !important; }
+    .gs-service-card { flex-direction: column !important; gap: 4px !important; }
+    .gs-service-name { min-width: unset !important; }
+    .gs-code { font-size: 11px !important; overflow-x: auto !important; }
+    .gs-cta-row { flex-direction: column !important; }
+    .gs-btn-primary, .gs-btn-secondary { width: 100% !important; justify-content: center !important; }
+
+    /* Code blocks */
+    pre { font-size: 11px !important; padding: 12px !important; overflow-x: auto; }
+}
