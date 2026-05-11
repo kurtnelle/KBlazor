@@ -24,6 +24,7 @@
                            InlineEditor="IsUrgent"
                            AdditionalCommands="GetCommands"
                            RenderTemplates="@_templates"
+                           DetailsTemplate="@_detailsTemplate"
                            SelectedItem="@_selected" />
             </MudPaper>
         </div>
@@ -39,6 +40,13 @@
 @code {
     private IQueryable<PurchaseOrder> _orders = default!;
     private PurchaseOrder? _selected;
+
+    private RenderFragment<PurchaseOrder> _detailsTemplate => order => __builder =>
+    {
+        <BasicEdit TItem="PurchaseOrder" Item="@order" Columns="3"
+                   Save="@(() => StateHasChanged())"
+                   Close="@(() => { })" />
+    };
 
     private Dictionary<Type, RenderFragment<object?>> _templates = new()
     {

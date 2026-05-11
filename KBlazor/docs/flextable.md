@@ -108,6 +108,21 @@ protected void OnSortFilter(ListViewSetting listViewSetting)
 |-----------|------|-------------|
 | `RenderTemplates` | `Dictionary<Type, RenderFragment<object?>>?` | Per-type custom cell templates. When a column's property type matches a key, the template renders instead of the default text. The template receives the raw property value (not the formatted string). Also applies to Kanban column headers when the `KanbanGroupField` type has a registered template. |
 
+### Row Details
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `DetailsTemplate` | `RenderFragment<TItem>?` | Optional collapsible detail panel rendered below the row, spanning all columns. When set, each row gets a leading chevron toggle. Multiple rows can be expanded simultaneously; expansion state resets on sort, filter, or data change. Table view only. |
+
+```razor
+<FlexTable TItem="PurchaseOrder"
+           Items="@_orders"
+           Fields="Order #,Customer,Status"
+           DetailsTemplate="@(order => @<BasicEdit TItem=\"PurchaseOrder\" Item=\"@order\" Columns=\"3\" />)" />
+```
+
+The chevron column only renders when `DetailsTemplate` is non-null, so existing tables are unaffected.
+
 ### Kanban View
 
 | Parameter | Type | Description |
