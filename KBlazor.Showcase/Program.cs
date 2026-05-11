@@ -17,9 +17,6 @@ builder.Services.AddScoped<IFlexTableSettings, InMemoryFlexTableSettings>();
 builder.Services.AddSingleton<IListViewSettingStore, InMemoryListViewSettingStore>();
 builder.Services.AddScoped<IEntityLookupProvider, InMemoryEntityLookupProvider>();
 
-// Showcase always runs fully licensed (demo site)
-builder.Services.AddSingleton<ILicenseProvider, DemoLicenseProvider>();
-
 // NuGet v3 feed service (serves packages from wwwroot/packages)
 builder.Services.AddSingleton<NuGetFeedService>();
 

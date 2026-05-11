@@ -6,10 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>KBlazor</PackageId>
     <Version>1.0.0</Version>
-    <Authors>KBlazor</Authors>
+    <Authors>Shawn K. Lewis</Authors>
     <Description>AI-ready Blazor components with FlexTable, BasicEdit, and DatePicker. Supports Table, Card, and Kanban views with zero configuration.</Description>
     <PackageProjectUrl>https://kblazor.com</PackageProjectUrl>
     <PackageTags>blazor;mudblazor;flextable;kanban;components;ai-ready</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryUrl>https://github.com/kurtnelle/KBlazor</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <RootNamespace>KBlazor</RootNamespace>
   </PropertyGroup>
 
@@ -18,6 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="icon.png" Pack="true" PackagePath="\" />
     <None Include="CLAUDE.md" Pack="true" PackagePath="docs/" />
     <None Include="docs\**\*" Pack="true" PackagePath="docs/" />
   </ItemGroup>
