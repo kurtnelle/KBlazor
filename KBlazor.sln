@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBlazor.Showcase", "KBlazor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBlazor.Showcase.Tests", "KBlazor.Showcase.Tests\KBlazor.Showcase.Tests.csproj", "{E2A5DE47-52A3-42CE-A43E-BDCFFF02C0A4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KBlazor.LicenseTool", "KBlazor.LicenseTool\KBlazor.LicenseTool.csproj", "{819AE202-12F3-4F73-ACB5-082CBC079F59}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -57,18 +55,6 @@ Global
 		{E2A5DE47-52A3-42CE-A43E-BDCFFF02C0A4}.Release|x64.Build.0 = Release|Any CPU
 		{E2A5DE47-52A3-42CE-A43E-BDCFFF02C0A4}.Release|x86.ActiveCfg = Release|Any CPU
 		{E2A5DE47-52A3-42CE-A43E-BDCFFF02C0A4}.Release|x86.Build.0 = Release|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Debug|x64.Build.0 = Debug|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Debug|x86.Build.0 = Debug|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Release|Any CPU.Build.0 = Release|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Release|x64.ActiveCfg = Release|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Release|x64.Build.0 = Release|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Release|x86.ActiveCfg = Release|Any CPU
-		{819AE202-12F3-4F73-ACB5-082CBC079F59}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

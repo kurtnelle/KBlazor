@@ -6,7 +6,6 @@
 @using KBlazor.Models
 @using KBlazor.Services
 @inject IEntityLookupProvider EntityProvider
-@inject ILicenseProvider LicenseProvider
 @typeparam TItem
 @if (Item != null)
 {
@@ -27,7 +26,7 @@
     }
     <MudGrid>
         <MudItem xs="10">
-            @if (Save != null && LicenseProvider.IsLicensed)
+            @if (Save != null)
             {
                 <MudButton StartIcon="@Icons.Material.Filled.Save" OnClick="Save">Save</MudButton>
             }
