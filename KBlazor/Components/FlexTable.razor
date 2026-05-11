@@ -303,6 +303,10 @@
     <table class="flex-table">
         <thead>
             <tr style="height:20px;">
+                @if (DetailsTemplate != null)
+                {
+                    <th style="width:36px;">&nbsp;</th>
+                }
                 <th style="width:111px;">&nbsp;</th>
                 @foreach (var setting in listViewSetting.DisplaySettings)
                 {
@@ -319,6 +323,10 @@
             @if (!IsPrintView)
             {
                 <tr>
+                    @if (DetailsTemplate != null)
+                    {
+                        <th style="width:36px;">&nbsp;</th>
+                    }
                     <th style="width:111px;">
                         <MudButton Disabled="@(!IsClearSortAndFilterEnabled())"
                                    OnClick="@ClearSortAndFilter"
@@ -534,6 +542,14 @@
                 var context = ViewItems[i];
                 var rowNumber = PageIndex * PageSize + i + 1;
                 <tr class="@(RowClass != null ? RowClass(context) : string.Empty)" style="@(RowStyle != null ? RowStyle(context) : string.Empty)">
+                    @if (DetailsTemplate != null)
+                    {
+                        <td style="width:36px; text-align:center;">
+                            <MudIconButton Icon="@(IsRowExpanded(context) ? Icons.Material.Filled.KeyboardArrowDown : Icons.Material.Filled.KeyboardArrowRight)"
+                                           Size="Size.Small"
+                                           OnClick="@(() => ToggleRowDetails(context))" />
+                        </td>
+                    }
                     <td style="white-space:nowrap;">
                         <MudButton Variant="Variant.Text"
                                    Size="Size.Small"
@@ -609,6 +625,16 @@
                         </span>
                     </td>
                 </tr>
+                @if (IsRowExpanded(context))
+                {
+                    <tr class="flex-table-details">
+                        <td colspan="@TableColumnCount" style="padding:0; background:var(--mud-palette-background-grey);">
+                            <div style="padding:16px;">
+                                @DetailsTemplate!(context)
+                            </div>
+                        </td>
+                    </tr>
+                }
             }
         </tbody>
     </table>

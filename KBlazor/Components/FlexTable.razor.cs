@@ -109,6 +109,33 @@ namespace KBlazor.Components
             return RenderTemplates.TryGetValue(property.PropertyType, out var template) ? template : null;
         }
 
+        /// <summary>
+        /// Optional row-details template. When provided, each row gets a leading chevron
+        /// that expands a panel below the row spanning all columns. Only the Table view mode
+        /// supports row details. One row may be expanded at a time.
+        /// </summary>
+        [Parameter]
+        public RenderFragment<TItem>? DetailsTemplate { get; set; }
+
+        private readonly HashSet<TItem> _expandedItems = new();
+
+        protected bool IsRowExpanded(TItem item)
+        {
+            if (DetailsTemplate == null || item == null) return false;
+            return _expandedItems.Contains(item);
+        }
+
+        protected void ToggleRowDetails(TItem item)
+        {
+            if (item == null) return;
+            if (!_expandedItems.Remove(item))
+                _expandedItems.Add(item);
+            StateHasChanged();
+        }
+
+        protected int TableColumnCount =>
+            (listViewSetting?.DisplaySettings.Count ?? 0) + 2 + (DetailsTemplate != null ? 1 : 0);
+
         #region View Mode Parameters
 
         [Parameter]
@@ -210,6 +237,7 @@ namespace KBlazor.Components
             if (!ReferenceEquals(Items, _lastItems))
             {
                 _lastItems = Items;
+                _expandedItems.Clear();
                 if (Items != null)
                 {
                     RefreshView();
@@ -354,6 +382,7 @@ namespace KBlazor.Components
 
         public void SortAndFilter()
         {
+            _expandedItems.Clear();
             if (SortFilter != null)
             {
                 SortFilter(listViewSetting);
