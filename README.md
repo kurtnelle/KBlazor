@@ -102,4 +102,4 @@ Issues and pull requests are welcome. Please run `dotnet build KBlazor.sln` and 
 
 ## License
 
-[MIT](LICENSE) © Shawn K. Lewis
+[MIT](LICENSE) © [Shawn K. Lewis](shawnklewis.com)
