@@ -25,6 +25,10 @@
     <main class="main-content">
         @Body
     </main>
+
+    <footer class="site-footer">
+        <span>Built by <a href="https://shawnklewis.com" target="_blank" rel="noopener" class="footer-link">Shawn K Lewis</a></span>
+    </footer>
 </div>
 
 <style>
@@ -91,6 +95,27 @@
     }
 
     .main-content { flex: 1; }
+
+    .site-footer {
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px 32px;
+        border-top: 1px solid rgba(108,92,231,0.08);
+        background: rgba(11,10,20,0.6);
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+    .footer-link {
+        color: var(--text-primary);
+        text-decoration: none;
+        font-weight: 600;
+        margin-left: 4px;
+        background: linear-gradient(135deg, #6C5CE7 0%, #A855F7 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        transition: opacity 0.2s ease;
+    }
+    .footer-link:hover { opacity: 0.8; }
 
 </style>
 
