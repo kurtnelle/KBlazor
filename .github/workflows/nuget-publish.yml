@@ -39,3 +39,20 @@ jobs:
             --api-key "${{ secrets.NUGET_API_KEY }}" \
             --source https://api.nuget.org/v3/index.json \
             --skip-duplicate
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG already exists; uploading assets with --clobber."
+            gh release upload "$TAG" ./nupkgs/*.nupkg ./nupkgs/*.snupkg --clobber || \
+              gh release upload "$TAG" ./nupkgs/*.nupkg --clobber
+          else
+            gh release create "$TAG" \
+              --target "${{ github.sha }}" \
+              --title "$TAG" \
+              --generate-notes \
+              ./nupkgs/*.nupkg
+          fi
