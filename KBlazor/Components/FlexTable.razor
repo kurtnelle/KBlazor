@@ -200,7 +200,7 @@
                     <MudText Typo="Typo.h6">
                         @propertyName
                         <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
-                                       Disabled="@(string.IsNullOrEmpty(setting.Filter))"
+                                       Disabled="@(!setting.HasActiveFilter)"
                                        OnClick="@(e => setting.Filter = string.Empty)"
                                        Size="Size.Small" />
                         @{
@@ -373,7 +373,7 @@
                                     <MudText Typo="Typo.h6">
                                         Filter for: @propertyName
                                         <MudIconButton Icon="@Icons.Material.Filled.RemoveCircleOutline"
-                                                       Disabled="@(string.IsNullOrEmpty(setting.Filter))"
+                                                       Disabled="@(!setting.HasActiveFilter)"
                                                        OnClick="@(e => setting.Filter = string.Empty)"
                                                        Size="Size.Small" />
                                     </MudText>
