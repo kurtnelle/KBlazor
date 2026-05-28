@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <PackageId>KBlazor</PackageId>
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
     <Authors>Shawn K. Lewis</Authors>
     <Description>AI-ready Blazor components with FlexTable, BasicEdit, and DatePicker. Supports Table, Card, and Kanban views with zero configuration.</Description>
     <PackageProjectUrl>https://kblazor.com</PackageProjectUrl>

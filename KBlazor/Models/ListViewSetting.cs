@@ -321,6 +321,18 @@ namespace KBlazor.Models
             }
         }
 
+        /// <summary>
+        /// True iff at least one filter dimension on this column carries a non-default value.
+        /// Use this for "is there anything to clear?" checks; Filter alone is unreliable
+        /// because double columns don't round-trip their numeric bounds through it.
+        /// </summary>
+        [JsonIgnore]
+        public bool HasActiveFilter =>
+            !string.IsNullOrEmpty(filter)
+            || GreaterThanDate.HasValue || LessThanDate.HasValue
+            || GreaterThanDouble != 0   || LessThanDouble != 0
+            || GreaterThanTime.HasValue || LessThanTime.HasValue;
+
         public Guid[] GetFilterEntries() => Filter.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Select(s => Guid.Parse(s)).ToArray();
         public DateTime? GreaterThanDate { get; set; }
         public DateTime? LessThanDate { get; set; }
