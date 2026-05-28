@@ -84,7 +84,7 @@ protected void OnSortFilter(ListViewSetting listViewSetting)
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `AdditionalCommands` | `Func<TItem, string>` | Returns FontAwesome icon classes per row. Multiple icons space-separated. Clicking fires `SelectionChanged` with the icon class as the command string. |
+| `AdditionalCommands` | `Func<TItem, string>` | Returns FontAwesome icon classes per row. Multiple icons comma-separated (whitespace around commas is trimmed). Clicking fires `SelectionChanged` with the icon class as the command string. |
 | `AdditionalSortRowCommands` | `string` | FontAwesome icons added to the header row |
 
 ### Inline Editing
@@ -169,7 +169,7 @@ Groups items into columns by a property value.
 protected string GetAdditionalCommands(PurchaseOrder order)
 {
     if (order.Status == Status.New)
-        return "fa-regular fa-square-check fa-solid fa-trash";
+        return "fa-regular fa-square-check, fa-solid fa-trash";
     return "fa-regular fa-square-check";
 }
 
