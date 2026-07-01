@@ -21,6 +21,11 @@ namespace KBlazor.Components
 
         DotNetObjectReference<FlexTable<TItem>> dotNetObjectReference = null;
 
+        // True only while LoadView is running. LoadView calls SortAndFilter(), which calls
+        // AutoSaveView() — without this guard, merely opening a page would auto-persist (and,
+        // for a shared view, spawn a personal clone) before the user changes anything.
+        bool _loadingView = false;
+
         [Inject] IListViewSettingStore ViewStore { get; set; }
         [Inject] IEntityLookupProvider EntityProvider { get; set; }
         [Inject] IFlexTableSettings FlexSettings { get; set; }
@@ -302,39 +307,47 @@ namespace KBlazor.Components
 
         public void LoadView(Guid id)
         {
-            var oldListView = listViewSetting;
-            if (id != Guid.Empty)
+            _loadingView = true;
+            try
             {
-                listViewSetting = ViewStore.GetById(id);
-                listViewSetting.InitilizeDefinition();
+                var oldListView = listViewSetting;
+                if (id != Guid.Empty)
+                {
+                    listViewSetting = ViewStore.GetById(id);
+                    listViewSetting.InitilizeDefinition();
+                }
+                else
+                {
+                    // Try to find an existing user-specific view first
+                    listViewSetting = ViewStore.GetByUserAndView(typeof(TItem).FullName, currentUsername, ViewName);
+                    if (listViewSetting == null)
+                    {
+                        // Fall back to the base (non-user) view
+                        listViewSetting = ViewStore.GetByNameAndEntity(ViewName, typeof(TItem).FullName);
+                    }
+                    if (listViewSetting == null)
+                    {
+                        // No view exists at all — create the base default
+                        listViewSetting = new ListViewSetting() { Name = ViewName, ForEntity = typeof(TItem).FullName, PageSize = 25 };
+                        listViewSetting.DisplaySettings.AddRange(listViewSetting.GetDefaultProperties(fontFamily, fontSize, Fields));
+                        listViewSetting.UpdateDefinition();
+                        ViewStore.Add(listViewSetting);
+                        ViewStore.SaveChanges();
+                    }
+                    listViewSetting.InitilizeDefinition();
+                }
+                currentListViewName = listViewSetting.Name;
+                currentViewMode = DefaultViewMode != FlexTableViewMode.Table
+                    ? DefaultViewMode
+                    : listViewSetting.ViewMode;
+                defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize).Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
+                SortAndFilter();
+                StateHasChanged();
             }
-            else
+            finally
             {
-                // Try to find an existing user-specific view first
-                listViewSetting = ViewStore.GetByUserAndView(typeof(TItem).FullName, currentUsername, ViewName);
-                if (listViewSetting == null)
-                {
-                    // Fall back to the base (non-user) view
-                    listViewSetting = ViewStore.GetByNameAndEntity(ViewName, typeof(TItem).FullName);
-                }
-                if (listViewSetting == null)
-                {
-                    // No view exists at all — create the base default
-                    listViewSetting = new ListViewSetting() { Name = ViewName, ForEntity = typeof(TItem).FullName, PageSize = 25 };
-                    listViewSetting.DisplaySettings.AddRange(listViewSetting.GetDefaultProperties(fontFamily, fontSize, Fields));
-                    listViewSetting.UpdateDefinition();
-                    ViewStore.Add(listViewSetting);
-                    ViewStore.SaveChanges();
-                }
-                listViewSetting.InitilizeDefinition();
+                _loadingView = false;
             }
-            currentListViewName = listViewSetting.Name;
-            currentViewMode = DefaultViewMode != FlexTableViewMode.Table
-                ? DefaultViewMode
-                : listViewSetting.ViewMode;
-            defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize).Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
-            SortAndFilter();
-            StateHasChanged();
         }
 
         [JSInvokable]
@@ -372,12 +385,48 @@ namespace KBlazor.Components
 
         protected void AutoSaveView()
         {
-            if (listViewSetting != null)
+            if (listViewSetting == null)
             {
-                listViewSetting.UpdateDefinition();
-                ViewStore.Update(listViewSetting);
-                ViewStore.SaveChanges();
+                return;
             }
+
+            // Don't persist changes that happen while a view is being loaded (LoadView ->
+            // SortAndFilter -> here). Only genuine user interactions (resize, sort, filter,
+            // view-mode) should auto-save.
+            if (_loadingView)
+            {
+                return;
+            }
+
+            // A non-admin implicitly changing a shared/base view must NOT rewrite that shared
+            // row for every user. Mirror SaveEditMode: clone the shared view into a personal
+            // one and persist there instead. (Admins, and users already on their own personal
+            // view, save in-place as before.)
+            if (string.IsNullOrEmpty(listViewSetting.CustomizedForUser) && !IsAdmin)
+            {
+                // Personal views unavailable (feature off / no identity) — leave the shared
+                // view untouched rather than mutating it or creating an ownerless copy.
+                if (!FlexSettings.EnablePersonalViews || string.IsNullOrEmpty(currentUsername))
+                {
+                    return;
+                }
+
+                var clone = listViewSetting.Clone(listViewSetting.Name);
+                clone.Id = Guid.NewGuid();            // Clone() leaves Id empty; set it so later auto-saves target this row
+                clone.CustomizedForUser = currentUsername;
+                clone.UpdateDefinition();
+                ViewStore.Add(clone);
+                ViewStore.SaveChanges();
+                listViewSetting = clone;
+                listViewSetting.InitilizeDefinition();
+                currentListViewName = listViewSetting.Name;
+                RefreshAvailableViews();
+                return;
+            }
+
+            listViewSetting.UpdateDefinition();
+            ViewStore.Update(listViewSetting);
+            ViewStore.SaveChanges();
         }
 
         public void SortAndFilter()
