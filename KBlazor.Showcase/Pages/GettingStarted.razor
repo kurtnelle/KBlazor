@@ -13,44 +13,15 @@
             Installation Guide
         </div>
         <h1>Get up and running</h1>
-        <p>KBlazor is hosted at <strong>kblazor.com</strong>. Follow the steps below to add it to your Blazor Server project.</p>
+        <p>KBlazor is published on <strong>nuget.org</strong>. Follow the steps below to add it to your Blazor Server project.</p>
     </div>
 
-    <!-- ── Step 1: Add package source ────────────────────────────────── -->
+    <!-- ── Step 1: Install the package ───────────────────────────────── -->
     <div class="gs-step">
         <div class="gs-step-num">1</div>
         <div class="gs-step-body">
-            <h2>Add the NuGet package source</h2>
-            <p>KBlazor is hosted on a custom NuGet feed. Add the source to your <code>nuget.config</code> (or via the CLI):</p>
-
-            <div class="gs-tab-group">
-                <div class="gs-tab-label">nuget.config</div>
-                <pre class="gs-code lang-xml"><span class="cx">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
-<span class="cx">&lt;configuration&gt;</span>
-<span class="cx">  &lt;packageSources&gt;</span>
-<span class="cx">    &lt;add key="nuget.org" value="https://api.nuget.org/v3/index.json" /&gt;</span>
-<span class="ck">    &lt;add key="KBlazorFeed" value="<span class="cv">https://nuget.kblazor.com/v3/index.json</span>" /&gt;</span>
-<span class="cx">  &lt;/packageSources&gt;</span>
-<span class="cx">&lt;/configuration&gt;</span></pre>
-            </div>
-
-            <div class="gs-tab-group" style="margin-top:12px;">
-                <div class="gs-tab-label">.NET CLI</div>
-                <pre class="gs-code lang-sh"><span class="ck">dotnet</span> nuget add source <span class="cv">https://nuget.kblazor.com/v3/index.json</span> --name KBlazorFeed</pre>
-            </div>
-
-            <div class="gs-callout">
-                The feed URL is <code>https://nuget.kblazor.com/v3/index.json</code> — no authentication required.
-            </div>
-        </div>
-    </div>
-
-    <!-- ── Step 2: Install the package ───────────────────────────────── -->
-    <div class="gs-step">
-        <div class="gs-step-num">2</div>
-        <div class="gs-step-body">
             <h2>Install the package</h2>
-            <p>Add <strong>KBlazor</strong> to your project using your preferred tool.</p>
+            <p>KBlazor is available on the official <a href="https://www.nuget.org/packages/KBlazor" target="_blank" rel="noopener" style="color:var(--accent);">nuget.org</a> feed — no custom package source required. Add <strong>KBlazor</strong> to your project using your preferred tool.</p>
 
             <div class="gs-tab-group">
                 <div class="gs-tab-label">.NET CLI</div>
@@ -74,9 +45,9 @@
         </div>
     </div>
 
-    <!-- ── Step 3: Register services ─────────────────────────────────── -->
+    <!-- ── Step 2: Register services ─────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">3</div>
+        <div class="gs-step-num">2</div>
         <div class="gs-step-body">
             <h2>Register services in <code>Program.cs</code></h2>
             <p>KBlazor needs three scoped services and MudBlazor's service collection.</p>
@@ -113,9 +84,9 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 4: Add imports ────────────────────────────────────────── -->
+    <!-- ── Step 3: Add imports ────────────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">4</div>
+        <div class="gs-step-num">3</div>
         <div class="gs-step-body">
             <h2>Add namespaces to <code>_Imports.razor</code></h2>
             <p>Add these usings so every component in your project can reference KBlazor types without qualification.</p>
@@ -130,9 +101,9 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 5: Decorate your model ─────────────────────────────────── -->
+    <!-- ── Step 4: Decorate your model ─────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">5</div>
+        <div class="gs-step-num">4</div>
         <div class="gs-step-body">
             <h2>Decorate your model with attributes</h2>
             <p>KBlazor reads <code>[Display]</code> attributes to build columns and form fields automatically. Additional attributes control editing behaviour, sorting, and rendering.</p>
@@ -173,7 +144,7 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 6: Done ───────────────────────────────────────────────── -->
+    <!-- ── Step 5: Done ───────────────────────────────────────────────── -->
     <div class="gs-step gs-step--last">
         <div class="gs-step-num gs-step-num--done">✓</div>
         <div class="gs-step-body">
