@@ -77,7 +77,9 @@ namespace KBlazor.Models
 
             if (body.Type == typeof(Guid) || body.Type == typeof(Guid?))
             {
-                // FK lookup: Contains(value)
+                // FK lookup: selectedIds.Contains(value). For a nullable FK (Guid?),
+                // guard on HasValue and compare the underlying Guid, so the expression
+                // is valid and rows with a null FK are simply excluded.
                 var filterEntries = prop.GetFilterEntries();
                 var constant = Expression.Constant(filterEntries);
                 var containsMethod = typeof(Enumerable).GetMethods()
@@ -85,8 +87,20 @@ namespace KBlazor.Models
                     .Single()
                     .MakeGenericMethod(typeof(Guid));
 
-                var containsCall = Expression.Call(containsMethod, constant, body);
-                var lambda = Expression.Lambda<Func<T, bool>>(containsCall, param);
+                Expression predicate;
+                if (body.Type == typeof(Guid?))
+                {
+                    var hasValue = Expression.Property(body, "HasValue");
+                    var value = Expression.Property(body, "Value");
+                    var contains = Expression.Call(containsMethod, constant, value);
+                    predicate = Expression.AndAlso(hasValue, contains);
+                }
+                else
+                {
+                    predicate = Expression.Call(containsMethod, constant, body);
+                }
+
+                var lambda = Expression.Lambda<Func<T, bool>>(predicate, param);
                 return query.Where(lambda);
             }
             else if (body.Type == typeof(string))
