@@ -26,19 +26,12 @@ namespace KBlazor.Models
                 .OrderBy(p => p.ToString(), StringComparer.Ordinal)
                 .ToList();
 
-            IQueryable<IKBusinessEntity> matchQuery;
-            if (string.IsNullOrWhiteSpace(search))
-            {
-                matchQuery = list;
-            }
-            else
-            {
-                // Case-insensitive name search. ToLower() on both sides works for the
-                // in-memory (LINQ-to-objects) provider and still translates to
-                // LOWER(Name) LIKE ... on relational EF providers.
-                var searchLower = search.ToLower();
-                matchQuery = list.Where(w => w.Name.ToLower().Contains(searchLower));
-            }
+            // Case-insensitive name search. Note: the StringComparison overload does
+            // not translate on relational EF providers (it throws at query time), so
+            // this path assumes an in-memory / materialized entity list.
+            IQueryable<IKBusinessEntity> matchQuery = string.IsNullOrWhiteSpace(search)
+                ? list
+                : list.Where(w => w.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
 
             var matches = matchQuery
                 .Where(m => !selected.Contains(m.Id))

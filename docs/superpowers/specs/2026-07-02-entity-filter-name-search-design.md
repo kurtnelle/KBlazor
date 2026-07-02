@@ -131,16 +131,20 @@ so there is no regression for the common small-table case.
 
 ## Case sensitivity
 
-The search is **case-insensitive across all providers**. It lowercases both
-sides: `w.Name.ToLower().Contains(searchLower)`. This avoids the
-`StringComparison` overload (which doesn't translate in EF/SQL providers) while
-still being translatable — EF renders it as `LOWER(Name) LIKE '%...%'` — and it
-works ordinally on the in-memory showcase provider.
+The search is **case-insensitive** via
+`w.Name.Contains(search, StringComparison.OrdinalIgnoreCase)`.
 
-(An earlier revision used plain `w.Name.Contains(search)` and left case
-sensitivity to the provider; that made the in-memory showcase provider
-case-sensitive — e.g. "soy" missed "Soylent Corp" — so the search now lowercases
-explicitly.)
+Provider note: the `StringComparison` overload does **not** translate on
+relational EF providers — it throws at query translation. This implementation
+therefore assumes the entity list supplied by `IEntityLookupProvider` is
+in-memory / materialized (as the showcase's `InMemoryEntityLookupProvider` is).
+An EF/SQL-backed provider would need a translatable form instead (e.g.
+`w.Name.ToLower().Contains(search.ToLower())`, which EF renders as
+`LOWER(Name) LIKE '%...%'`).
+
+(History: an initial revision used plain `w.Name.Contains(search)` and left case
+sensitivity to the provider, which made the in-memory showcase case-sensitive —
+"soy" missed "Soylent Corp".)
 
 ## Live demo test surface
 
