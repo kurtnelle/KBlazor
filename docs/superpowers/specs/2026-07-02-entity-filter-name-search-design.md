@@ -143,20 +143,102 @@ This is acceptable for the goal (`%text%` matching). Guaranteed cross-provider
 case-insensitivity is a documented follow-up (normalized name column or
 provider-side `EF.Functions.Like`), out of scope here.
 
+## Live demo test surface
+
+The feature cannot be exercised on the current showcase: the `FlexTable` demo
+(`/demo/flextable`) has **no entity-typed column**, so the entity checkbox
+filter never renders. Its "Customer" column is `PurchaseOrder.CustomerName`
+(a `string`), which produces a *text* filter, not the entity selector. And even
+if an entity column existed, the demo seeds only 5 customers — far below the
+100 cap. Three showcase changes make it testable:
+
+### 1. Seed >100 lookup customers (`KBlazor.Showcase/Data/SeedData.cs`)
+
+Keep the 5 existing named customers, then programmatically append ~145 more with
+deterministic, searchable names (e.g. `"Test Customer 006"` … `"Test Customer
+150"`). They are **appended after** the 5 named customers, so entities numbered
+past ~095 fall **beyond the first 100 in store/insertion order** — which is the
+order `list.Take(100)` samples *before* the display `OrderBy`. That guarantees a
+tester can only reach, say, `"Test Customer 142"` by searching for it, proving
+the ceiling is lifted. Only the original 5 need orders; the rest exist purely to
+populate the lookup (realistic: many customers, few orders shown).
+
+### 2. Expose an entity-typed column (`KBlazor.Showcase/Domain/PurchaseOrder.cs`)
+
+Annotate the existing `Customer` navigation property (type `Customer`, a known
+entity) so it renders as a filterable column:
+
+```csharp
+[Display(Name = "Customer (lookup)", Order = 2)]
+[SortAndFilterOn(FilterPath = "CustomerId", SortPath = "Customer.Name")]
+public virtual Customer? Customer { get; set; }
+```
+
+`FilterPath = "CustomerId"` routes filtering through
+`SortAndFilterEngine.ApplyFilterByPath`, whose `Guid?` branch builds
+`selectedIds.Contains(o.CustomerId)` — so selecting customers in the new search
+selector actually filters the grid. `SortPath = "Customer.Name"` avoids
+`GenerateOrderBy` throwing on a complex type. Add `"Customer (lookup)"` to the
+demo's `Fields` list (the existing string "Customer" column stays, giving a nice
+side-by-side of text-filter vs. entity-search-filter).
+
+### 3. Route demo filtering through the engine (`FlexTableDemo.razor`)
+
+`OnSortFilter` currently calls `prop.GenerateWhere(query)` in a manual loop,
+which bypasses `FilterPath` and has **no branch for entity-typed columns**
+(it returns the query unchanged). Replace the manual filter/sort loops with the
+library engine:
+
+```csharp
+query = query.ApplyFilter(setting).ApplySort(setting);
+```
+
+For every existing column this is behavior-preserving (none set `FilterPath`, so
+they fall back to `GenerateWhere` exactly as today); for the new `Customer`
+column it activates the `CustomerId`-Contains path. This also demonstrates the
+library's *intended* consumption pattern.
+
+> Note on a library gap discovered here: `PropertySetting.GenerateWhere` has no
+> case for entity-typed properties (falls through to `return query`). Entity
+> filtering is only supported via `[SortAndFilterOn(FilterPath=...)]` +
+> `SortAndFilterEngine`. Closing that gap generically is a possible follow-up;
+> out of scope for this change.
+
+### Manual test steps
+
+1. Run the showcase, open `/demo/flextable`.
+2. Open the filter on the **"Customer (lookup)"** column → the entity selector
+   with the new search field appears.
+3. With an empty search, confirm the first 100 customers show as checkboxes.
+4. Type `"142"` (or another number > 100) → the matching customer appears even
+   though it is not in the first 100. Check it.
+5. Change the search to something else → the checked customer stays pinned/
+   visible (always-show-selected).
+6. Click OK → the grid filters to orders for the selected customer(s), and the
+   selection persists when reopening the dialog.
+
 ## Testing
 
-- **Showcase manual verification:** a demo with a >100-row entity type (or a
-  temporarily reduced cap) confirming an item past the first 100 is reachable by
-  typing its name, selectable, and stays selected after clearing the search.
+- **Live demo:** the manual steps above (the primary acceptance check).
 - **Unit coverage** (where the existing test project allows): `PropertySetting`
   add/remove filter round-trips with `EntitySearchText` set, and that
   `EntitySearchText` is not serialized (`[JsonIgnore]`).
 - **Regression:** both dialogs still open, filter, and persist correctly; empty
-  search behaves identically to the previous `Take(100)` list.
+  search behaves identically to the previous `Take(100)` list; existing demo
+  columns (text/date/enum/bool) still filter and sort after the `OnSortFilter`
+  switch to the engine.
 
 ## Files touched
 
+**Library:**
 - `KBlazor/Components/EntityCheckboxFilter.razor` — new shared component.
 - `KBlazor/Components/FlexTable.razor` — replace the two inline entity checkbox
   blocks with the new component.
 - `KBlazor/Models/ListViewSetting.cs` — add `EntitySearchText`.
+
+**Showcase (live-demo test surface):**
+- `KBlazor.Showcase/Data/SeedData.cs` — append ~145 deterministic customers.
+- `KBlazor.Showcase/Domain/PurchaseOrder.cs` — expose `Customer` as a filterable
+  entity column.
+- `KBlazor.Showcase/Pages/Demo/FlexTableDemo.razor` — add the column to `Fields`
+  and route `OnSortFilter` through `ApplyFilter`/`ApplySort`.
