@@ -131,17 +131,16 @@ so there is no regression for the common small-table case.
 
 ## Case sensitivity
 
-The search uses plain `w.Name.Contains(search)` with no `StringComparison`
-overload, because the overload does not translate in EF/SQL query providers.
-Effective case sensitivity therefore follows the provider:
+The search is **case-insensitive across all providers**. It lowercases both
+sides: `w.Name.ToLower().Contains(searchLower)`. This avoids the
+`StringComparison` overload (which doesn't translate in EF/SQL providers) while
+still being translatable — EF renders it as `LOWER(Name) LIKE '%...%'` — and it
+works ordinally on the in-memory showcase provider.
 
-- SQLite / SQL Server `LIKE` — case-insensitive by default.
-- The in-memory showcase provider (`InMemoryEntityLookupProvider`) — ordinal,
-  case-sensitive.
-
-This is acceptable for the goal (`%text%` matching). Guaranteed cross-provider
-case-insensitivity is a documented follow-up (normalized name column or
-provider-side `EF.Functions.Like`), out of scope here.
+(An earlier revision used plain `w.Name.Contains(search)` and left case
+sensitivity to the provider; that made the in-memory showcase provider
+case-sensitive — e.g. "soy" missed "Soylent Corp" — so the search now lowercases
+explicitly.)
 
 ## Live demo test surface
 

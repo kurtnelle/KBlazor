@@ -26,9 +26,19 @@ namespace KBlazor.Models
                 .OrderBy(p => p.ToString(), StringComparer.Ordinal)
                 .ToList();
 
-            IQueryable<IKBusinessEntity> matchQuery = string.IsNullOrWhiteSpace(search)
-                ? list
-                : list.Where(w => w.Name.Contains(search));
+            IQueryable<IKBusinessEntity> matchQuery;
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                matchQuery = list;
+            }
+            else
+            {
+                // Case-insensitive name search. ToLower() on both sides works for the
+                // in-memory (LINQ-to-objects) provider and still translates to
+                // LOWER(Name) LIKE ... on relational EF providers.
+                var searchLower = search.ToLower();
+                matchQuery = list.Where(w => w.Name.ToLower().Contains(searchLower));
+            }
 
             var matches = matchQuery
                 .Where(m => !selected.Contains(m.Id))
