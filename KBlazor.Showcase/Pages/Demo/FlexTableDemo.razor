@@ -16,7 +16,7 @@
             <MudPaper Elevation="0" Class="table-paper">
                 <FlexTable TItem="PurchaseOrder"
                            Items="@_orders"
-                           Fields="Order #,Customer,Status,Amount,Order Date,Urgent"
+                           Fields="Order #,Customer,Customer (lookup),Status,Amount,Order Date,Urgent"
                            ViewName="FlexTableDemo"
                            PageSize="10"
                            SelectionChanged="OnRowClicked"
@@ -80,19 +80,13 @@
 
     private void OnSortFilter(ListViewSetting setting)
     {
-        var query = Store.Orders.AsQueryable();
-
-        foreach (var prop in setting.DisplaySettings.Where(w => !string.IsNullOrEmpty(w.Filter)))
-            query = prop.GenerateWhere(query);
-
-        var sorted = setting.DisplaySettings
-            .Where(w => w.SortState != SortState.None)
-            .OrderBy(o => o.SortPriority);
-
-        foreach (var prop in sorted)
-            query = prop.GenerateOrderBy(query);
-
-        _orders = query;
+        // Route through the library engine so entity columns annotated with
+        // [SortAndFilterOn(FilterPath=...)] actually filter (selectedIds.Contains).
+        // Existing columns set no FilterPath, so they fall back to GenerateWhere
+        // exactly as before — behavior-preserving.
+        _orders = Store.Orders.AsQueryable()
+            .ApplyFilter(setting)
+            .ApplySort(setting);
         StateHasChanged();
     }
 }
