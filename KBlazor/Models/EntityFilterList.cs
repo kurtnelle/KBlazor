@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace KBlazor.Models
 {
@@ -26,12 +27,27 @@ namespace KBlazor.Models
                 .OrderBy(p => p.ToString(), StringComparer.Ordinal)
                 .ToList();
 
-            // Case-insensitive name search. Note: the StringComparison overload does
-            // not translate on relational EF providers (it throws at query time), so
-            // this path assumes an in-memory / materialized entity list.
-            IQueryable<IKBusinessEntity> matchQuery = string.IsNullOrWhiteSpace(search)
-                ? list
-                : list.Where(w => w.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+            // Case-insensitive name search, provider-aware so it is both correct and
+            // performant everywhere:
+            //  - Real EF query  -> EF.Functions.Like, which stays sargable (index-usable)
+            //    and is case-insensitive by the column's collation. LOWER()-based matching
+            //    would force a scan; the StringComparison overload doesn't translate at all.
+            //  - In-memory (EnumerableQuery) -> EF.Functions.Like would throw at
+            //    enumeration, so use an OrdinalIgnoreCase Contains.
+            IQueryable<IKBusinessEntity> matchQuery;
+            if (string.IsNullOrWhiteSpace(search))
+            {
+                matchQuery = list;
+            }
+            else if (list.Provider is EnumerableQuery)
+            {
+                matchQuery = list.Where(w => w.Name.Contains(search, StringComparison.OrdinalIgnoreCase));
+            }
+            else
+            {
+                var pattern = "%" + search + "%";
+                matchQuery = list.Where(w => EF.Functions.Like(w.Name, pattern));
+            }
 
             var matches = matchQuery
                 .Where(m => !selected.Contains(m.Id))
