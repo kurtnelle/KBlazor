@@ -67,4 +67,13 @@ public class EntityFilterListTests
         Assert.Equal(100, result.Matches.Count);
         Assert.DoesNotContain(result.Matches, m => pinnedIds.Contains(m.Id));
     }
+
+    [Fact]
+    public void Search_IsCaseInsensitive()
+    {
+        // Names are "Cust 001".."Cust 010"; a lowercase search must still match.
+        var list = MakeCustomers(10);
+        var result = EntityFilterList.Build(list, Array.Empty<Guid>(), search: "cust", cap: 100);
+        Assert.Equal(10, result.Matches.Count);
+    }
 }
