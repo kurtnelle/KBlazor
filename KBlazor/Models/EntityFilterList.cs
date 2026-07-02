@@ -31,9 +31,10 @@ namespace KBlazor.Models
                 : list.Where(w => w.Name.Contains(search));
 
             var matches = matchQuery
+                .Where(m => !selected.Contains(m.Id))
+                .OrderBy(m => m.Name)
                 .Take(cap)
                 .ToList()
-                .Where(m => !selected.Contains(m.Id))
                 .OrderBy(m => m.ToString(), StringComparer.Ordinal)
                 .ToList();
 

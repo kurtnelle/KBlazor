@@ -95,6 +95,21 @@ public class EntityFilterListTests
         Assert.DoesNotContain(result.Matches, m => m.Id == selected.Id);
         Assert.Equal(10, result.Visible.Count); // 1 pinned + 9 matches, no dupes
     }
+
+    [Fact]
+    public void PinnedInsideCapWindow_DoesNotShrinkMatchesBelowCap()
+    {
+        // 120 customers, pin 5 that fall within the natural first-100 window.
+        // matches must still fill to the full cap with non-pinned items,
+        // not shrink to 95 (the pre-fix bug).
+        var list = MakeCustomers(120).ToList();
+        var pinnedIds = list.Take(5).Select(c => c.Id).ToArray();
+
+        var result = EntityFilterList.Build(list.AsQueryable(), pinnedIds, search: null, cap: 100);
+
+        Assert.Equal(100, result.Matches.Count);
+        Assert.DoesNotContain(result.Matches, m => pinnedIds.Contains(m.Id));
+    }
 }
 ```
 
@@ -141,9 +156,10 @@ namespace KBlazor.Models
                 : list.Where(w => w.Name.Contains(search));
 
             var matches = matchQuery
+                .Where(m => !selected.Contains(m.Id))
+                .OrderBy(m => m.Name)
                 .Take(cap)
                 .ToList()
-                .Where(m => !selected.Contains(m.Id))
                 .OrderBy(m => m.ToString(), StringComparer.Ordinal)
                 .ToList();
 
@@ -163,7 +179,7 @@ namespace KBlazor.Models
 - [ ] **Step 4: Run tests to verify they pass**
 
 Run: `dotnet test KBlazor.Showcase.Tests --filter EntityFilterListTests`
-Expected: PASS (4 tests).
+Expected: PASS (5 tests).
 
 - [ ] **Step 5: Commit**
 
