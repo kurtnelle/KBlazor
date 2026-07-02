@@ -83,6 +83,23 @@ namespace KBlazor.Models
 
         public static IQueryable<T> Where<T>(this IQueryable<T> source, PropertyInfo property, string searchTerm)
         {
+            // EF.Functions.Collate/Like (below) only translate on a relational EF provider; on an
+            // in-memory (LINQ-to-objects) source they throw at enumeration. For that case use a
+            // provider-agnostic, null-safe, case-insensitive Contains — matching the approach in
+            // SortAndFilterEngine.ApplyFilterByPath's string branch.
+            if (source.Provider is EnumerableQuery)
+            {
+                var term = searchTerm.Trim('%').ToLowerInvariant();
+                return source
+                    .AsEnumerable()
+                    .Where(item =>
+                    {
+                        var value = property.GetValue(item)?.ToString();
+                        return value != null && value.ToLowerInvariant().Contains(term);
+                    })
+                    .AsQueryable();
+            }
+
             if (!searchTerm.EndsWith("%"))
             {
                 searchTerm += "%";
