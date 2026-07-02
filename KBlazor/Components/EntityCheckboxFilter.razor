@@ -1,0 +1,73 @@
+@* Shared entity checkbox filter with name search. Used by FlexTable's filter dialogs. *@
+
+@{
+    var selectedIds = Setting.GetFilterEntries();
+    var model = EntityFilterList.Build(List, selectedIds, Setting.EntitySearchText);
+    var visibleIds = model.Visible.Select(v => v.Id).ToList();
+    var selectedVisible = model.Visible.Count(v => selectedIds.Contains(v.Id));
+    bool? selectAllValue = selectedVisible == 0
+        ? false
+        : selectedVisible == model.Visible.Count ? true : (bool?)null;
+}
+
+<MudTextField T="string"
+              @bind-Value="Setting.EntitySearchText"
+              Label="Search by name"
+              Immediate="true"
+              DebounceInterval="300"
+              Clearable="true"
+              FullWidth />
+
+<MudCheckBox T="bool?" Dense="true" TriState="true"
+             Value="@selectAllValue"
+             ValueChanged="@(e => OnSelectAll(e, visibleIds, selectedIds))">
+    Select All (visible)
+</MudCheckBox>
+<br />
+
+<div style="max-height:400px; overflow-y:auto;">
+    @foreach (var item in model.Pinned)
+    {
+        <MudCheckBox T="bool" Dense="true"
+                     Value="@true"
+                     ValueChanged="@(e => { if (!e) { Setting.RemoveFromFilter(item.Id); } })">
+            @item.ToString()
+        </MudCheckBox>
+        <br />
+    }
+    @if (model.Pinned.Any() && model.Matches.Any())
+    {
+        <MudDivider Style="margin:6px 0;" />
+    }
+    @foreach (var item in model.Matches)
+    {
+        <MudCheckBox T="bool" Dense="true"
+                     Value="@false"
+                     ValueChanged="@(e => { if (e) { Setting.AddToFilter(item.Id); } })">
+            @item.ToString()
+        </MudCheckBox>
+        <br />
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public PropertySetting Setting { get; set; } = default!;
+
+    [Parameter, EditorRequired]
+    public IQueryable<IKBusinessEntity> List { get; set; } = default!;
+
+    private void OnSelectAll(bool? value, List<Guid> visibleIds, Guid[] selectedIds)
+    {
+        if (value != false)
+        {
+            var union = selectedIds.Concat(visibleIds).Distinct();
+            Setting.Filter = string.Join(',', union);
+        }
+        else
+        {
+            var remaining = selectedIds.Except(visibleIds);
+            Setting.Filter = string.Join(',', remaining);
+        }
+    }
+}

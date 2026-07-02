@@ -356,6 +356,9 @@ namespace KBlazor.Models
 
         [JsonIgnore]
         public string AutoCompleteText { get; set; }
+
+        [JsonIgnore]
+        public string EntitySearchText { get; set; }
         void AddStringToFilter(string value)
         {
             filter = string.Join(',', filter

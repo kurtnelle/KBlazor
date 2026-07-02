@@ -28,19 +28,19 @@ public class InMemoryEntityLookupProviderTests
     }
 
     [Fact]
-    public void GetEntities_Customer_Returns5()
+    public void GetEntities_Customer_Returns150()
     {
         var provider = MakeProvider();
         var result = provider.GetEntities(typeof(Customer)).ToList();
-        Assert.Equal(5, result.Count);
+        Assert.Equal(150, result.Count);
     }
 
     [Fact]
-    public void GetEntitiesWithInclude_Customer_Returns5()
+    public void GetEntitiesWithInclude_Customer_Returns150()
     {
         var provider = MakeProvider();
         // Include is a no-op for in-memory; just verify it doesn't throw
         var result = provider.GetEntitiesWithInclude(typeof(Customer), "Orders").ToList();
-        Assert.Equal(5, result.Count);
+        Assert.Equal(150, result.Count);
     }
 }

@@ -276,19 +276,7 @@
                         IQueryable<IKBusinessEntity> list = alsoInclude != null
                             ? EntityProvider.GetEntitiesWithInclude(p.PropertyType, alsoInclude.Name)
                             : EntityProvider.GetEntities(p.PropertyType);
-                        var listItems = list.Take(100);
-                        var completeListStr = string.Join(',', listItems.Select(s => s.Id).ToList());
-                        <div style="max-height:400px; overflow-y:auto;">
-                            <MudCheckBox T="bool?" Dense="true" TriState="true"
-                                         Value="@(string.IsNullOrEmpty(setting.Filter) ? false : setting.Filter.Split(',').Length == listItems.Count() ? true : null)"
-                                         ValueChanged="@(e => { if (e != false) { setting.Filter = completeListStr; } else { setting.Filter = string.Empty; } })">Select All</MudCheckBox><br />
-                            @foreach (var item in listItems.ToList().OrderBy(o => o.ToString()))
-                            {
-                                <MudCheckBox T="bool" Dense="true"
-                                             Value="@(setting.Filter.Contains(item.Id.ToString()))"
-                                             ValueChanged="@(e => { if (e) { setting.AddToFilter(item.Id); } else { setting.RemoveFromFilter(item.Id); } })">@item.ToString()</MudCheckBox><br />
-                            }
-                        </div>
+                        <EntityCheckboxFilter Setting="setting" List="list" />
                     }
                 </DialogContent>
                 <DialogActions>
@@ -479,25 +467,8 @@
                                         }
                                         else
                                         {
-                                            var listItems = list.Take(100);
-                                            var completeList = string.Join(',', listItems.Select(s => s.Id).ToList());
-                                            <div style="height:800px; width:400px;">
-                                                <MudCheckBox T="bool?" Dense="true"
-                                                             TriState="true"
-                                                             Value="@(string.IsNullOrEmpty(setting.Filter) ? false : setting.Filter.Split(',').Length == listItems.Count() ? true : null)"
-                                                             ValueChanged="@(e => { if (e != false) { setting.Filter = completeList; } else { setting.Filter = string.Empty; } })">
-                                                    Select All
-                                                </MudCheckBox>
-                                                <br />
-                                                @foreach (var item in listItems.ToList().OrderBy(o => o.ToString()))
-                                                {
-                                                    <MudCheckBox T="bool" Dense="true"
-                                                                 Value="@(setting.Filter.Contains(item.Id.ToString()))"
-                                                                 ValueChanged="@(e => { if (e) { setting.AddToFilter(item.Id); } else { setting.RemoveFromFilter(item.Id); } })">
-                                                        @item.ToString()
-                                                    </MudCheckBox>
-                                                    <br />
-                                                }
+                                            <div style="width:400px;">
+                                                <EntityCheckboxFilter Setting="setting" List="list" />
                                             </div>
                                         }
                                     }
