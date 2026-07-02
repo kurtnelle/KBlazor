@@ -15,10 +15,20 @@ public class SeedDataTests
     }
 
     [Fact]
-    public void Seed_Produces5Customers()
+    public void Seed_Produces150Customers()
     {
         var store = SeedData.Create();
-        Assert.Equal(5, store.Customers.Count);
+        Assert.Equal(150, store.Customers.Count);
+    }
+
+    [Fact]
+    public void Seed_HasSearchableCustomerBeyondFirst100()
+    {
+        var store = SeedData.Create();
+        // A customer whose name matches "142" must exist AND sit beyond the
+        // first 100 in store order, so it is only reachable via search.
+        var index = store.Customers.FindIndex(c => c.Name.Contains("142"));
+        Assert.True(index >= 100, $"Expected a '142' customer beyond index 100, found at {index}.");
     }
 
     [Fact]

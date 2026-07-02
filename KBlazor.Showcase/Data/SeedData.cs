@@ -17,6 +17,21 @@ public static class SeedData
 
         store.Customers.AddRange(new[] { acme, globex, initech, umbrella, soylent });
 
+        // Lookup fillers: exercise the entity filter's name search past the
+        // 100-item cap. Appended AFTER the 5 named customers, so numbers >100
+        // land beyond the first 100 in store order and are only reachable via
+        // search. Only the 5 named customers above receive orders.
+        for (int i = 6; i <= 150; i++)
+        {
+            store.Customers.Add(new Customer
+            {
+                Id = Guid.NewGuid(),
+                Name = $"Test Customer {i:000}",
+                Email = $"customer{i:000}@example.com",
+                Country = "USA"
+            });
+        }
+
         var baseDate = new DateTime(2026, 3, 1);
         var orders = new[]
         {
