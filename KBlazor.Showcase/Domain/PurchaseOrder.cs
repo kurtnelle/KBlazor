@@ -18,6 +18,8 @@ public class PurchaseOrder : IKBusinessEntity
     [AutoComplete]
     public Guid? CustomerId { get; set; }
 
+    [Display(Name = "Customer (lookup)", Order = 2)]
+    [SortAndFilterOn(FilterPath = "CustomerId", SortPath = "Customer.Name")]
     public virtual Customer? Customer { get; set; }
 
     [Display(Name = "Customer", Order = 2)]
