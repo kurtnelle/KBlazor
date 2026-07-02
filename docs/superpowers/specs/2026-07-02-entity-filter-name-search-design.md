@@ -131,16 +131,24 @@ so there is no regression for the common small-table case.
 
 ## Case sensitivity
 
-The search is **case-insensitive** via
-`w.Name.Contains(search, StringComparison.OrdinalIgnoreCase)`.
+The search is **case-insensitive on every provider**, and **provider-aware** so
+it is also performant on SQL. `EntityFilterList.Build` branches on the query
+source:
 
-Provider note: the `StringComparison` overload does **not** translate on
-relational EF providers — it throws at query translation. This implementation
-therefore assumes the entity list supplied by `IEntityLookupProvider` is
-in-memory / materialized (as the showcase's `InMemoryEntityLookupProvider` is).
-An EF/SQL-backed provider would need a translatable form instead (e.g.
-`w.Name.ToLower().Contains(search.ToLower())`, which EF renders as
-`LOWER(Name) LIKE '%...%'`).
+- **Real EF query** (`list.Provider` is not `EnumerableQuery`) →
+  `EF.Functions.Like(w.Name, "%" + search + "%")`. `LIKE` stays sargable (can use
+  an index on `Name`) and is case-insensitive by the column's collation. `LOWER()`
+  matching would force a scan; `StringComparison.OrdinalIgnoreCase` doesn't
+  translate at all.
+- **In-memory** (`list.Provider is EnumerableQuery`, e.g. the showcase's
+  `InMemoryEntityLookupProvider`) → `w.Name.Contains(search,
+  StringComparison.OrdinalIgnoreCase)`. `EF.Functions.Like` would throw at
+  enumeration on a LINQ-to-objects source, so the in-memory branch avoids it.
+
+The branch check is a one-liner; both paths are covered by tests
+(`EntityFilterListEfTests` exercises the `Like` path against EF Core SQLite,
+confirming it translates over the `IKBusinessEntity` interface;
+`Search_IsCaseInsensitive` covers the in-memory path).
 
 (History: an initial revision used plain `w.Name.Contains(search)` and left case
 sensitivity to the provider, which made the in-memory showcase case-sensitive —
