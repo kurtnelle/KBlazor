@@ -84,8 +84,46 @@ protected void OnSortFilter(ListViewSetting listViewSetting)
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
-| `AdditionalCommands` | `Func<TItem, string>` | Returns FontAwesome icon classes per row. Multiple icons comma-separated (whitespace around commas is trimmed). Clicking fires `SelectionChanged` with the icon class as the command string. |
+| `AdditionalCommands` | `Func<TItem, string>` | Returns FontAwesome icon classes per row. Multiple icons comma-separated (whitespace around commas is trimmed). Each command may append an optional `\|Tooltip` suffix to show a hover tooltip (see below). Clicking fires `SelectionChanged` with the **icon class only** (the tooltip text is stripped). |
 | `AdditionalSortRowCommands` | `string` | FontAwesome icons added to the header row |
+
+#### Command syntax and tooltips
+
+Each command is `iconClass` with an optional `|Tooltip` suffix, separated by a pipe (`|`):
+
+```
+"fa-solid fa-eye|View, fa-solid fa-pen-to-square|Edit, fa-solid fa-trash|Delete"
+```
+
+- **Icon class** — one or more FontAwesome classes (e.g. `fa-solid fa-eye`). This is the *only* part passed to `SelectionChanged`, so switch on it in your handler.
+- **`|Tooltip`** (optional) — text shown in a `MudTooltip` when the user hovers the icon. Omit the pipe and the button renders with no tooltip. This is fully backward compatible: existing `AdditionalCommands` that return bare icon classes are unaffected.
+
+```razor
+<FlexTable TItem="PurchaseOrder"
+           Items="@_orders"
+           Fields="Order #,Customer,Status"
+           AdditionalCommands="GetCommands"
+           SelectionChanged="OnRowClicked" />
+```
+
+```csharp
+// Comma-separated icons; append "|Tooltip" to any command to show a hover tooltip.
+private string GetCommands(PurchaseOrder order) =>
+    "fa-solid fa-eye|View,fa-solid fa-pen-to-square|Edit,fa-solid fa-trash|Delete";
+
+private void OnRowClicked(PurchaseOrder order, string command)
+{
+    // `command` is the icon class only — the "|Tooltip" text is stripped.
+    switch (command)
+    {
+        case "fa-solid fa-eye":            /* view  */ break;
+        case "fa-solid fa-pen-to-square":  /* edit  */ break;
+        case "fa-solid fa-trash":          /* delete */ break;
+    }
+}
+```
+
+> **Requires FontAwesome.** The host app must load a FontAwesome stylesheet for the icons to render. `MudTooltip` ships with MudBlazor, so no extra dependency is needed for the tooltips themselves.
 
 ### Inline Editing
 
@@ -122,6 +160,43 @@ protected void OnSortFilter(ListViewSetting listViewSetting)
 ```
 
 The chevron column only renders when `DetailsTemplate` is non-null, so existing tables are unaffected.
+
+### Entity column filtering & name search
+
+When a column's property type is a known business entity (one that implements `IKBusinessEntity` and is registered with the `IEntityLookupProvider`), its filter dialog renders a **checkbox list of related entities with a name-search field** instead of a text box. Type part of an entity's `Name` and select from the matches — this lifts the previous 100-row ceiling, so entities beyond the first 100 are reachable by searching.
+
+**How to make an entity column filterable.** Annotate the navigation property with `[SortAndFilterOn]`, giving a `FilterPath` (the foreign-key id on `TItem`) and a `SortPath` (a scalar to sort by):
+
+```csharp
+[Display(Name = "Customer", Order = 2)]
+[SortAndFilterOn(FilterPath = "CustomerId", SortPath = "Customer.Name")]
+public virtual Customer? Customer { get; set; }
+```
+
+**Route the callback through the engine.** Entity filtering is only applied by `SortAndFilterEngine`, so the host's `SortFilter` handler must use `ApplyFilter`/`ApplySort` rather than a manual `GenerateWhere` loop (which ignores `FilterPath` and leaves the query unchanged for entity columns):
+
+```csharp
+private void OnSortFilter(ListViewSetting setting)
+{
+    _orders = _dbContext.Orders.AsQueryable()
+        .ApplyFilter(setting)   // honors [SortAndFilterOn(FilterPath=...)] → selectedIds.Contains(o.CustomerId)
+        .ApplySort(setting);    // honors SortPath so ordering targets a scalar, not the entity
+    StateHasChanged();
+}
+```
+
+Non-entity columns are unaffected: they set no `FilterPath`, so the engine falls back to `GenerateWhere`/`GenerateOrderBy` exactly as before.
+
+**Search behavior (provider-aware, case-insensitive on every provider).** The search matches on the entity's `Name` and adapts to the query source automatically:
+
+| Source | Matching strategy | Why |
+|--------|-------------------|-----|
+| Real EF query (relational) | `EF.Functions.Like(Name, "%term%")` | Stays sargable (can use an index on `Name`) and is case-insensitive by the column's collation. |
+| In-memory (`EnumerableQuery`) | `Name.Contains(term, StringComparison.OrdinalIgnoreCase)` | `EF.Functions.Like` would throw when enumerating a LINQ-to-objects source. |
+
+Currently-selected entities stay pinned and visible regardless of the search text; matched (unselected) results are capped at 100 below a divider. "Select All" operates on the visible set only, never the whole table. This logic lives in `EntityFilterList.Build` and is fully unit-tested.
+
+> **Note:** Entity filtering is supported *only* via `[SortAndFilterOn(FilterPath=...)]` + the engine. `PropertySetting.GenerateWhere` has no built-in case for entity-typed properties (it returns the query unchanged).
 
 ### Kanban View
 

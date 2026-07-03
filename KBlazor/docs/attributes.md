@@ -104,7 +104,7 @@ public string ForEntity { get; set; }
 
 ### SortAndFilterOnAttribute
 
-Specifies that sorting and filtering should operate on a different member than the displayed property. Useful when the display property is computed but you want to sort/filter on the backing field.
+Specifies that sorting and filtering should operate on a different member than the displayed property. Useful when the display property is computed, or when the column's type is a related entity that can't be sorted/filtered directly.
 
 ```csharp
 [Display(Name = "Status")]
@@ -112,7 +112,23 @@ Specifies that sorting and filtering should operate on a different member than t
 public string StatusDisplay { get; set; }
 ```
 
-**Property:** `Member` (string) — the actual property name to sort/filter on.
+**Properties:**
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `Member` | `string` | Legacy: the actual property name to sort/filter on instead of the displayed one. |
+| `SortPath` | `string` | Dot-path used by `SortAndFilterEngine.ApplySort` to build the `OrderBy` (e.g. `"Customer.Name"`). Use for entity/navigation columns so sorting targets a scalar instead of throwing on a complex type. |
+| `FilterPath` | `string` | Dot-path used by `SortAndFilterEngine.ApplyFilter` to build the `Where`. For a foreign-key path (e.g. `"CustomerId"`) it produces `selectedIds.Contains(o.CustomerId)`. **This is what turns an entity-typed column into a searchable checkbox filter** (see [Entity column filtering](flextable.md#entity-column-filtering--name-search)). |
+
+**Enabling entity (foreign-key) column filtering.** Annotate a navigation property so its column filters through the FK id and sorts through a scalar:
+
+```csharp
+[Display(Name = "Customer", Order = 2)]
+[SortAndFilterOn(FilterPath = "CustomerId", SortPath = "Customer.Name")]
+public virtual Customer? Customer { get; set; }
+```
+
+`FilterPath`/`SortPath` only take effect when the host routes the `SortFilter` callback through the engine (`query.ApplyFilter(setting).ApplySort(setting)`) — the manual `GenerateWhere` loop ignores them. See [LINQ Extensions](linq-extensions.md#usage-in-sortandfilter-callback).
 
 ### ToolTipOnFieldAttribute
 

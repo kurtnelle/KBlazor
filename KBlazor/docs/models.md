@@ -54,6 +54,9 @@ public class PropertySetting
 - Numeric properties: `"lower,upper"` range
 - Bool properties: `"true"` or `"false"`
 - Enum properties: comma-separated integer values
+- Entity (foreign-key) columns: comma-separated selected `Guid` ids, chosen via the entity checkbox filter with name search. Requires `[SortAndFilterOn(FilterPath = "<FkId>")]` and routing the callback through `ApplyFilter`/`ApplySort` (see [Entity column filtering](flextable.md#entity-column-filtering--name-search)).
+
+`PropertySetting` also carries `EntitySearchText` — transient, `[JsonIgnore]` scratch state holding the entity-filter search box text. It is not persisted or shared in saved views.
 
 **Key methods:**
 - `GenerateWhere<T>(IQueryable<T>)` — applies this property's filter as a LINQ Where clause

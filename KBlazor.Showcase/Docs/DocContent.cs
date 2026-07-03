@@ -85,6 +85,7 @@ public static class DocContent
                    PageSize="10"
                    SelectionChanged="OnRowClicked"
                    SortFilter="OnSortFilter"
+                   AdditionalCommands="GetCommands"
                    RenderTemplates="@_templates" />
         """;
 
@@ -97,27 +98,25 @@ public static class DocContent
             protected override void OnInitialized()
                 => _orders = Store.Orders.AsQueryable();
 
+            // Comma-separated FontAwesome icons. Append "|Tooltip" to any
+            // command to show a hover tooltip; the tooltip text is stripped
+            // before the click handler runs.
+            private string GetCommands(PurchaseOrder order) =>
+                "fa-solid fa-eye|View,fa-solid fa-pen-to-square|Edit,fa-solid fa-trash|Delete";
+
             private void OnRowClicked(PurchaseOrder order, string command)
             {
-                // handle row click / command
+                // `command` is the icon class only (e.g. "fa-solid fa-eye").
             }
 
             private void OnSortFilter(ListViewSetting setting)
             {
-                var query = Store.Orders.AsQueryable();
-
-                foreach (var prop in setting.DisplaySettings
-                    .Where(w => !string.IsNullOrEmpty(w.Filter)))
-                    query = prop.GenerateWhere(query);
-
-                var sorted = setting.DisplaySettings
-                    .Where(w => w.SortState != SortState.None)
-                    .OrderBy(o => o.SortPriority);
-
-                foreach (var prop in sorted)
-                    query = prop.GenerateOrderBy(query);
-
-                _orders = query;
+                // Route through the engine so entity (foreign-key) columns
+                // annotated with [SortAndFilterOn(FilterPath=...)] actually
+                // filter. Non-entity columns behave exactly as before.
+                _orders = Store.Orders.AsQueryable()
+                    .ApplyFilter(setting)
+                    .ApplySort(setting);
                 StateHasChanged();
             }
         }
@@ -129,6 +128,15 @@ public static class DocContent
         The <code>SortFilter</code> callback receives a <code>ListViewSetting</code> so you can
         re-query with the user's active sort and filters applied.
         Use <code>RenderTemplates</code> to customise how specific types (like enums) render in cells.
+        Add per-row action icons with <code>AdditionalCommands</code>: return comma-separated
+        FontAwesome classes, and append <code>|Tooltip</code> to any icon to show a hover tooltip
+        &mdash; try hovering the row icons above. The click handler receives the icon class only.
+        Columns typed as a related entity (like <code>Customer (lookup)</code> above) get a
+        <strong>name-search filter</strong>: open that column's filter to search entities by name and
+        pick from the matches, even beyond the first 100 rows. Enable it with
+        <code>[SortAndFilterOn(FilterPath = "CustomerId", SortPath = "Customer.Name")]</code> and route
+        <code>SortFilter</code> through <code>ApplyFilter</code>/<code>ApplySort</code> (search is
+        case-insensitive on every provider &mdash; <code>EF.Functions.Like</code> on SQL, ordinal in-memory).
         """;
 
     // ── Kanban ──────────────────────────────────────────────────────────

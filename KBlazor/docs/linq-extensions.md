@@ -92,37 +92,42 @@ query = query.Where(propertyInfo, new Guid[] { guid1, guid2 });
 
 ## Usage in SortAndFilter Callback
 
-The most common pattern is in a `SortAndFilter` callback from FlexTable:
+**Recommended: route through `SortAndFilterEngine`.** In your FlexTable `SortFilter` callback, apply the whole `ListViewSetting` in two calls:
 
 ```csharp
 protected void SortAndFilter(ListViewSetting listViewSetting)
 {
-    // Start with base query
+    Items = db.PurchaseOrders.AsQueryable()
+        .ApplyFilter(listViewSetting)   // all active filters
+        .ApplySort(listViewSetting);    // all active sorts, by priority
+    StateHasChanged();
+}
+```
+
+`ApplyFilter` / `ApplySort` are extension methods on `IQueryable<T>` (in `KBlazor.Models.SortAndFilterEngine`). They iterate the settings for you **and honor `[SortAndFilterOn(FilterPath = ...)]` / `SortPath`** — which is required for entity/foreign-key columns to filter and sort at all (see [Entity column filtering](flextable.md#entity-column-filtering--name-search)). For a column with no `[SortAndFilterOn]`, they fall back to `GenerateWhere` / `GenerateOrderBy`, so behavior for ordinary columns is identical.
+
+**Lower-level: the manual loop.** You can call the per-property helpers directly if you need custom logic, but note this path **ignores `FilterPath`/`SortPath`**, so entity-typed columns will not filter:
+
+```csharp
+protected void SortAndFilter(ListViewSetting listViewSetting)
+{
     var query = db.PurchaseOrders.AsQueryable();
 
-    // Apply each active filter
     foreach (var prop in listViewSetting.DisplaySettings
         .Where(w => !string.IsNullOrEmpty(w.Filter)))
-    {
-        query = prop.GenerateWhere(query);
-    }
+        query = prop.GenerateWhere(query);   // scalar columns only — no FilterPath support
 
-    // Apply sorting
-    var sortedProps = listViewSetting.DisplaySettings
+    foreach (var prop in listViewSetting.DisplaySettings
         .Where(w => w.SortState != SortState.None)
-        .OrderBy(o => o.SortPriority);
-
-    foreach (var prop in sortedProps)
-    {
+        .OrderBy(o => o.SortPriority))
         query = prop.GenerateOrderBy(query);
-    }
 
     Items = query;
     StateHasChanged();
 }
 ```
 
-`PropertySetting.GenerateWhere` and `GenerateOrderBy` use these extension methods internally, so you rarely need to call them directly. But they're available if you need custom query logic beyond what the standard callbacks provide.
+`PropertySetting.GenerateWhere` and `GenerateOrderBy` use the extension methods above internally, so you rarely need to call them directly. Prefer `ApplyFilter`/`ApplySort` unless you have a specific reason not to.
 
 ## Date Extension Methods
 
