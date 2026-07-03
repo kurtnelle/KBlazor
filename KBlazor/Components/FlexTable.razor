@@ -587,11 +587,16 @@
                         <span style="white-space:nowrap;">
                             @foreach (var command in (AdditionalCommands?.Invoke(context) ?? string.Empty).Split(",", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
                             {
-                                <MudButton Variant="Variant.Text"
-                                           Size="Size.Small"
-                                           OnClick="@(e => SelectionChanged(context, command))">
-                                    <i class="@command"></i>
-                                </MudButton>
+                                var parts = command.Split('|', 2, StringSplitOptions.TrimEntries);
+                                var iconClass = parts[0];
+                                var tooltip = parts.Length > 1 ? parts[1] : string.Empty;
+                                <MudTooltip Text="@tooltip" Disabled="@string.IsNullOrEmpty(tooltip)">
+                                    <MudButton Variant="Variant.Text"
+                                               Size="Size.Small"
+                                               OnClick="@(e => SelectionChanged(context, iconClass))">
+                                        <i class="@iconClass"></i>
+                                    </MudButton>
+                                </MudTooltip>
                             }
                         </span>
                     </td>

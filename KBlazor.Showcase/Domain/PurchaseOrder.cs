@@ -1,5 +1,6 @@
 // KBlazor.Showcase/Domain/PurchaseOrder.cs
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using KBlazor.Attributes;
 using KBlazor.Models;
 using Newtonsoft.Json;
@@ -16,6 +17,7 @@ public class PurchaseOrder : IKBusinessEntity
     public string Name { get; set; } = string.Empty;
 
     [AutoComplete]
+    [ForeignKey("Customer")]
     public Guid? CustomerId { get; set; }
 
     [Display(Name = "Customer (lookup)", Order = 2)]

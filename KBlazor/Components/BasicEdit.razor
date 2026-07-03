@@ -52,6 +52,12 @@
                     {
                         isEditable = false;
                     }
+                    // Computed / getter-only properties (e.g. CustomerName => Customer?.Name) have no setter;
+                    // rendering them as editable would throw on SetValue. Force read-only.
+                    if (!p.CanWrite)
+                    {
+                        isEditable = false;
+                    }
                     bool isRequired = p.GetCustomAttribute(typeof(RequiredAttribute), false) != null;
                     bool isMemo = p.GetCustomAttribute(typeof(MemoDisplayAttribute), false) != null;
                     bool enableTime = p.GetCustomAttribute(typeof(EnableTimeAttribute), false) != null;
@@ -143,8 +149,10 @@
                     else if (EntityProvider.IsKnownEntityType(p.PropertyType))
                     {
                         var alsoInclude = (AlsoIncludeAttribute)p.PropertyType.GetCustomAttribute(typeof(AlsoIncludeAttribute));
-                        var foreginKeyName = ((ForeignKeyAttribute)p.PropertyType.GetProperty("Id").GetCustomAttribute(typeof(ForeignKeyAttribute))).Name;
-                        var f = typeof(TItem).GetProperty(foreginKeyName);
+                        // Convention A: the referenced entity's Id carries [ForeignKey("<FK property on TItem>")].
+                        // Null-safe: when Id is absent or has no [ForeignKey], fall through to Convention B below.
+                        var foreginKeyName = ((ForeignKeyAttribute)p.PropertyType.GetProperty("Id")?.GetCustomAttribute(typeof(ForeignKeyAttribute)))?.Name;
+                        var f = foreginKeyName != null ? typeof(TItem).GetProperty(foreginKeyName) : null;
                         if (f == null)
                         {
                             var alternativeKeyName = typeof(TItem)

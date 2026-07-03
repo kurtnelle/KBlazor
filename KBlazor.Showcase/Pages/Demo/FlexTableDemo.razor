@@ -71,7 +71,10 @@
         _orders = Store.Orders.AsQueryable();
     }
 
-    private string GetCommands(PurchaseOrder order) => "fa-regular fa-pen-to-square";
+    // Comma-separated FontAwesome icon classes. Append "|Tooltip" to any command
+    // to show a hover tooltip (see FlexTable's AdditionalCommands parameter).
+    private string GetCommands(PurchaseOrder order) =>
+        "fa-solid fa-eye|View,fa-solid fa-pen-to-square|Edit,fa-solid fa-copy|Duplicate,fa-solid fa-trash|Delete";
 
     private void OnRowClicked(PurchaseOrder order, string command)
     {
