@@ -1,6 +1,6 @@
 # FlexTable Component
 
-`FlexTable<TItem>` is the primary data display component. It renders entities in Table, Chip, or Kanban view modes with built-in sorting, filtering, pagination, and saved view management.
+`FlexTable<TItem>` is the primary data display component. It renders entities in Table, Chips, or Kanban view modes with built-in sorting, filtering, pagination, and saved view management.
 
 ## Basic Usage
 
@@ -78,7 +78,7 @@ protected void OnSortFilter(ListViewSetting listViewSetting)
 | `RowStyle` | `Func<TItem, string>` | `null` | CSS style per row (e.g., conditional coloring) |
 | `RowClass` | `Func<TItem, string>` | `null` | CSS class per row |
 | `SelectedItem` | `TItem` | `null` | Currently selected item (for highlighting) |
-| `DefaultViewMode` | `FlexTableViewMode` | `Table` | Initial view mode: `Table`, `Chip`, or `Kanban` |
+| `DefaultViewMode` | `FlexTableViewMode` | `Table` | Initial view mode: `Table`, `Chips`, or `Kanban` |
 
 ### Row Commands
 
@@ -132,7 +132,7 @@ private void OnRowClicked(PurchaseOrder order, string command)
 | `InlineEditor` | `string` | Property name to make editable inline. The property must have `[AllowInlineEdit]` attribute. |
 | `EditPath` | `string` | URL path for full edit navigation |
 
-### Chip View
+### Chips View
 
 | Parameter | Type | Description |
 |-----------|------|-------------|
@@ -212,14 +212,14 @@ Currently-selected entities stay pinned and visible regardless of the search tex
 ### Table (default)
 Standard data grid with sortable/filterable columns, pagination, and column management.
 
-### Chip
+### Chips
 Renders items as MudBlazor chips. Useful for compact/tag-like displays.
 
 ```razor
 <FlexTable TItem="Category"
            Items="@categories"
            Fields="Name"
-           DefaultViewMode="FlexTableViewMode.Chip"
+           DefaultViewMode="FlexTableViewMode.Chips"
            ChipDisplayField="Name"
            ChipColor="@(item => item.IsActive ? Color.Primary : Color.Default)" />
 ```

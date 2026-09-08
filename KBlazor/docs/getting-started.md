@@ -24,10 +24,10 @@ KBlazor requires these packages (pulled in transitively when you reference KBlaz
 <ProjectReference Include="..\KBlazor\KBlazor.csproj" />
 ```
 
-Or if published as a NuGet package:
+Or, from NuGet.org (https://www.nuget.org/packages/KBlazor):
 
 ```xml
-<PackageReference Include="KBlazor" Version="x.x.x" />
+<PackageReference Include="KBlazor" Version="1.0.5" />
 ```
 
 ### 2. Include KBlazor JavaScript

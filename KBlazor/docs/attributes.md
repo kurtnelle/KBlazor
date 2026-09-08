@@ -2,6 +2,23 @@
 
 KBlazor provides custom attributes in `KBlazor.Attributes` that control how model properties behave in FlexTable and BasicEdit components. Apply them alongside `[Display]` on your model properties.
 
+Some attributes are declared but not yet consumed by any component; each entry below states whether it is **Active** or **Declared only** as of version 1.0.5.
+
+| Attribute | Status | Consumed by |
+|-----------|--------|-------------|
+| `[AllowInlineEdit]` | Active | FlexTable |
+| `[AlsoInclude]` | Active | FlexTable, BasicEdit |
+| `[AutoComplete]` | Active | FlexTable, BasicEdit |
+| `[MemoDisplay]` | Active | BasicEdit |
+| `[ReadOnlyOnEdit]` | Active | BasicEdit |
+| `[SortAndFilterOn]` (`SortPath`, `FilterPath`) | Active | `SortAndFilterEngine` |
+| `[SortAndFilterOn]` (`Member`) | Declared only | — |
+| `[CasscadeLookup]` | Declared only | — |
+| `[DisplayNoWrap]` | Declared only | — |
+| `[EnableTime]` | Declared only (read by BasicEdit, no effect) | — |
+| `[LinkOnField]` | Declared only (read by FlexTable, no effect) | — |
+| `[ToolTipOnField]` | Declared only | — |
+
 ## Attribute Reference
 
 ### AllowInlineEditAttribute
@@ -21,28 +38,35 @@ Use with FlexTable's `InlineEditor` parameter:
 
 ### AlsoIncludeAttribute
 
-Tells BasicEdit to eager-load a related navigation property when resolving lookups.
+Applied to an **entity class**. When FlexTable or BasicEdit build a lookup list for that entity type, they call `IEntityLookupProvider.GetEntitiesWithInclude(type, Name)` instead of `GetEntities(type)`, so the named navigation property is eager-loaded (useful when the entity's `ToString()` depends on a related entity).
 
 ```csharp
 [AlsoInclude(Name = "Quantities")]
-public virtual ICollection<ItemQuantity> Quantities { get; set; }
+public class Item : IKBusinessEntity
+{
+    public virtual ICollection<ItemQuantity> Quantities { get; set; }
+    public override string ToString() => $"{Name} ({Quantities.Sum(q => q.OnHand)})";
+    // ...
+}
 ```
 
 **Property:** `Name` (string) — the navigation property name to include.
 
 ### AutoCompleteAttribute
 
-Renders the field as an autocomplete input in BasicEdit, with suggestions populated from `IEntityLookupProvider`.
+Applied to a navigation property whose type is a known entity. In BasicEdit the field renders as a `MudAutocomplete` (instead of a `MudSelect`) with suggestions from `IEntityLookupProvider`. In FlexTable the column's filter dialog renders an autocomplete-with-chips instead of the entity checkbox filter.
 
 ```csharp
 [Display(Name = "Item")]
 [AutoComplete]
-public string ItemCode { get; set; }
+public virtual Item? Item { get; set; }
 ```
+
+It has no effect on scalar properties such as a `Guid?` foreign key or a `string`.
 
 ### CasscadeLookupAttribute
 
-Creates a dependent/cascading dropdown in BasicEdit. The options filter based on another property's value.
+**Declared only.** Intended to create a dependent/cascading dropdown in BasicEdit whose options filter based on another property's value. No component currently reads this attribute, so applying it has no effect.
 
 ```csharp
 [Display(Name = "Sub-Category")]
@@ -54,7 +78,7 @@ public Guid? SubCategoryId { get; set; }
 
 ### DisplayNoWrapAttribute
 
-Prevents text wrapping in the FlexTable column for this property.
+**Declared only.** Intended to prevent text wrapping in the FlexTable column. FlexTable does not read it; note that every table cell already renders with `white-space:nowrap` and ellipsis overflow, so the intended behavior is the default.
 
 ```csharp
 [Display(Name = "Order Number")]
@@ -64,7 +88,7 @@ public string OrderNumber { get; set; }
 
 ### EnableTimeAttribute
 
-Enables time selection on a DateTime field in BasicEdit (default is date-only).
+**Declared only.** Intended to enable time selection on a `DateTime` field in BasicEdit. BasicEdit reads the attribute but the rendered `MudDatePicker` is still date-only.
 
 ```csharp
 [Display(Name = "Scheduled At")]
@@ -74,7 +98,7 @@ public DateTime ScheduledAt { get; set; }
 
 ### LinkOnFieldAttribute
 
-Renders the field value as a clickable link in FlexTable.
+**Declared only.** Intended to render the field value as a clickable link in FlexTable. FlexTable reads the attribute but currently renders the value as plain text.
 
 ```csharp
 [Display(Name = "Reference")]
@@ -104,19 +128,19 @@ public string ForEntity { get; set; }
 
 ### SortAndFilterOnAttribute
 
-Specifies that sorting and filtering should operate on a different member than the displayed property. Useful when the display property is computed, or when the column's type is a related entity that can't be sorted/filtered directly.
+Specifies dot-paths that `SortAndFilterEngine` uses to sort and filter a column instead of the displayed property. This is how a column whose type is a related entity becomes sortable (by a scalar) and filterable (by foreign-key id).
 
 ```csharp
-[Display(Name = "Status")]
-[SortAndFilterOn(Member = "StatusCode")]
-public string StatusDisplay { get; set; }
+[Display(Name = "Customer", Order = 2)]
+[SortAndFilterOn(FilterPath = "CustomerId", SortPath = "Customer.Name")]
+public virtual Customer? Customer { get; set; }
 ```
 
 **Properties:**
 
 | Property | Type | Description |
 |----------|------|-------------|
-| `Member` | `string` | Legacy: the actual property name to sort/filter on instead of the displayed one. |
+| `Member` | `string` | **Legacy, no effect.** Not read by any component or by `SortAndFilterEngine`; retained only so existing models keep compiling. Use `SortPath` / `FilterPath` instead. |
 | `SortPath` | `string` | Dot-path used by `SortAndFilterEngine.ApplySort` to build the `OrderBy` (e.g. `"Customer.Name"`). Use for entity/navigation columns so sorting targets a scalar instead of throwing on a complex type. |
 | `FilterPath` | `string` | Dot-path used by `SortAndFilterEngine.ApplyFilter` to build the `Where`. For a foreign-key path (e.g. `"CustomerId"`) it produces `selectedIds.Contains(o.CustomerId)`. **This is what turns an entity-typed column into a searchable checkbox filter** (see [Entity column filtering](flextable.md#entity-column-filtering--name-search)). |
 
@@ -132,7 +156,7 @@ public virtual Customer? Customer { get; set; }
 
 ### ToolTipOnFieldAttribute
 
-Displays a tooltip sourced from another property when hovering over this field in FlexTable.
+**Declared only.** Intended to display a tooltip sourced from another property when hovering over this field in FlexTable. No component currently reads this attribute. (FlexTable does show a tooltip on column headers with the column's display name, and `AdditionalCommands` supports `|Tooltip` suffixes; neither uses this attribute.)
 
 ```csharp
 [Display(Name = "Name")]

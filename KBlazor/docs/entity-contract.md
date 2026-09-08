@@ -11,14 +11,14 @@ public interface IKBusinessEntity : IEquatable<IKBusinessEntity>
     bool IsNew => Id == Guid.Empty;
     string Name { get; }
     string ToString();
-    string ToJson();
+    string ToJson() => System.Text.Json.JsonSerializer.Serialize(this);
 }
 ```
 
 - `Id` — unique identifier. Used for selection tracking, navigation, and equality.
 - `IsNew` — default implementation returns `true` when `Id == Guid.Empty`.
 - `Name` — display name used in dropdowns, chips, and autocomplete fields.
-- `ToJson()` — JSON serialization (typically via `JsonConvert.SerializeObject`).
+- `ToJson()` — JSON serialization. The interface supplies a default `System.Text.Json` implementation; override it (e.g. with `JsonConvert.SerializeObject`) if you prefer Newtonsoft.
 
 ## Implementation Pattern
 

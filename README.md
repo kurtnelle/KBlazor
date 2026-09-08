@@ -13,7 +13,7 @@ AI-ready Blazor components for data-driven applications. Built on [MudBlazor](ht
 
 | Component | Purpose |
 |-----------|---------|
-| `<FlexTable TItem="T">` | Data table with sort, filter, pagination, column resize, and Table / Card / Kanban view modes. Per-user saved views. |
+| `<FlexTable TItem="T">` | Data table with sort, filter, pagination, column resize, and Table / Chips / Kanban view modes. Per-user saved views. |
 | `<BasicEdit TItem="T">` | Auto-generated edit form built from `[Display]`, `[Editable]`, `[ReadOnlyOnEdit]`, and related attributes. |
 | `<CycleStateButton>` | Toggle button that cycles through integer states (e.g. status flows). |
 | `<RelativeDatePicker>` | Date picker that supports relative dates like "Today" or "This Week". |
@@ -23,7 +23,7 @@ AI-ready Blazor components for data-driven applications. Built on [MudBlazor](ht
 ### 1. Reference the package
 
 ```xml
-<PackageReference Include="KBlazor" Version="1.0.0" />
+<PackageReference Include="KBlazor" Version="1.0.5" />
 ```
 
 ### 2. Include the JS asset
@@ -71,7 +71,7 @@ Full guides live in [`KBlazor/docs/`](KBlazor/docs/):
 - [Getting Started](KBlazor/docs/getting-started.md) — setup, dependencies, project configuration
 - [Service Registration](KBlazor/docs/service-registration.md) — required DI interfaces
 - [Entity Contract](KBlazor/docs/entity-contract.md) — `IKBusinessEntity` interface
-- [FlexTable](KBlazor/docs/flextable.md) — table, chip, and kanban view component
+- [FlexTable](KBlazor/docs/flextable.md) — table, chips, and kanban view component
 - [BasicEdit](KBlazor/docs/basicedit.md) — auto-generated form editor
 - [Attributes](KBlazor/docs/attributes.md) — display and behavior attributes
 - [Models](KBlazor/docs/models.md) — `ListViewSetting`, `PropertySetting`, etc.

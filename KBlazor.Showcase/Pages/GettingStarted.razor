@@ -13,44 +13,15 @@
             Installation Guide
         </div>
         <h1>Get up and running</h1>
-        <p>KBlazor is hosted at <strong>kblazor.com</strong>. Follow the steps below to add it to your Blazor Server project.</p>
+        <p>KBlazor is published on <strong>NuGet.org</strong>. Follow the steps below to add it to your Blazor Server project.</p>
     </div>
 
-    <!-- ── Step 1: Add package source ────────────────────────────────── -->
+    <!-- ── Step 1: Install the package ───────────────────────────────── -->
     <div class="gs-step">
         <div class="gs-step-num">1</div>
         <div class="gs-step-body">
-            <h2>Add the NuGet package source</h2>
-            <p>KBlazor is hosted on a custom NuGet feed. Add the source to your <code>nuget.config</code> (or via the CLI):</p>
-
-            <div class="gs-tab-group">
-                <div class="gs-tab-label">nuget.config</div>
-                <pre class="gs-code lang-xml"><span class="cx">&lt;?xml version="1.0" encoding="utf-8"?&gt;</span>
-<span class="cx">&lt;configuration&gt;</span>
-<span class="cx">  &lt;packageSources&gt;</span>
-<span class="cx">    &lt;add key="nuget.org" value="https://api.nuget.org/v3/index.json" /&gt;</span>
-<span class="ck">    &lt;add key="KBlazorFeed" value="<span class="cv">https://nuget.kblazor.com/v3/index.json</span>" /&gt;</span>
-<span class="cx">  &lt;/packageSources&gt;</span>
-<span class="cx">&lt;/configuration&gt;</span></pre>
-            </div>
-
-            <div class="gs-tab-group" style="margin-top:12px;">
-                <div class="gs-tab-label">.NET CLI</div>
-                <pre class="gs-code lang-sh"><span class="ck">dotnet</span> nuget add source <span class="cv">https://nuget.kblazor.com/v3/index.json</span> --name KBlazorFeed</pre>
-            </div>
-
-            <div class="gs-callout">
-                The feed URL is <code>https://nuget.kblazor.com/v3/index.json</code> — no authentication required.
-            </div>
-        </div>
-    </div>
-
-    <!-- ── Step 2: Install the package ───────────────────────────────── -->
-    <div class="gs-step">
-        <div class="gs-step-num">2</div>
-        <div class="gs-step-body">
             <h2>Install the package</h2>
-            <p>Add <strong>KBlazor</strong> to your project using your preferred tool.</p>
+            <p>Add <strong>KBlazor</strong> from the public NuGet.org feed using your preferred tool. No custom package source is required.</p>
 
             <div class="gs-tab-group">
                 <div class="gs-tab-label">.NET CLI</div>
@@ -64,19 +35,24 @@
 
             <div class="gs-tab-group" style="margin-top:12px;">
                 <div class="gs-tab-label">PackageReference (csproj)</div>
-                <pre class="gs-code lang-xml"><span class="cx">&lt;PackageReference Include="KBlazor" Version="<span class="cv">*</span>" /&gt;</span></pre>
+                <pre class="gs-code lang-xml"><span class="cx">&lt;PackageReference Include="KBlazor" Version="<span class="cv">1.0.5</span>" /&gt;</span></pre>
+            </div>
+
+            <div class="gs-callout">
+                Package page: <a href="https://www.nuget.org/packages/KBlazor" target="_blank" rel="noopener" style="color:var(--accent);">nuget.org/packages/KBlazor</a>.
+                Source and releases are on <a href="https://github.com/kurtnelle/KBlazor" target="_blank" rel="noopener" style="color:var(--accent);">GitHub</a>.
             </div>
 
             <div class="gs-callout gs-callout--info">
-                KBlazor requires <strong>MudBlazor 8.x</strong> and <strong>.NET 8</strong> or later.
+                KBlazor requires <strong>MudBlazor 8.x</strong> and <strong>.NET 10</strong> or later.
                 If MudBlazor isn't in your project yet, it will be added automatically as a transitive dependency.
             </div>
         </div>
     </div>
 
-    <!-- ── Step 3: Register services ─────────────────────────────────── -->
+    <!-- ── Step 2: Register services ─────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">3</div>
+        <div class="gs-step-num">2</div>
         <div class="gs-step-body">
             <h2>Register services in <code>Program.cs</code></h2>
             <p>KBlazor needs three scoped services and MudBlazor's service collection.</p>
@@ -107,15 +83,15 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
                 </div>
                 <div class="gs-service-card">
                     <div class="gs-service-name">IEntityLookupProvider</div>
-                    <div class="gs-service-desc">Powers the <code>[AutoComplete]</code> attribute — returns search results for related entities.</div>
+                    <div class="gs-service-desc">Resolves related entities for lookup dropdowns, entity column filters, and <code>[AutoComplete]</code> fields.</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ── Step 4: Add imports ────────────────────────────────────────── -->
+    <!-- ── Step 3: Add imports ────────────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">4</div>
+        <div class="gs-step-num">3</div>
         <div class="gs-step-body">
             <h2>Add namespaces to <code>_Imports.razor</code></h2>
             <p>Add these usings so every component in your project can reference KBlazor types without qualification.</p>
@@ -130,32 +106,35 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 5: Decorate your model ─────────────────────────────────── -->
+    <!-- ── Step 4: Decorate your model ─────────────────────────────────── -->
     <div class="gs-step">
-        <div class="gs-step-num">5</div>
+        <div class="gs-step-num">4</div>
         <div class="gs-step-body">
             <h2>Decorate your model with attributes</h2>
-            <p>KBlazor reads <code>[Display]</code> attributes to build columns and form fields automatically. Additional attributes control editing behaviour, sorting, and rendering.</p>
+            <p>KBlazor reads <code>[Display]</code> attributes to build columns and form fields automatically. Additional attributes control editing behaviour, sorting, and rendering. Models implement <code>IKBusinessEntity</code>.</p>
 
             <div class="gs-tab-group">
                 <div class="gs-tab-label">Order.cs</div>
-                <pre class="gs-code lang-cs"><span class="ck">public class</span> <span class="cv">Order</span>
+                <pre class="gs-code lang-cs"><span class="ck">public class</span> <span class="cv">Order</span> : IKBusinessEntity
 {
+    [<span class="cv">Key</span>]
+    <span class="ck">public</span> Guid Id { <span class="ck">get</span>; <span class="ck">set</span>; }
+
     [<span class="cv">Display</span>(Name = <span class="cx">"Order #"</span>, Order = 1)]
     [<span class="cv">ReadOnlyOnEdit</span>]
     <span class="ck">public string</span> Name { <span class="ck">get</span>; <span class="ck">set</span>; }
 
-    [<span class="cv">AutoComplete</span>]
+    [<span class="cv">ForeignKey</span>(<span class="cx">"Customer"</span>)]
     <span class="ck">public</span> Guid? CustomerId { <span class="ck">get</span>; <span class="ck">set</span>; }
+
+    <span class="cx">// Entity column — filters by CustomerId, sorts by Customer.Name,</span>
+    <span class="cx">// edits with an autocomplete backed by IEntityLookupProvider</span>
+    [<span class="cv">Display</span>(Name = <span class="cx">"Customer"</span>, Order = 2)]
+    [<span class="cv">AutoComplete</span>]
+    [<span class="cv">SortAndFilterOn</span>(FilterPath = <span class="cx">"CustomerId"</span>, SortPath = <span class="cx">"Customer.Name"</span>)]
     <span class="ck">public virtual</span> Customer? Customer { <span class="ck">get</span>; <span class="ck">set</span>; }
 
-    <span class="cx">// Computed property — displays customer name, sorts on Customer.Name</span>
-    [<span class="cv">Display</span>(Name = <span class="cx">"Customer"</span>, Order = 2)]
-    [<span class="cv">SortAndFilterOn</span>(Member = <span class="cx">"Customer.Name"</span>)]
-    <span class="ck">public string</span> CustomerName =&gt; Customer?.Name ?? <span class="ck">string</span>.Empty;
-
     [<span class="cv">Display</span>(Name = <span class="cx">"Amount"</span>, Order = 3)]
-    [<span class="cv">DisplayNoWrap</span>]
     <span class="ck">public decimal</span> Amount { <span class="ck">get</span>; <span class="ck">set</span>; }
 
     [<span class="cv">Display</span>(Name = <span class="cx">"Notes"</span>, Order = 4)]
@@ -173,19 +152,29 @@ builder.Services.AddScoped&lt;<span class="cv">IEntityLookupProvider</span>, You
         </div>
     </div>
 
-    <!-- ── Step 6: Done ───────────────────────────────────────────────── -->
+    <!-- ── Step 5: Done ───────────────────────────────────────────────── -->
     <div class="gs-step gs-step--last">
         <div class="gs-step-num gs-step-num--done">✓</div>
         <div class="gs-step-body">
             <h2>You're ready</h2>
-            <p>Drop a component into any page and start building.</p>
+            <p>Drop a component into any page and start building. Route the <code>SortFilter</code> callback through <code>ApplyFilter</code> / <code>ApplySort</code> so entity columns filter and sort correctly.</p>
 
             <div class="gs-tab-group">
                 <div class="gs-tab-label">Example.razor</div>
                 <pre class="gs-code lang-cs"><span class="cx">&lt;FlexTable TItem="Order"</span>
-<span class="cx">           Items="@@orders"</span>
+<span class="cx">           Items="@@_orders"</span>
 <span class="cx">           Fields="Order #,Customer,Amount,Notes"</span>
-<span class="cx">           SortFilter="OnSortFilter" /&gt;</span></pre>
+<span class="cx">           SortFilter="OnSortFilter" /&gt;</span>
+
+<span class="ck">@@code</span> {
+    <span class="ck">private</span> IQueryable&lt;Order&gt; _orders = db.Orders.AsQueryable();
+
+    <span class="ck">private void</span> <span class="cv">OnSortFilter</span>(ListViewSetting setting)
+    {
+        _orders = db.Orders.AsQueryable().<span class="cv">ApplyFilter</span>(setting).<span class="cv">ApplySort</span>(setting);
+        StateHasChanged();
+    }
+}</pre>
             </div>
 
             <div class="gs-cta-row">

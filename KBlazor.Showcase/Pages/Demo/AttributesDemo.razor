@@ -71,37 +71,37 @@
             new[] { "FlexTable" }),
 
         new AttrInfo("[AlsoInclude]",
-            "Tells BasicEdit to eager-load a related navigation property when resolving lookups.",
-            "[AlsoInclude(Name = \"Lines\")]\npublic virtual ICollection<OrderLine> Lines { get; set; }",
-            new[] { "BasicEdit" }),
+            "Applied to an entity class. When FlexTable or BasicEdit build a lookup list for that entity, the named navigation property is eager-loaded via IEntityLookupProvider.GetEntitiesWithInclude.",
+            "[AlsoInclude(Name = \"Lines\")]\npublic class Order : IKBusinessEntity\n{\n    public virtual ICollection<OrderLine> Lines { get; set; }\n}",
+            new[] { "FlexTable", "BasicEdit" }),
 
         new AttrInfo("[AutoComplete]",
-            "Renders the field as an autocomplete input in BasicEdit, populated from IEntityLookupProvider.",
-            "[Display(Name = \"Customer\")]\n[AutoComplete]\npublic Guid? CustomerId { get; set; }",
-            new[] { "BasicEdit" }),
+            "On an entity-typed navigation property: BasicEdit renders a searchable MudAutocomplete instead of a dropdown, and the FlexTable column filter becomes an autocomplete with chips. No effect on scalar (Guid?) foreign keys.",
+            "[Display(Name = \"Customer\")]\n[AutoComplete]\npublic virtual Customer? Customer { get; set; }",
+            new[] { "FlexTable", "BasicEdit" }),
 
         new AttrInfo("[CasscadeLookup]",
-            "Creates a dependent dropdown filtered by another property's value.",
+            "Declared only — intended for a dependent dropdown filtered by another property's value. Not consumed by any component yet.",
             "[Display(Name = \"Sub-Category\")]\n[CasscadeLookup(AdditionalProperties = \"CategoryId\")]\npublic Guid? SubCategoryId { get; set; }",
-            new[] { "BasicEdit" }),
+            new[] { "Declared only" }),
 
         new AttrInfo("[DisplayNoWrap]",
-            "Prevents text wrapping in the FlexTable column for this property.",
+            "Declared only — FlexTable cells already render nowrap with ellipsis, and the attribute is not read.",
             "[Display(Name = \"Amount\")]\n[DisplayNoWrap]\npublic decimal Amount { get; set; }",
-            new[] { "FlexTable" }),
+            new[] { "Declared only" }),
 
         new AttrInfo("[EnableTime]",
-            "Enables time selection on a DateTime field in BasicEdit (default is date-only).",
+            "Declared only — BasicEdit reads it, but the date picker currently stays date-only.",
             "[Display(Name = \"Order Date\")]\n[EnableTime]\npublic DateTime OrderDate { get; set; }",
-            new[] { "BasicEdit" }),
+            new[] { "Declared only" }),
 
         new AttrInfo("[LinkOnField]",
-            "Renders the field value as a clickable link in FlexTable.",
+            "Declared only — FlexTable reads it, but the value is still rendered as plain text.",
             "[Display(Name = \"Reference\")]\n[LinkOnField]\npublic string Reference { get; set; }",
-            new[] { "FlexTable" }),
+            new[] { "Declared only" }),
 
         new AttrInfo("[MemoDisplay]",
-            "Renders the field as a multiline textarea in BasicEdit instead of a single-line input.",
+            "Renders the field in BasicEdit as an Edit button that opens a dialog with a multiline textarea.",
             "[Display(Name = \"Notes\")]\n[MemoDisplay]\npublic string Notes { get; set; }",
             new[] { "BasicEdit" }),
 
@@ -111,13 +111,13 @@
             new[] { "BasicEdit" }),
 
         new AttrInfo("[SortAndFilterOn]",
-            "Specifies that sort and filter should operate on a different member than the displayed property — essential for computed or navigation properties.",
-            "[Display(Name = \"Customer\")]\n[SortAndFilterOn(Member = \"Customer.Name\")]\npublic string CustomerName => Customer?.Name ?? string.Empty;",
+            "Gives SortAndFilterEngine dot-paths for an entity column: FilterPath (the FK id) makes it filterable via the name-search checkbox filter, SortPath makes it sortable by a scalar. Requires routing SortFilter through ApplyFilter/ApplySort. The legacy Member property is ignored.",
+            "[Display(Name = \"Customer\")]\n[SortAndFilterOn(FilterPath = \"CustomerId\", SortPath = \"Customer.Name\")]\npublic virtual Customer? Customer { get; set; }",
             new[] { "FlexTable" }),
 
         new AttrInfo("[ToolTipOnField]",
-            "Displays a tooltip sourced from another property when hovering this field in FlexTable.",
+            "Declared only — intended to show a tooltip sourced from another property. Not consumed by any component yet.",
             "[Display(Name = \"Name\")]\n[ToolTipOnField(PropertyName = \"Description\")]\npublic string Name { get; set; }",
-            new[] { "FlexTable" }),
+            new[] { "Declared only" }),
     };
 }

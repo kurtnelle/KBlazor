@@ -16,7 +16,6 @@ public class PurchaseOrder : IKBusinessEntity
     [ReadOnlyOnEdit]
     public string Name { get; set; } = string.Empty;
 
-    [AutoComplete]
     [ForeignKey("Customer")]
     public Guid? CustomerId { get; set; }
 
@@ -25,11 +24,9 @@ public class PurchaseOrder : IKBusinessEntity
     public virtual Customer? Customer { get; set; }
 
     [Display(Name = "Customer", Order = 2)]
-    [SortAndFilterOn(Member = "Customer.Name")]
     public string CustomerName => Customer?.Name ?? string.Empty;
 
     [Display(Name = "Status", Order = 3)]
-    [SortAndFilterOn(Member = "Status")]
     public OrderStatus Status { get; set; }
 
     [Display(Name = "Order Date", Order = 4)]

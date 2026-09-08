@@ -7,6 +7,7 @@ public static class DocContent
 
     public const string PurchaseOrderModel = """
         using System.ComponentModel.DataAnnotations;
+        using System.ComponentModel.DataAnnotations.Schema;
         using KBlazor.Attributes;
         using KBlazor.Models;
 
@@ -36,18 +37,16 @@ public static class DocContent
             [ReadOnlyOnEdit]
             public string Name { get; set; } = string.Empty;
 
-            // Foreign key — [AutoComplete] wires to IEntityLookupProvider
-            [AutoComplete]
+            // Foreign key — linked to the Customer navigation property below
+            [ForeignKey("Customer")]
             public Guid? CustomerId { get; set; }
             public virtual Customer? Customer { get; set; }
 
             // Computed display property — exposes the customer name
             [Display(Name = "Customer", Order = 2)]
-            [SortAndFilterOn(Member = "Customer.Name")]
             public string CustomerName => Customer?.Name ?? string.Empty;
 
             [Display(Name = "Status", Order = 3)]
-            [SortAndFilterOn(Member = "Status")]
             public OrderStatus Status { get; set; }
 
             [Display(Name = "Order Date", Order = 4)]
@@ -214,8 +213,8 @@ public static class DocContent
         Use <code>Columns="2"</code> (or 3) to lay fields out in a grid.
         The <code>Fields</code> parameter controls which fields appear and their order &mdash;
         an empty entry (<code>,,</code>) inserts a blank cell, letting you push the next field to a specific column position.
-        <code>[MemoDisplay]</code> renders a textarea. <code>[EnableTime]</code> adds a time picker.
-        <code>[AutoComplete]</code> wires to <code>IEntityLookupProvider</code>.
+        <code>[MemoDisplay]</code> renders a dialog-hosted textarea. Entity navigation properties render as a dropdown
+        populated from <code>IEntityLookupProvider</code>; add <code>[AutoComplete]</code> to make it searchable.
         <code>[ReadOnlyOnEdit]</code> locks a field on edit.
         """;
 

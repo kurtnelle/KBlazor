@@ -69,7 +69,7 @@ public class PropertySetting
 public enum FlexTableViewMode
 {
     Table = 0,
-    Chip = 1,
+    Chips = 1,
     Kanban = 2
 }
 ```

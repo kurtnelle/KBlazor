@@ -7,7 +7,7 @@ KBlazor is a reusable Razor Class Library providing data-driven UI components fo
 - [Getting Started](docs/getting-started.md) - Setup, dependencies, project configuration
 - [Service Registration](docs/service-registration.md) - Required DI interfaces and implementation guide
 - [Entity Contract](docs/entity-contract.md) - IKBusinessEntity interface your models must implement
-- [FlexTable](docs/flextable.md) - Table, Chip, and Kanban view component
+- [FlexTable](docs/flextable.md) - Table, Chips, and Kanban view component
 - [BasicEdit](docs/basicedit.md) - Auto-generated form editor component
 - [Attributes](docs/attributes.md) - Display and behavior attributes for model properties
 - [Models](docs/models.md) - ListViewSetting, PropertySetting, and related types
