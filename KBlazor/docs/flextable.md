@@ -329,10 +329,15 @@ See [Getting Started](getting-started.md) for full setup instructions.
 
 ## Injected Services
 
-FlexTable injects these automatically from DI:
-- `IListViewSettingStore` — view persistence
-- `IEntityLookupProvider` — entity resolution
-- `IFlexTableSettings` — feature flags
-- `AuthenticationStateProvider` — role checks for view management
-- `IJSRuntime` — browser interop for column resizing
-- `IHttpContextAccessor` — timezone offset from cookies
+FlexTable injects these from DI:
+- `IListViewSettingStore` — view persistence (required)
+- `IEntityLookupProvider` — entity resolution (required)
+- `IFlexTableSettings` — feature flags (required)
+- `IJSRuntime` — browser interop for column resizing, font detection, and auto-size
+
+And resolves these optionally through `IServiceProvider`, with defaults when absent:
+- `AuthenticationStateProvider` — role checks for view management; absent on WebAssembly apps without authentication
+- `IClientTimeZoneProvider` — `DateTime` display offset (default 0)
+- `ITextMeasurer` — default column widths (default: built-in estimator)
+
+Double-clicking a column header auto-sizes it to the widest visible value, measured in the browser with canvas `measureText` using the table's computed font.

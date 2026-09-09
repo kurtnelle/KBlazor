@@ -25,8 +25,9 @@ public class ListViewSetting
 **Key methods:**
 - `InitilizeDefinition()` — deserializes `Definition` JSON into `DisplaySettings` and resolves `PropertyInfo` references. Must be called after loading from the database.
 - `UpdateDefinition()` — serializes `DisplaySettings` back to `Definition` JSON. Call before saving to the database.
-- `GetDefaultProperties(fontFamily, fontSize)` — returns all `[Display]`-decorated properties for the entity type.
-- `GetDefaultProperties(fontFamily, fontSize, fields)` — returns specific fields by their display name (comma-separated).
+- `GetDefaultProperties(fontFamily, fontSizePx)` — returns all `[Display]`-decorated properties for the entity type, with widths from the built-in `EstimatingTextMeasurer`.
+- `GetDefaultProperties(fontFamily, fontSizePx, fields)` — returns specific fields by their display name (comma-separated).
+- `GetDefaultProperties(fontFamily, fontSizePx, measurer)` / `GetDefaultProperties(fontFamily, fontSizePx, fields, measurer)` — same, using a supplied `ITextMeasurer`. Font sizes are CSS pixels.
 - `Clone(newName)` — creates a copy with a new name, linked to this view as parent.
 - `ResetToParent()` — reverts to parent view's settings.
 

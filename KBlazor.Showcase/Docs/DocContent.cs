@@ -136,6 +136,7 @@ public static class DocContent
         <code>[SortAndFilterOn(FilterPath = "CustomerId", SortPath = "Customer.Name")]</code> and route
         <code>SortFilter</code> through <code>ApplyFilter</code>/<code>ApplySort</code> (search is
         case-insensitive on every provider &mdash; <code>EF.Functions.Like</code> on SQL, ordinal in-memory).
+        The same package runs on Blazor Server and Blazor WebAssembly; a WebAssembly host registers the same three services.
         """;
 
     // ── Kanban ──────────────────────────────────────────────────────────

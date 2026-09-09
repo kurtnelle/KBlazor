@@ -5,7 +5,7 @@
 [![MudBlazor](https://img.shields.io/badge/MudBlazor-8.15-594AE2)](https://mudblazor.com/)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-kblazor.com-2ea44f)](https://kblazor.com/)
 
-AI-ready Blazor components for data-driven applications. Built on [MudBlazor](https://mudblazor.com/) and Entity Framework Core, KBlazor gives you a powerful table, an auto-generated form editor, and the supporting plumbing to wire models straight into UI with attributes alone.
+AI-ready Blazor components for data-driven applications, for both **Blazor Server** and **Blazor WebAssembly**. Built on [MudBlazor](https://mudblazor.com/) and Entity Framework Core, KBlazor gives you a powerful table, an auto-generated form editor, and the supporting plumbing to wire models straight into UI with attributes alone.
 
 **Live demo:** https://kblazor.com/
 
@@ -23,12 +23,12 @@ AI-ready Blazor components for data-driven applications. Built on [MudBlazor](ht
 ### 1. Reference the package
 
 ```xml
-<PackageReference Include="KBlazor" Version="1.0.5" />
+<PackageReference Include="KBlazor" Version="1.1.0" />
 ```
 
 ### 2. Include the JS asset
 
-In `_Host.cshtml` (Server) or `index.html` (WASM):
+In `_Host.cshtml` / `App.razor` (Server) or `wwwroot/index.html` (WebAssembly):
 
 ```html
 <script src="_content/KBlazor/kblazor.js"></script>
@@ -93,6 +93,7 @@ dotnet run --project KBlazor.Showcase
 KBlazor/                  Razor Class Library (the package)
 KBlazor.Showcase/         Demo site
 KBlazor.Showcase.Tests/   Unit tests
+KBlazor.WasmSample/      Standalone WebAssembly smoke app (not published)
 docs/                     Design specs and plans
 ```
 

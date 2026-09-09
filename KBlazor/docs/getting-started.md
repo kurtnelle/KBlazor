@@ -2,7 +2,7 @@
 
 ## Overview
 
-KBlazor is a Razor Class Library targeting .NET 10+ that provides reusable, data-driven UI components for Blazor Server applications. It is built on top of MudBlazor and uses Entity Framework Core for persistence of view settings.
+KBlazor is a Razor Class Library targeting .NET 10+ that provides reusable, data-driven UI components for Blazor. It runs in both **Blazor Server** and **Blazor WebAssembly** hosts from a single package. It is built on top of MudBlazor and uses Entity Framework Core for persistence of view settings.
 
 ## Dependencies
 
@@ -11,10 +11,13 @@ KBlazor requires these packages (pulled in transitively when you reference KBlaz
 | Package | Version | Purpose |
 |---------|---------|---------|
 | MudBlazor | 8.15.0 | UI component framework |
+| Microsoft.AspNetCore.Components.Web | 10.0.12 | Blazor component model |
+| Microsoft.AspNetCore.Components.Authorization | 10.0.12 | Optional role checks for view management |
 | Microsoft.EntityFrameworkCore | 10.0.3 | ORM for view persistence |
 | Microsoft.EntityFrameworkCore.Relational | 10.0.3 | Relational DB support |
 | Newtonsoft.Json | 13.0.4 | View definition serialization |
-| System.Drawing.Common | 9.0.3 | Text measurement for column widths |
+
+KBlazor no longer references the `Microsoft.AspNetCore.App` shared framework or `System.Drawing.Common`, which is what makes WebAssembly hosting possible (1.1.0+).
 
 ## Project Setup
 
@@ -32,7 +35,13 @@ Or, from NuGet.org (https://www.nuget.org/packages/KBlazor):
 
 ### 2. Include KBlazor JavaScript
 
-FlexTable requires a JavaScript file for column resizing and font measurement. Add this script reference to your `_Host.cshtml` (Blazor Server) or `index.html` (Blazor WebAssembly):
+FlexTable requires a JavaScript file for column resizing, font measurement, and the optional browser timezone provider. Add this script reference to your host page:
+
+| Host | File |
+|------|------|
+| Blazor Server (Razor Pages host) | `Pages/_Host.cshtml` or `Pages/_Layout.cshtml` |
+| Blazor Server / Web App (.NET 8+) | `Components/App.razor` |
+| Blazor WebAssembly | `wwwroot/index.html` |
 
 ```html
 <script src="_content/KBlazor/kblazor.js"></script>
@@ -78,6 +87,13 @@ builder.Services.AddScoped<IListViewSettingStore, YourListViewSettingStore>();
 builder.Services.AddScoped<IEntityLookupProvider, YourEntityLookupProvider>();
 builder.Services.AddScoped<IFlexTableSettings, YourFlexTableSettings>();
 ```
+
+Two further services are **optional** and have built-in defaults; see [Service Registration — Optional services](service-registration.md#optional-services):
+
+- `IClientTimeZoneProvider` — display `DateTime` values in the user's local time (default: no adjustment).
+- `ITextMeasurer` — column width estimation (default: built-in estimator).
+
+`AuthenticationStateProvider` is used when present (Blazor Server registers one automatically) and skipped when absent, so WebAssembly apps without authentication work unchanged.
 
 ### 6. Implement IKBusinessEntity on Your Models
 
