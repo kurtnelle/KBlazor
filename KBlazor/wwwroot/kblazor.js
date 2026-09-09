@@ -56,3 +56,25 @@ function GetComputedFont(elementId) {
     var fontSize = computedStyle.getPropertyValue("font-size");
     return font + ", " + fontSize;
 }
+
+// ── Namespaced helpers (1.1.0+) ─────────────────────────────────────────
+// Kept separate from the legacy globals above so host pages that already
+// reference ActivateTableResize / GetComputedFont keep working.
+window.KBlazor = window.KBlazor || {};
+
+// Minutes to ADD to a UTC DateTime to get the browser's local time.
+// JS getTimezoneOffset() is local→UTC (positive west of UTC), so negate it.
+window.KBlazor.getTimezoneOffsetMinutes = function () {
+    return -new Date().getTimezoneOffset();
+};
+
+// Measure an array of strings with a canvas, in CSS pixels.
+// One call per auto-size; returns widths in the same order as `texts`.
+window.KBlazor.measureText = function (texts, fontFamily, fontSizePx) {
+    var canvas = document.createElement('canvas');
+    var ctx = canvas.getContext('2d');
+    ctx.font = fontSizePx + 'px "' + fontFamily + '"';
+    return (texts || []).map(function (t) {
+        return ctx.measureText(t == null ? '' : String(t)).width;
+    });
+};
