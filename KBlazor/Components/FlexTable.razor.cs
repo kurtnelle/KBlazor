@@ -17,7 +17,7 @@ namespace KBlazor.Components
         List<PropertySetting> defaultProperties = null;
         ListViewSetting listViewSetting;
         string fontFamily = "Helvetica Neue";
-        float fontSize = 18.288f;
+        float fontSize = 24.4f; // CSS pixels (was 18.288pt). Overwritten from GetComputedFont after first render.
 
         DotNetObjectReference<FlexTable<TItem>> dotNetObjectReference = null;
 
