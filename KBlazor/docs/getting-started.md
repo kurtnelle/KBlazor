@@ -30,7 +30,7 @@ KBlazor no longer references the `Microsoft.AspNetCore.App` shared framework or 
 Or, from NuGet.org (https://www.nuget.org/packages/KBlazor):
 
 ```xml
-<PackageReference Include="KBlazor" Version="1.0.5" />
+<PackageReference Include="KBlazor" Version="1.1.0" />
 ```
 
 ### 2. Include KBlazor JavaScript

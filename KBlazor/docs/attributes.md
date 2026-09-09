@@ -2,7 +2,7 @@
 
 KBlazor provides custom attributes in `KBlazor.Attributes` that control how model properties behave in FlexTable and BasicEdit components. Apply them alongside `[Display]` on your model properties.
 
-Some attributes are declared but not yet consumed by any component; each entry below states whether it is **Active** or **Declared only** as of version 1.0.5.
+Some attributes are declared but not yet consumed by any component; each entry below states whether it is **Active** or **Declared only** as of version 1.1.0.
 
 | Attribute | Status | Consumed by |
 |-----------|--------|-------------|

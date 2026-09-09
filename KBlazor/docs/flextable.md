@@ -319,7 +319,7 @@ Views are persisted via `IListViewSettingStore`. The `ViewName` parameter identi
 
 ## JavaScript Requirement
 
-FlexTable requires `_content/KBlazor/kblazor.js` for column resizing and font measurement. This is included as a static asset in the KBlazor package. Add to your host page:
+FlexTable requires `_content/KBlazor/kblazor.js` for column resizing, font detection, double-click auto-size, and the optional browser timezone provider. This is included as a static asset in the KBlazor package. Add to your host page:
 
 ```html
 <script src="_content/KBlazor/kblazor.js"></script>
