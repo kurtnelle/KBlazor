@@ -8,6 +8,7 @@
     <Version>1.1.0</Version>
     <Authors>Shawn K. Lewis</Authors>
     <Description>AI-ready Blazor components for Blazor Server and WebAssembly: FlexTable, BasicEdit, and RelativeDatePicker. Table, Chips, and Kanban views with zero configuration.</Description>
+    <PackageReleaseNotes>1.1.0: runs on Blazor Server and Blazor WebAssembly from one package. Removed the Microsoft.AspNetCore.App framework reference and the System.Drawing.Common dependency. Breaking: ExtensionMethods.GetTextSize(string, System.Drawing.Font) removed (use GetTextSize(string, string, float) or ITextMeasurer); IHttpContextAccessor is no longer used - the TimezoneOffset cookie is no longer read (register IClientTimeZoneProvider, e.g. BrowserTimeZoneProvider). New optional services: IClientTimeZoneProvider, ITextMeasurer. AuthenticationStateProvider is now optional. Double-click auto-size measures text in the browser.</PackageReleaseNotes>
     <PackageProjectUrl>https://kblazor.com</PackageProjectUrl>
     <PackageTags>blazor;mudblazor;flextable;kanban;components;ai-ready</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>

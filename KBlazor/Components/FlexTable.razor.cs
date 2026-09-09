@@ -335,7 +335,15 @@ namespace KBlazor.Components
                 var timeZone = Services.GetService<IClientTimeZoneProvider>();
                 if (timeZone != null)
                 {
-                    var offset = await timeZone.GetOffsetMinutesAsync();
+                    int offset;
+                    try
+                    {
+                        offset = await timeZone.GetOffsetMinutesAsync();
+                    }
+                    catch (Exception)
+                    {
+                        offset = 0; // a throwing host provider must not take down the render loop
+                    }
                     if (offset != _timezoneOffsetMinutes)
                     {
                         _timezoneOffsetMinutes = offset;

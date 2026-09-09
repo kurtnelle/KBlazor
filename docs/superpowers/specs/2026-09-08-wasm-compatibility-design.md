@@ -166,8 +166,12 @@ used wherever that constant appeared (`FlexTable.fontSize`,
 - Remove `[Inject] AuthenticationStateProvider AuthProvider`. Resolve it with
   `GetService<AuthenticationStateProvider>()` in `OnInitializedAsync`.
 - If null: `IsAdmin = false`, `UserCanUpdate = enablePersonalViews`, and
-  `currentUsername = "anonymous"` when personal views are enabled. This matches
-  the outcome of today's `catch (InvalidOperationException)` branch.
+  `currentUsername = "anonymous"` when personal views are enabled. Note this
+  differs from 1.0.5's `catch (InvalidOperationException)` branch, which forced
+  `UserCanUpdate = false`; from 1.1.0 a missing or throwing provider yields
+  `UserCanUpdate = enablePersonalViews`, so hosts with personal views enabled
+  still get the view toolbar (see the shared "anonymous" namespace note in
+  service-registration.md).
 - `OnInitialized` becomes `protected override async Task OnInitializedAsync()`
   and awaits `GetAuthenticationStateAsync()`. The `.Result` call is removed.
 - Because `LoadView` now runs after an `await`, the component can render once

@@ -17,6 +17,7 @@ public interface IFlexTableSettings
 ```
 
 - `EnablePersonalViews` — when `true`, users can create and save personal view configurations
+- Personal views are keyed by the authenticated user name. If no `AuthenticationStateProvider` is registered (typical for a WebAssembly app without authentication) or the user is unauthenticated, every user shares a single `"anonymous"` personal-view namespace. Register an authentication state provider, or leave `EnablePersonalViews` off, if views must not be shared.
 - `AdminRoles` — role names that grant full view management access (create/edit/delete shared views). FlexTable checks `authenticationState.User.IsInRole(role)` against each entry.
 
 **Example implementation (from IMIO):**
@@ -215,28 +216,45 @@ public interface IClientTimeZoneProvider
 builder.Services.AddScoped<IClientTimeZoneProvider, BrowserTimeZoneProvider>();
 ```
 
-- **Cookie-based (Blazor Server hosts that set a `TimezoneOffset` cookie):** implement it in the host, where `IHttpContextAccessor` is available:
+- **Hosts that set a `TimezoneOffset` cookie (the 1.0.x convention):** read the cookie in the browser, not on the server. FlexTable asks for the offset after its first render, which on Blazor Server runs on the SignalR circuit where `IHttpContextAccessor.HttpContext` is not reliably available (it is typically `null` there), so a server-side cookie read would silently return 0. Register a provider that reads `document.cookie` through JS interop instead:
 
 ```csharp
 using KBlazor.Services;
-using Microsoft.AspNetCore.Http;
+using Microsoft.JSInterop;
 
 public sealed class CookieTimeZoneProvider : IClientTimeZoneProvider
 {
-    private readonly IHttpContextAccessor _http;
-    public CookieTimeZoneProvider(IHttpContextAccessor http) => _http = http;
+    private readonly IJSRuntime _js;
+    public CookieTimeZoneProvider(IJSRuntime js) => _js = js;
 
-    public ValueTask<int> GetOffsetMinutesAsync()
+    public async ValueTask<int> GetOffsetMinutesAsync()
     {
-        var cookie = _http.HttpContext?.Request.Cookies["TimezoneOffset"];
-        return new ValueTask<int>(int.TryParse(cookie, out var minutes) ? minutes : 0);
+        try
+        {
+            var cookie = await _js.InvokeAsync<string>("myApp.getCookie", "TimezoneOffset");
+            return int.TryParse(cookie, out var minutes) ? minutes : 0;
+        }
+        catch (Exception) { return 0; }
     }
 }
 
 // Program.cs
-builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IClientTimeZoneProvider, CookieTimeZoneProvider>();
 ```
+
+with this helper in your host page (`_Host.cshtml`, `App.razor`, or `index.html`):
+
+```html
+<script>
+  window.myApp = window.myApp || {};
+  window.myApp.getCookie = function (name) {
+    var m = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+    return m ? decodeURIComponent(m[1]) : '';
+  };
+</script>
+```
+
+  If you do not need the cookie specifically, `BrowserTimeZoneProvider` (above) gives the same result on both hosting models with no extra script.
 
 FlexTable reads the offset once after its first render and applies it to every `DateTime` cell. It is not applied during prerendering.
 
