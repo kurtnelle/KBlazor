@@ -3,7 +3,7 @@ using KBlazor.Services;
 using KBlazor.Attributes;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.JSInterop;
 using Microsoft.AspNetCore.Components.Web;
 using System.Reflection;
@@ -16,8 +16,15 @@ namespace KBlazor.Components
         string currentListViewName = string.Empty;
         List<PropertySetting> defaultProperties = null;
         ListViewSetting listViewSetting;
+
+        // CSS font used for width estimates. Overwritten from GetComputedFont after the first render.
         string fontFamily = "Helvetica Neue";
-        float fontSize = 24.4f; // CSS pixels (was 18.288pt). Overwritten from GetComputedFont after first render.
+        float fontSize = 24.4f; // CSS pixels (was 18.288pt)
+
+        // Optional host services, resolved from DI with built-in fallbacks so the
+        // component works on Blazor Server and WebAssembly without extra registrations.
+        ITextMeasurer _measurer = EstimatingTextMeasurer.Instance;
+        int _timezoneOffsetMinutes = 0;
 
         DotNetObjectReference<FlexTable<TItem>> dotNetObjectReference = null;
 
@@ -29,9 +36,8 @@ namespace KBlazor.Components
         [Inject] IListViewSettingStore ViewStore { get; set; }
         [Inject] IEntityLookupProvider EntityProvider { get; set; }
         [Inject] IFlexTableSettings FlexSettings { get; set; }
-        [Inject] AuthenticationStateProvider AuthProvider { get; set; }
         [Inject] IJSRuntime Js { get; set; }
-        [Inject] IHttpContextAccessor HttpContextAccessor { get; set; }
+        [Inject] IServiceProvider Services { get; set; }
 
         [Parameter]
         public bool AllowSelection { get; set; } = true;
@@ -250,26 +256,43 @@ namespace KBlazor.Components
             }
         }
 
-        protected override void OnInitialized()
+        protected override async Task OnInitializedAsync()
         {
             currentViewMode = DefaultViewMode;
             ValidateKanbanConfig();
+            _measurer = Services.GetService<ITextMeasurer>() ?? EstimatingTextMeasurer.Instance;
             bool enablePersonalViews = FlexSettings.EnablePersonalViews;
 
-            try
+            // AuthenticationStateProvider is registered by default on Blazor Server but not on
+            // WebAssembly apps without authentication, so resolve it optionally. Never block on
+            // the task: WebAssembly is single-threaded and .Result would deadlock.
+            var authProvider = Services.GetService<AuthenticationStateProvider>();
+            if (authProvider != null)
             {
-                var authenticationState = AuthProvider.GetAuthenticationStateAsync().Result;
-                IsAdmin = FlexSettings.AdminRoles.Any(role => authenticationState.User.IsInRole(role));
-                UserCanUpdate = IsAdmin || enablePersonalViews;
-                if (enablePersonalViews)
+                try
                 {
-                    currentUsername = authenticationState.User.Identity?.Name ?? "anonymous";
+                    var authenticationState = await authProvider.GetAuthenticationStateAsync();
+                    IsAdmin = FlexSettings.AdminRoles.Any(role => authenticationState.User.IsInRole(role));
+                    if (enablePersonalViews)
+                    {
+                        currentUsername = authenticationState.User.Identity?.Name ?? "anonymous";
+                    }
+                }
+                catch (Exception)
+                {
+                    IsAdmin = false;
+                    if (enablePersonalViews)
+                    {
+                        currentUsername = "anonymous";
+                    }
                 }
             }
-            catch (InvalidOperationException invEx)
+            else if (enablePersonalViews)
             {
-                UserCanUpdate = false;
+                currentUsername = "anonymous";
             }
+            UserCanUpdate = IsAdmin || enablePersonalViews;
+
             dotNetObjectReference = DotNetObjectReference.Create(this);
             if (enablePersonalViews)
             {
@@ -284,13 +307,42 @@ namespace KBlazor.Components
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            await Js.InvokeVoidAsync("ActivateTableResize", dotNetObjectReference);
-            var computedFont = (await Js.InvokeAsync<string>("GetComputedFont", new object[] { "fontComputer" })).Split(',', StringSplitOptions.TrimEntries);
-            string fontFamily = computedFont[0];
-            float fontSize = float.Parse(new string(computedFont[1].ToArray().TakeWhile(w => (Char.IsDigit(w) || w == '.')).ToArray()));
+            try
+            {
+                await Js.InvokeVoidAsync("ActivateTableResize", dotNetObjectReference);
+                var computedFont = (await Js.InvokeAsync<string>("GetComputedFont", new object[] { "fontComputer" }))
+                    .Split(',', StringSplitOptions.TrimEntries);
+                if (computedFont.Length >= 2)
+                {
+                    // Assign to the fields (an earlier version declared shadowing locals here,
+                    // so the computed font never reached the width code).
+                    fontFamily = computedFont[0];
+                    var digits = new string(computedFont[1].TakeWhile(w => Char.IsDigit(w) || w == '.').ToArray());
+                    if (float.TryParse(digits, System.Globalization.NumberStyles.Float,
+                            System.Globalization.CultureInfo.InvariantCulture, out var parsedPx) && parsedPx > 0)
+                    {
+                        fontSize = parsedPx;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                // kblazor.js not loaded, or interop unavailable — keep the defaults.
+            }
 
             if (firstRender)
             {
+                var timeZone = Services.GetService<IClientTimeZoneProvider>();
+                if (timeZone != null)
+                {
+                    var offset = await timeZone.GetOffsetMinutesAsync();
+                    if (offset != _timezoneOffsetMinutes)
+                    {
+                        _timezoneOffsetMinutes = offset;
+                        StateHasChanged();
+                    }
+                }
+
                 var lastViewId = await GetLastViewId();
                 if (lastViewId != Guid.Empty && lastViewId != listViewSetting?.Id)
                 {
@@ -329,7 +381,7 @@ namespace KBlazor.Components
                     {
                         // No view exists at all — create the base default
                         listViewSetting = new ListViewSetting() { Name = ViewName, ForEntity = typeof(TItem).FullName, PageSize = 25 };
-                        listViewSetting.DisplaySettings.AddRange(listViewSetting.GetDefaultProperties(fontFamily, fontSize, Fields));
+                        listViewSetting.DisplaySettings.AddRange(listViewSetting.GetDefaultProperties(fontFamily, fontSize, Fields, _measurer));
                         listViewSetting.UpdateDefinition();
                         ViewStore.Add(listViewSetting);
                         ViewStore.SaveChanges();
@@ -340,7 +392,7 @@ namespace KBlazor.Components
                 currentViewMode = DefaultViewMode != FlexTableViewMode.Table
                     ? DefaultViewMode
                     : listViewSetting.ViewMode;
-                defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize).Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
+                defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize, _measurer).Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
                 SortAndFilter();
                 StateHasChanged();
             }
@@ -364,23 +416,43 @@ namespace KBlazor.Components
             StateHasChanged();
         }
 
-        void AutoSizeDiv(PropertySetting propertySetting)
+        /// <summary>
+        /// Double-click on a header: size the column to its widest visible value, measured
+        /// with the real computed font via canvas measureText in kblazor.js.
+        /// </summary>
+        async Task AutoSizeDiv(PropertySetting propertySetting)
         {
-            var naWidth = "N/A".GetTextSize(fontFamily, fontSize);
-            if (propertySetting.PropertyInfo.PropertyType == typeof(DateTime))
+            var values = ViewItems
+                .Select(s => propertySetting.PropertyInfo.GetValue(s))
+                .Select(v => v == null ? null
+                           : v is DateTime dt && dt == DateTime.MinValue ? "N/A"
+                           : v.ToString())
+                .ToList();
+
+            float[] widths;
+            try
             {
-                propertySetting.DisplayWidth = (int)ViewItems
-                    .Select(s => propertySetting.PropertyInfo.GetValue(s))
-                    .Select(s => (DateTime)s == DateTime.MinValue ? naWidth : s.ToString().GetTextSize(fontFamily, fontSize))
-                    .Max() - 100;
+                var texts = values.Where(t => t != null).Cast<string>().ToArray();
+                widths = await Js.InvokeAsync<float[]>("KBlazor.measureText", texts, fontFamily, fontSize);
             }
-            else
+            catch (Exception)
             {
-                propertySetting.DisplayWidth = (int)ViewItems
-                    .Select(s => propertySetting.PropertyInfo.GetValue(s))
-                    .Select(s => s != null ? s.ToString().GetTextSize(fontFamily, fontSize) : 200.0f).Max() - 100;
+                return; // kblazor.js missing or interop unavailable: leave the width unchanged
             }
+
+            float max = widths.Length > 0 ? widths.Max() : 0f;
+            if (values.Any(t => t == null))
+            {
+                max = Math.Max(max, 200f); // same floor as before for null cells
+            }
+            if (max <= 0f)
+            {
+                return;
+            }
+
+            propertySetting.DisplayWidth = Math.Max((int)max - 100, 1); // same padding rule as before, never negative
             AutoSaveView();
+            StateHasChanged();
         }
 
         protected void AutoSaveView()
@@ -555,7 +627,7 @@ namespace KBlazor.Components
             isEditViewDialogOpen = false;
             SaveLastViewId(listViewSetting.Id);
             RefreshAvailableViews();
-            defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize)
+            defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize, _measurer)
                 .Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
             RefreshView();
             StateHasChanged();
@@ -589,7 +661,7 @@ namespace KBlazor.Components
             listViewSetting.InitilizeDefinition();
             SaveLastViewId(listViewSetting.Id);
             RefreshAvailableViews();
-            defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize)
+            defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize, _measurer)
                 .Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
             RefreshView();
 
@@ -627,7 +699,7 @@ namespace KBlazor.Components
             listViewSetting.UpdateDefinition();
             ViewStore.Update(listViewSetting);
             ViewStore.SaveChanges();
-            defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize)
+            defaultProperties = listViewSetting.GetDefaultProperties(fontFamily, fontSize, _measurer)
                 .Where(w => !listViewSetting.DisplaySettings.Contains(w)).ToList();
             RefreshView();
             SortAndFilter();
