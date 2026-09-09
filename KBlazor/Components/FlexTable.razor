@@ -101,7 +101,7 @@
     }
 </style>
 <span id="fontComputer"></span>
-@if (Items != null)
+@if (Items != null && listViewSetting != null)
 {
     @if (!IsPrintView)
     {
@@ -540,11 +540,9 @@
                         var rawValue = setting.PropertyInfo.GetValue(context);
                         var renderTemplate = GetRenderTemplate(setting.PropertyInfo);
 
-                        var token = HttpContextAccessor?.HttpContext?.Request.Cookies["TimezoneOffset"];
-                        if (rawValue != null && rawValue.GetType() == typeof(DateTime) && !string.IsNullOrEmpty(token))
+                        if (rawValue is DateTime dateValue && _timezoneOffsetMinutes != 0)
                         {
-                            var offsetInMinutes = Convert.ToInt32(token);
-                            rawValue = ((DateTime)rawValue).AddMinutes(offsetInMinutes);
+                            rawValue = dateValue.AddMinutes(_timezoneOffsetMinutes);
                         }
                         else if (setting.PropertyInfo.PropertyType.IsEnum && rawValue != null && renderTemplate == null)
                         {

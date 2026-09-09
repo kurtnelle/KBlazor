@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
 using KBlazor.Attributes;
+using KBlazor.Services;
 
 namespace KBlazor.Models
 {
@@ -61,7 +61,7 @@ namespace KBlazor.Models
         {
             get
             {
-                return GetDefaultProperties("Helvetica Neue", 18.288f).ToList();
+                return GetDefaultProperties("Helvetica Neue", 24.4f).ToList();
             }
         }
 
@@ -137,7 +137,10 @@ namespace KBlazor.Models
             return Name;
         }
 
-        public List<PropertySetting> GetDefaultProperties(string fontFamily, float fontSize)
+        public List<PropertySetting> GetDefaultProperties(string fontFamily, float fontSizePx)
+            => GetDefaultProperties(fontFamily, fontSizePx, EstimatingTextMeasurer.Instance);
+
+        public List<PropertySetting> GetDefaultProperties(string fontFamily, float fontSizePx, ITextMeasurer measurer)
         {
             List<PropertySetting> list = new List<PropertySetting>();
 
@@ -151,7 +154,7 @@ namespace KBlazor.Models
             {
                 list.Add(new PropertySetting()
                 {
-                    DisplayWidth = (int)f.DisplayNameOrDefault().GetTextSize(fontFamily, fontSize),
+                    DisplayWidth = (int)measurer.MeasureWidth(f.DisplayNameOrDefault(), fontFamily, fontSizePx),
                     Id = Guid.NewGuid(),
                     Name = f.Name,
                     DisplayName = f.GetCustomAttribute<DisplayAttribute>().Name ?? f.Name,
@@ -161,7 +164,10 @@ namespace KBlazor.Models
             return list;
         }
 
-        public List<PropertySetting> GetDefaultProperties(string fontFamily, float fontSize, string fields)
+        public List<PropertySetting> GetDefaultProperties(string fontFamily, float fontSizePx, string fields)
+            => GetDefaultProperties(fontFamily, fontSizePx, fields, EstimatingTextMeasurer.Instance);
+
+        public List<PropertySetting> GetDefaultProperties(string fontFamily, float fontSizePx, string fields, ITextMeasurer measurer)
         {
             var list = new List<PropertySetting>();
 
@@ -176,7 +182,7 @@ namespace KBlazor.Models
                     var f = properties.Where(w => ((DisplayAttribute)w.GetCustomAttribute(typeof(DisplayAttribute))).Name == field).FirstOrDefault();
                     list.Add(new PropertySetting()
                     {
-                        DisplayWidth = (int)f.DisplayNameOrDefault().GetTextSize(fontFamily, fontSize),
+                        DisplayWidth = (int)measurer.MeasureWidth(f.DisplayNameOrDefault(), fontFamily, fontSizePx),
                         Id = Guid.NewGuid(),
                         Name = f.Name,
                         DisplayName = f.GetCustomAttribute<DisplayAttribute>().Name ?? f.Name,
@@ -188,7 +194,7 @@ namespace KBlazor.Models
             {
                 properties.ForEach(f => list.Add(new PropertySetting()
                 {
-                    DisplayWidth = (int)f.DisplayNameOrDefault().GetTextSize(fontFamily, fontSize),
+                    DisplayWidth = (int)measurer.MeasureWidth(f.DisplayNameOrDefault(), fontFamily, fontSizePx),
                     Id = Guid.NewGuid(),
                     Name = f.Name,
                     DisplayName = f.GetCustomAttribute<DisplayAttribute>()?.Name ?? f.Name,

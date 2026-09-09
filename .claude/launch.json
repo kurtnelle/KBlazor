@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "showcase",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "KBlazor.Showcase", "--launch-profile", "http"],
+      "port": 5166
+    },
+    {
+      "name": "wasm-sample",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "KBlazor.WasmSample", "--launch-profile", "http"],
+      "port": 5290
+    }
+  ]
+}

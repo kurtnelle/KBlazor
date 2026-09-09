@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
-using System.Drawing;
 using System.Linq;
 using System.Reflection;
+using KBlazor.Services;
 
 namespace KBlazor.Models
 {
@@ -31,18 +31,13 @@ namespace KBlazor.Models
             }
         }
 
-        public static float GetTextSize(this string source, string fontName, float fontSize)
+        /// <summary>
+        /// Approximate rendered width in CSS pixels, via <see cref="EstimatingTextMeasurer"/>.
+        /// Kept for source compatibility; prefer injecting <see cref="ITextMeasurer"/>.
+        /// </summary>
+        public static float GetTextSize(this string source, string fontName, float fontSizePx)
         {
-            Font font = new Font(fontName, fontSize);
-            return GetTextSize(source, font);
-        }
-
-        public static float GetTextSize(this string source, Font font)
-        {
-            Image fakeImage = new Bitmap(1, 1);
-            Graphics graphics = Graphics.FromImage(fakeImage);
-            SizeF size = graphics.MeasureString(source, font);
-            return size.Width;
+            return EstimatingTextMeasurer.Instance.MeasureWidth(source, fontName, fontSizePx);
         }
 
         public static bool Contains(this string s, int value)

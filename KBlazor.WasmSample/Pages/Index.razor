@@ -1,0 +1,49 @@
+@page "/"
+@inject DataStore Store
+
+<PageTitle>KBlazor WebAssembly Sample</PageTitle>
+
+<h2 id="sample-title">KBlazor on WebAssembly</h2>
+<p>Standalone Blazor WebAssembly host referencing the KBlazor package. No authentication services registered.</p>
+
+<MudPaper Elevation="1" Style="padding:8px;">
+    <FlexTable TItem="PurchaseOrder"
+               Items="@_orders"
+               Fields="Order #,Customer,Customer (lookup),Status,Amount,Order Date,Urgent"
+               ViewName="WasmSample"
+               PageSize="10"
+               SelectionChanged="OnRowClicked"
+               SortFilter="OnSortFilter"
+               SelectedItem="@_selected" />
+</MudPaper>
+
+@if (_selected != null)
+{
+    <MudPaper Elevation="1" Style="padding:8px; margin-top:16px;">
+        <BasicEdit TItem="PurchaseOrder" Item="@_selected" Columns="2"
+                   Save="@(() => StateHasChanged())"
+                   Close="@(() => { _selected = null; StateHasChanged(); })" />
+    </MudPaper>
+}
+
+@code {
+    private IQueryable<PurchaseOrder> _orders = default!;
+    private PurchaseOrder? _selected;
+
+    protected override void OnInitialized()
+    {
+        _orders = Store.Orders.AsQueryable();
+    }
+
+    private void OnRowClicked(PurchaseOrder order, string command)
+    {
+        _selected = order;
+        StateHasChanged(); // SelectionChanged is a plain Action, so the parent must request its own re-render
+    }
+
+    private void OnSortFilter(ListViewSetting setting)
+    {
+        _orders = Store.Orders.AsQueryable().ApplyFilter(setting).ApplySort(setting);
+        StateHasChanged();
+    }
+}

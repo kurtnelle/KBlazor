@@ -1,6 +1,6 @@
 # KBlazor
 
-KBlazor is a reusable Razor Class Library providing data-driven UI components for Blazor Server applications. It includes a powerful table/list component (FlexTable), auto-generated form editor (BasicEdit), and supporting infrastructure.
+KBlazor is a reusable Razor Class Library providing data-driven UI components for Blazor Server and Blazor WebAssembly applications. It includes a powerful table/list component (FlexTable), auto-generated form editor (BasicEdit), and supporting infrastructure.
 
 ## Documentation
 
@@ -15,12 +15,14 @@ KBlazor is a reusable Razor Class Library providing data-driven UI components fo
 
 ## Quick Reference
 
-**Dependencies:** MudBlazor, Entity Framework Core, Newtonsoft.Json, System.Drawing.Common
+**Dependencies:** MudBlazor, Microsoft.AspNetCore.Components.Web/Authorization, Entity Framework Core, Newtonsoft.Json
 
 **Three required service implementations:**
 1. `IFlexTableSettings` - Feature flags and role configuration
 2. `IListViewSettingStore` - Persistence for saved table views
 3. `IEntityLookupProvider` - Entity resolution for lookups
+
+**Optional services (built-in defaults):** `IClientTimeZoneProvider` (DateTime display offset), `ITextMeasurer` (default column widths).
 
 **Key components:**
 - `<FlexTable TItem="T">` - Data table with sort, filter, pagination, and multiple view modes
