@@ -194,10 +194,14 @@ used wherever that constant appeared (`FlexTable.fontSize`,
   matching the old 18.288pt. Both the estimator and `measureText` therefore
   receive the same pixel value, with no unit conversion anywhere.
 - `AutoSizeDiv(PropertySetting)` becomes `async Task`. It builds the list of
-  visible cell strings for the column (using "N/A" for `DateTime.MinValue`,
-  and a 200px floor for null values as today), calls `KBlazor.measureText`
-  with the real computed font, takes the max, subtracts 100 as today, assigns
-  `DisplayWidth`, auto-saves, and calls `StateHasChanged()`.
+  visible cell strings for the column (using "N/A" for `DateTime.MinValue`
+  and an empty string for null values), prepends the header text, calls
+  `KBlazor.measureText` once with the real computed font, takes the max, adds
+  24px (the cell's 12px horizontal padding on each side), assigns
+  `DisplayWidth`, auto-saves, and calls `StateHasChanged()`. The previous
+  "subtract 100" rule was calibrated for the old inflated GDI+ measurement and
+  collapsed columns to 1px once widths became accurate, so it was replaced
+  during implementation (decision recorded 2026-09-08).
 - The `@ondblclick` handler in `FlexTable.razor` stays `@(e => AutoSizeDiv(setting))`;
   Blazor awaits the returned `Task`.
 

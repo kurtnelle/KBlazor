@@ -417,22 +417,27 @@ namespace KBlazor.Components
         }
 
         /// <summary>
-        /// Double-click on a header: size the column to its widest visible value, measured
-        /// with the real computed font via canvas measureText in kblazor.js.
+        /// Double-click on a header: size the column to the widest visible value or the header
+        /// text, measured with the real computed font via canvas measureText in kblazor.js,
+        /// plus the cell's horizontal padding.
         /// </summary>
         async Task AutoSizeDiv(PropertySetting propertySetting)
         {
-            var values = ViewItems
+            const float CellHorizontalPadding = 24f; // 12px left + 12px right, matching .flex-table td/th padding
+
+            var cellTexts = ViewItems
                 .Select(s => propertySetting.PropertyInfo.GetValue(s))
-                .Select(v => v == null ? null
+                .Select(v => v == null ? string.Empty
                            : v is DateTime dt && dt == DateTime.MinValue ? "N/A"
-                           : v.ToString())
-                .ToList();
+                           : v.ToString() ?? string.Empty);
+
+            var texts = cellTexts
+                .Prepend(propertySetting.PropertyInfo.DisplayNameOrDefault())
+                .ToArray();
 
             float[] widths;
             try
             {
-                var texts = values.Where(t => t != null).Cast<string>().ToArray();
                 widths = await Js.InvokeAsync<float[]>("KBlazor.measureText", texts, fontFamily, fontSize);
             }
             catch (Exception)
@@ -441,16 +446,12 @@ namespace KBlazor.Components
             }
 
             float max = widths.Length > 0 ? widths.Max() : 0f;
-            if (values.Any(t => t == null))
-            {
-                max = Math.Max(max, 200f); // same floor as before for null cells
-            }
             if (max <= 0f)
             {
                 return;
             }
 
-            propertySetting.DisplayWidth = Math.Max((int)max - 100, 1); // same padding rule as before, never negative
+            propertySetting.DisplayWidth = (int)Math.Ceiling(max + CellHorizontalPadding);
             AutoSaveView();
             StateHasChanged();
         }
