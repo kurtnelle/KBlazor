@@ -38,6 +38,7 @@
     private void OnRowClicked(PurchaseOrder order, string command)
     {
         _selected = order;
+        StateHasChanged(); // SelectionChanged is a plain Action, so the parent must request its own re-render
     }
 
     private void OnSortFilter(ListViewSetting setting)
